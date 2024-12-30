@@ -32,7 +32,6 @@ export default function IndexPage() {
         breakpoint: "sm",
         collapsed: { desktop: true, mobile: !opened },
       }}
-      padding={"md"}
     >
       <HeaderMegaMenu />
 
@@ -43,7 +42,7 @@ export default function IndexPage() {
         <UnstyledButton className={classes.control}>Support</UnstyledButton>
       </AppShell.Navbar>
 
-      <AppShell.Main>
+      <AppShell.Main p={0}>
         <Container fluid p={0} m={0}>
           <div
             style={{

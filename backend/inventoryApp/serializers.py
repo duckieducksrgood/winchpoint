@@ -7,13 +7,13 @@ from botocore.exceptions import ClientError
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['__all__']
+        fields = '__all__'
 
 
 class InventorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['__all__']
+        fields = '__all__'
         
 
     def create(self, validated_data):
@@ -23,7 +23,7 @@ class InventorySerializer(serializers.ModelSerializer):
         # Handle image upload
         if image:
             bucket_name = settings.AWS_STORAGE_BUCKET_NAME
-            object_name = f"product_images/{image.name}"
+            object_name = f"products/images/{image.name}"
             presigned_url = self.create_presigned_url(bucket_name, object_name)
             if presigned_url:
                 # Upload the image to S3
@@ -39,6 +39,7 @@ class InventorySerializer(serializers.ModelSerializer):
                 except ClientError as e:
                     print(e)
                     raise serializers.ValidationError({"image": "Failed to upload image to S3."})
+            
 
         instance.save()
         return instance

@@ -4,6 +4,7 @@
   padding-right: var(--mantine-spacing-md);
   border-bottom: 1px solid
     light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
 
 .link {
@@ -13,7 +14,7 @@
   padding-left: var(--mantine-spacing-md);
   padding-right: var(--mantine-spacing-md);
   text-decoration: none;
-  color: light-dark(var(--mantine-color-black), var(--mantine-color-white));
+  color: white;
   font-weight: 500;
   font-size: var(--mantine-font-size-sm);
 
@@ -22,12 +23,12 @@
     width: 100%;
   }
 
-  @mixin hover {
+  /* @mixin hover {
     background-color: light-dark(
       var(--mantine-color-gray-0),
       var(--mantine-color-dark-6)
     );
-  }
+  } */
 }
 
 .subLink {

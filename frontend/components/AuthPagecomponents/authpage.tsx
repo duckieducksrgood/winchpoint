@@ -80,7 +80,7 @@ export default function AuthenticationImage() {
         if (response.role === "admin") {
           router.push("/admin/adminDashboard");
         } else {
-          router.push("/profile/page");
+          router.push("/");
         }
       }
     } catch (err) {

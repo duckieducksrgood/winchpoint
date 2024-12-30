@@ -12,6 +12,7 @@ class Order(models.Model):
     tracking_number = models.CharField(max_length=50, null=True)
     payment_method = models.CharField(max_length=50, null=True)
     proof_of_payment = models.ImageField(upload_to='proof_of_payment/', null=True)
+    order_delivery_address = models.TextField(null=True)
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"
@@ -35,7 +36,7 @@ class PaymentQrModel(models.Model):
 
 class Cart(models.Model):
     cartID = models.AutoField(primary_key=True)  # ID of the cart
-    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # Customer who owns the cart
+    customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, to_field="username")  # Customer who owns the cart
     date_added = models.DateTimeField(auto_now_add=True)  # Date and time the cart was created
 
     def __str__(self):

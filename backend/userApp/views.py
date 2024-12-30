@@ -169,7 +169,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             return Response({'detail': 'Invalid username or password!'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'detail': 'An error occurred', 'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-   
+
 class CustomTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         refresh_token = request.COOKIES.get('jwt_refresh_token')

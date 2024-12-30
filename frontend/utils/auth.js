@@ -136,7 +136,7 @@ export const register = async (formData) => {
 
 export const logout = async () => {
   try {
-    const response = await axios.get("logout/");
+    const response = await axios.post("logout/");
     window.location.href = "/AuthPage/page";
     return response;
   } catch (error) {
@@ -146,6 +146,7 @@ export const logout = async () => {
 };
 
 export const useUserStore = create((set) => ({
+  address: null,
   role: null,
   profilePicture: null,
   isLoading: true,
@@ -154,6 +155,7 @@ export const useUserStore = create((set) => ({
     try {
       const { data: token } = await axios.get("fetchdecodedtoken/");
       set({
+        address: token.address,
         role: token.role,
         isLoading: false,
         isError: false,
