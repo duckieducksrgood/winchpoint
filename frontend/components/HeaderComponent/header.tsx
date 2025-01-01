@@ -18,16 +18,19 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import classes from "./HeaderMegaMenu.module.css";
 import { logout, useUserStore } from "../../utils/auth";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { url } from "inspector";
 
 interface HeaderMegaMenuProps {
-  openedProp?: (value: boolean) => void; // Optional callback to send `opened` state externally
+  openedNav?: boolean;
+  setOpenedNav?: (value: boolean) => void;
 }
-
-export default function HeaderMegaMenu({ openedProp }: HeaderMegaMenuProps) {
-  const { role, profilePicture, fetchUserData, isLoading } = useUserStore();
-  const [opened, { toggle }] = useDisclosure(false);
+export default function HeaderMegaMenu({
+  openedNav,
+  setOpenedNav,
+}: HeaderMegaMenuProps) {
+  const { role, profilePicture, fetchUserData, isLoggedout } = useUserStore();
+  const [openedAbout, { toggle }] = useDisclosure(false);
   const theme = useMantineTheme();
 
   useEffect(() => {
@@ -35,11 +38,11 @@ export default function HeaderMegaMenu({ openedProp }: HeaderMegaMenuProps) {
   }, []);
 
   // Notify parent component when `opened` state changes
-  useEffect(() => {
-    if (openedProp) {
-      openedProp(opened);
-    }
-  }, [opened, openedProp]);
+  // useEffect(() => {
+  //   if (openedProp) {
+  //     openedProp(openedAbout);
+  //   }
+  // }, [openedAbout, openedProp]);
 
   return (
     <>
@@ -52,7 +55,7 @@ export default function HeaderMegaMenu({ openedProp }: HeaderMegaMenuProps) {
         }}
         pos={"sticky"}
       >
-        <Collapse in={opened} style={{ zIndex: 1000 }}>
+        <Collapse in={openedAbout} style={{ zIndex: 1000 }}>
           <Container>
             <Grid>
               <Grid.Col span={8}>
@@ -183,6 +186,12 @@ export default function HeaderMegaMenu({ openedProp }: HeaderMegaMenuProps) {
               <Title c={"white"} order={1}>
                 ㄩ 闩 Ⲍ 闩 尸
               </Title>
+              <Burger
+                onClick={() => setOpenedNav?.(!openedNav)}
+                hiddenFrom="sm"
+                size="sm"
+                color="white"
+              />
             </Group>
             <Group justify="flex-end" h="100%" gap={3} visibleFrom="sm">
               {/* pagadmimn */}
@@ -217,9 +226,10 @@ export default function HeaderMegaMenu({ openedProp }: HeaderMegaMenuProps) {
                   </Anchor>
                 </Group>
               )}
-              <Burger color="white" opened={opened} onClick={toggle} />
+
+              <Burger color="white" opened={openedAbout} onClick={toggle} />
               {/* kung nakalogin ba */}
-              {isLoading ? (
+              {isLoggedout ? (
                 <Group visibleFrom="sm">
                   <Button variant="default" component="a" href="/AuthPage/page">
                     Log in
@@ -236,6 +246,7 @@ export default function HeaderMegaMenu({ openedProp }: HeaderMegaMenuProps) {
           </Group>
         </header>
       </Box>
+      
     </>
   );
 }

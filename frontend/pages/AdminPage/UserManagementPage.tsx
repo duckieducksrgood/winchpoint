@@ -16,6 +16,7 @@ import {
 } from "@mantine/core";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import HeaderMegaMenu from "../../components/HeaderComponent/header";
+import HeaderNav from "../../components/HeaderComponent/headerNav";
 
 interface User {
   id: number;
@@ -147,10 +148,24 @@ export default function UserManagementPage() {
       </Table.Tr>
     ));
   };
+  const [openedNav, setOpenedNav] = useState(false);
 
   return (
-    <AppShell header={{ height: 60 }}>
-      <HeaderMegaMenu />
+    <AppShell
+      layout="alt"
+      header={{ height: 60 }}
+      navbar={{
+        width: 300,
+        breakpoint: "sm",
+        collapsed: { desktop: true, mobile: !openedNav },
+      }}
+    >
+      <AppShell.Header>
+        <HeaderMegaMenu openedNav={openedNav} setOpenedNav={setOpenedNav} />
+      </AppShell.Header>
+      <AppShell.Navbar py="md" px={4}>
+        <HeaderNav openedNav={openedNav} setOpenedNav={setOpenedNav} />
+      </AppShell.Navbar>
 
       <AppShell.Main bg={"#B6C4B6"}>
         <Container fluid p={20}>

@@ -78,9 +78,9 @@ export default function AuthenticationImage() {
         resetForm(); // Clear the form after successful login
 
         if (response.role === "admin") {
-          router.push("/admin/adminDashboard");
+          window.location.href = "/"; // Redirect to home page
         } else {
-          router.push("/");
+          window.location.href = "/"; // Redirect to home page
         }
       }
     } catch (err) {
@@ -91,7 +91,7 @@ export default function AuthenticationImage() {
 
   return (
     <div className={classes.wrapper}>
-      <Paper className={classes.form} radius={0} p={30} mt={50}>
+      <Paper className={classes.form} radius={0} p={30} mt={50} bg={"#B6C4B6"}>
         <Title order={2} className={classes.title} ta="center" mt="md" mb={50}>
           {isRegistering ? "Create an Account" : "Welcome back to Mantine!"}
         </Title>

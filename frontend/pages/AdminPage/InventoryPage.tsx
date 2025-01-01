@@ -21,6 +21,7 @@ import {
   Menu,
   AppShell,
   UnstyledButton,
+  Autocomplete,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
@@ -38,6 +39,7 @@ import {
   IconCalendar,
 } from "@tabler/icons-react";
 import HeaderMegaMenu from "../../components/HeaderComponent/header";
+import HeaderNav from "../../components/HeaderComponent/headerNav";
 
 interface Product {
   productID: number;
@@ -46,7 +48,8 @@ interface Product {
   price: number;
   stock: number;
   image: string;
-  category: number;
+  category: string;
+  subCategory: string;
 }
 
 interface Category {
@@ -75,8 +78,9 @@ export default function InventoryPage() {
     description: "",
     price: 0,
     stock: 0,
-    category: 0,
+    category: "",
     image: null,
+    subCategory: "",
   });
   const [newCategory, setNewCategory] = useState({
     name: "",
@@ -84,6 +88,9 @@ export default function InventoryPage() {
   });
   const [files, setFiles] = useState<File[]>([]);
   const [visible, setVisible] = useState(false);
+  const [addProductButtonDisabled, setAddProductButtonDisabled] =
+    useState(true);
+  const [openedNav, setOpenedNav] = useState(false);
 
   const {
     data: products = [],
@@ -156,9 +163,11 @@ export default function InventoryPage() {
         description: "",
         price: 0,
         stock: 0,
-        category: 0,
+        category: "",
         image: null,
+        subCategory: "",
       }); // Clear the form
+      setFiles([]); // Clear the file input
     } catch (error) {
       notifications.show({
         message: "Failed to add product",
@@ -224,9 +233,11 @@ export default function InventoryPage() {
         description: "",
         price: 0,
         stock: 0,
-        category: 0,
+        category: "",
         image: null,
+        subCategory: "",
       }); // Clear the form
+      setFiles([]); // Clear the file input
     } catch (error) {
       notifications.show({
         message: "Failed to update product",
@@ -332,6 +343,9 @@ export default function InventoryPage() {
         <Table.Td>{product.description}</Table.Td>
         <Table.Td>{product.price}</Table.Td>
         <Table.Td>{product.stock}</Table.Td>
+        <Table.Td>{product.category}</Table.Td>
+        <Table.Td>{product.subCategory}</Table.Td>
+
         <Table.Td>
           <Group>
             <Button
@@ -394,14 +408,18 @@ export default function InventoryPage() {
 
   return (
     <AppShell
+      layout="alt"
       header={{ height: 60 }}
       navbar={{
         width: 300,
         breakpoint: "sm",
-        collapsed: { desktop: true, mobile: !opened },
+        collapsed: { desktop: true, mobile: !openedNav },
       }}
     >
-      <HeaderMegaMenu />
+      <HeaderMegaMenu openedNav={openedNav} setOpenedNav={setOpenedNav} />
+      <AppShell.Navbar py="md" px={4}>
+        <HeaderNav openedNav={openedNav} setOpenedNav={setOpenedNav} />
+      </AppShell.Navbar>
 
       <AppShell.Main bg={"#B6C4B6"}>
         <Container fluid p={20}>
@@ -455,6 +473,8 @@ export default function InventoryPage() {
                   <Table.Th>Description</Table.Th>
                   <Table.Th>Price</Table.Th>
                   <Table.Th>Stock</Table.Th>
+                  <Table.Th>Category</Table.Th>
+                  <Table.Th>Sub Category</Table.Th>
                   <Table.Th>Actions</Table.Th>
                 </Table.Tr>
               </Table.Thead>
@@ -479,6 +499,7 @@ export default function InventoryPage() {
             </Table>
           </Table.ScrollContainer>
 
+          {/* add product modal */}
           <Modal
             opened={addModalOpened}
             onClose={() => setAddModalOpened(false)}
@@ -520,14 +541,29 @@ export default function InventoryPage() {
               <Select
                 label="Category"
                 data={categories.map((category) => ({
-                  value: category.categoryID.toString(),
+                  value: category.name,
                   label: category.name,
                 }))}
                 value={
                   newProduct.category ? newProduct.category.toString() : ""
                 }
+                onChange={(value) => {
+                  setNewProduct({
+                    ...newProduct,
+                    category: value || "",
+                  });
+                  setAddProductButtonDisabled(false);
+                }}
+              />
+              <Autocomplete
+                label="Sub Category"
+                data={products.map((product) => ({
+                  value: product.subCategory.toString(),
+                  label: product.subCategory,
+                }))}
+                placeholder="Select sub category or type to create a new one"
                 onChange={(value) =>
-                  setNewProduct({ ...newProduct, category: Number(value) || 0 })
+                  setNewProduct({ ...newProduct, subCategory: value })
                 }
               />
               <FileInput
@@ -535,10 +571,16 @@ export default function InventoryPage() {
                 placeholder="Upload image"
                 onChange={(file) => setFiles(file ? [file] : [])}
               />
-              <Button onClick={handleAddProduct}>Add Product</Button>
+              <Button
+                disabled={addProductButtonDisabled}
+                onClick={handleAddProduct}
+              >
+                Add Product
+              </Button>
             </Stack>
           </Modal>
 
+          {/* edit product modal */}
           <Modal
             opened={editModalOpened}
             onClose={() => setEditModalOpened(false)}
@@ -587,7 +629,7 @@ export default function InventoryPage() {
               <Select
                 label="Category"
                 data={categories.map((category) => ({
-                  value: String(category.categoryID),
+                  value: category.name,
                   label: category.name,
                 }))}
                 value={
@@ -597,19 +639,34 @@ export default function InventoryPage() {
                 }
                 onChange={(value) =>
                   setSelectedProduct((prev) =>
-                    prev ? { ...prev, category: Number(value) || 0 } : prev
+                    prev ? { ...prev, category: value || "" } : prev
+                  )
+                }
+              />
+              <Autocomplete
+                label="Sub Category"
+                data={products.map((product) => ({
+                  value: product.subCategory,
+                  label: product.subCategory,
+                }))}
+                value={selectedProduct?.subCategory || ""}
+                placeholder="Select sub category or type to create a new one"
+                onChange={(value) =>
+                  setSelectedProduct((prev) =>
+                    prev ? { ...prev, subCategory: value } : prev
                   )
                 }
               />
               <FileInput
                 label="Image"
-                placeholder="Upload image"
+                placeholder="Upload a new image"
                 onChange={(file) => setFiles(file ? [file] : [])}
               />
               <Button onClick={handleEditProduct}>Save Changes</Button>
             </Stack>
           </Modal>
 
+          {/* delete product modal */}
           <Modal
             opened={deleteModalOpened}
             onClose={() => setDeleteModalOpened(false)}
@@ -630,6 +687,7 @@ export default function InventoryPage() {
             </Group>
           </Modal>
 
+          {/* category edit modal */}
           <Modal
             opened={categoryEditModalOpened}
             onClose={() => setCategoryEditModalOpened(false)}
@@ -661,6 +719,7 @@ export default function InventoryPage() {
             </Stack>
           </Modal>
 
+          {/* category delete modal */}
           <Modal
             opened={categoryDeleteModalOpened}
             onClose={() => setCategoryDeleteModalOpened(false)}
@@ -681,6 +740,7 @@ export default function InventoryPage() {
             </Group>
           </Modal>
 
+          {/* add category modal */}
           <Modal
             opened={categoryModalOpened}
             onClose={() => setCategoryModalOpened(false)}

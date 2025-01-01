@@ -56,3 +56,18 @@
   border-top: 1px solid
     light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-5));
 }
+
+.mobileLink {
+  color: white;
+  padding: var(--mantine-spacing-md);
+  border-radius: var(--mantine-radius-sm);
+  text-decoration: none;
+  font-weight: 500;
+  display: block;
+  text-align: center;
+  transition: background-color 0.2s;
+
+  &:hover {
+    background-color: rgba(223, 216, 216, 0.1);
+  }
+}

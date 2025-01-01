@@ -53,7 +53,7 @@ class GeneratePresignedUrl(APIView):
 
 
 class InventoryCrud(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
             inventory = Product.objects.all()
             serializer = InventorySerializer(inventory, many=True)

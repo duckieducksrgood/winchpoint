@@ -149,7 +149,7 @@ export const useUserStore = create((set) => ({
   address: null,
   role: null,
   profilePicture: null,
-  isLoading: true,
+  isLoggedout: true,
   isError: false,
   fetchUserData: async () => {
     try {
@@ -157,22 +157,22 @@ export const useUserStore = create((set) => ({
       set({
         address: token.address,
         role: token.role,
-        isLoading: false,
+        isLoggedout: false,
         isError: false,
       });
     } catch (error) {
       // console.error("User data fetching error:", error);
-      // set({ isError: true, isLoading: false });
+      // set({ isError: true, isLoggedout: false });
       if (error.response && error.response.status === 401) {
         console.error("Unauthorized access - 401");
         set({
           role: null,
-          isLoading: true,
+          isLoggedout: true,
           error: "Unauthorized access - please check your credentials.",
         });
       } else {
         console.error("An unexpected error occurred:", error);
-        set({ isLoading: false });
+        set({ isLoggedout: false });
       }
     }
   },

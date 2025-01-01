@@ -19,27 +19,35 @@ import { useDisclosure } from "@mantine/hooks";
 import classes from "../components/module.css/MobileNavbar.module.css";
 import HeaderMegaMenu from "../components/HeaderComponent/header";
 import { useState } from "react";
+import { useUserStore } from "../utils/auth";
+import CartButton from "../components/CartButtonComponent/cartButton";
+import OrderButton from "../components/OrderButtonComponent/orderButton";
+import HeaderNav from "../components/HeaderComponent/headerNav";
 
 export default function IndexPage() {
   const [opened, { toggle }] = useDisclosure();
   const [menuOpen, setMenuOpen] = useState(false);
+  const { role, profilePicture, fetchUserData, isLoggedout } = useUserStore();
+
+  function handleAddToCart(productId: number, quantity: number): void {
+    console.log("Nothing to do here. Just a placeholder.");
+  }
+  const [openedNav, setOpenedNav] = useState(false);
 
   return (
     <AppShell
+      layout="alt"
       header={{ height: 60 }}
       navbar={{
         width: 300,
         breakpoint: "sm",
-        collapsed: { desktop: true, mobile: !opened },
+        collapsed: { desktop: true, mobile: !openedNav },
       }}
     >
-      <HeaderMegaMenu />
+      <HeaderMegaMenu openedNav={openedNav} setOpenedNav={setOpenedNav} />
 
       <AppShell.Navbar py="md" px={4}>
-        <UnstyledButton className={classes.control}>Home</UnstyledButton>
-        <UnstyledButton className={classes.control}>Blog</UnstyledButton>
-        <UnstyledButton className={classes.control}>Contacts</UnstyledButton>
-        <UnstyledButton className={classes.control}>Support</UnstyledButton>
+        <HeaderNav openedNav={openedNav} setOpenedNav={setOpenedNav} />
       </AppShell.Navbar>
 
       <AppShell.Main p={0}>
@@ -322,6 +330,12 @@ export default function IndexPage() {
             </Card>
           </Flex>
         </Container>
+        {isLoggedout ? null : (
+          <Stack>
+            <OrderButton />
+            <CartButton onAddToCart={handleAddToCart} />
+          </Stack>
+        )}
       </AppShell.Main>
     </AppShell>
   );

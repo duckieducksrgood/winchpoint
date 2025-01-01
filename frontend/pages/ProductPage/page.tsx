@@ -19,6 +19,7 @@ import {
   Center,
   Popover,
   NumberInput,
+  Select,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import classes from "../../components/module.css/MobileNavbar.module.css";
@@ -29,6 +30,9 @@ import axios from "../../utils/axiosInstance";
 import CartButton from "../../components/CartButtonComponent/cartButton";
 import OrderButton from "../../components/OrderButtonComponent/orderButton";
 import useSWR from "swr";
+import HeaderNav from "../../components/HeaderComponent/headerNav";
+import { useUserStore } from "../../utils/auth";
+
 interface Product {
   productID: number;
   name: string;
@@ -36,14 +40,16 @@ interface Product {
   price: number;
   stock: number;
   image: string;
-  category: number;
+  category: string;
   onSale: boolean;
   salePrice: number;
+  subCategory: string;
 }
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 export default function ProductPage() {
+  const { isLoggedout } = useUserStore();
   const { data: products = [], error } = useSWR<Product[]>(
     "inventory/",
     fetcher
@@ -53,6 +59,13 @@ export default function ProductPage() {
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [popoverOpened, setPopoverOpened] = useState<number | null>(null);
+  const [selectedMerchSubcategory, setSelectedMerchSubcategory] = useState<
+    string | null
+  >(null);
+  const [selectedPartsSubcategory, setSelectedPartsSubcategory] = useState<
+    string | null
+  >(null);
+  const [openedNav, setOpenedNav] = useState(false);
 
   const handleAddToCart = async (productId: number, quantity: number = 1) => {
     setLoading(true);
@@ -78,22 +91,52 @@ export default function ProductPage() {
     }
   };
 
+  // Filter products by category and subcategory
+  const merchProducts = products.filter(
+    (product) =>
+      product.category === "UAZAP Merch" &&
+      (!selectedMerchSubcategory ||
+        product.subCategory === selectedMerchSubcategory)
+  );
+
+  const carPartsProducts = products.filter(
+    (product) =>
+      product.category === "UAZAP Car Parts" &&
+      (!selectedPartsSubcategory ||
+        product.subCategory === selectedPartsSubcategory)
+  );
+
+  // Get unique subcategories
+  const merchSubcategories = Array.from(
+    new Set(
+      products
+        .filter((product) => product.category === "UAZAP Merch")
+        .map((product) => product.subCategory)
+    )
+  ).filter(Boolean);
+
+  const partsSubcategories = Array.from(
+    new Set(
+      products
+        .filter((product) => product.category === "UAZAP Car Parts")
+        .map((product) => product.subCategory)
+    )
+  ).filter(Boolean);
+
   return (
     <AppShell
+      layout="alt"
       header={{ height: 60 }}
       navbar={{
         width: 300,
         breakpoint: "sm",
-        collapsed: { desktop: true, mobile: !opened },
+        collapsed: { desktop: true, mobile: !openedNav },
       }}
     >
-      <HeaderMegaMenu />
+      <HeaderMegaMenu openedNav={openedNav} setOpenedNav={setOpenedNav} />
 
       <AppShell.Navbar py="md" px={4}>
-        <UnstyledButton className={classes.control}>Home</UnstyledButton>
-        <UnstyledButton className={classes.control}>Blog</UnstyledButton>
-        <UnstyledButton className={classes.control}>Contacts</UnstyledButton>
-        <UnstyledButton className={classes.control}>Support</UnstyledButton>
+        <HeaderNav openedNav={openedNav} setOpenedNav={setOpenedNav} />
       </AppShell.Navbar>
 
       <AppShell.Main bg={"#B6C4B6"}>
@@ -121,6 +164,22 @@ export default function ProductPage() {
             >
               𝗨𝗔𝗭𝗔𝗣 𝗠𝗘𝗥𝗖𝗛
             </Title>
+
+            <Center>
+              <Select
+                label="Filter by Subcategory"
+                placeholder="Select subcategory"
+                data={merchSubcategories.map((sub) => ({
+                  value: sub,
+                  label: sub,
+                }))}
+                value={selectedMerchSubcategory}
+                onChange={setSelectedMerchSubcategory}
+                clearable
+                style={{ width: 200 }}
+              />
+            </Center>
+
             <ScrollArea type="scroll" scrollbarSize={12} offsetScrollbars>
               <Box
                 p={100}
@@ -137,7 +196,7 @@ export default function ProductPage() {
                     gap: "10px",
                   }}
                 >
-                  {products.map((product) => (
+                  {merchProducts.map((product) => (
                     <Card
                       shadow="sm"
                       padding="lg"
@@ -272,6 +331,22 @@ export default function ProductPage() {
             >
               Car Care Products
             </Title>
+
+            <Center>
+              <Select
+                label="Filter by Subcategory"
+                placeholder="Select subcategory"
+                data={partsSubcategories.map((sub) => ({
+                  value: sub,
+                  label: sub,
+                }))}
+                value={selectedPartsSubcategory}
+                onChange={setSelectedPartsSubcategory}
+                clearable
+                style={{ width: 200 }}
+              />
+            </Center>
+
             <ScrollArea type="scroll" scrollbarSize={12} offsetScrollbars>
               <Box
                 p={100}
@@ -288,7 +363,7 @@ export default function ProductPage() {
                     gap: "10px",
                   }}
                 >
-                  {products.map((product) => (
+                  {carPartsProducts.map((product) => (
                     <Card
                       shadow="sm"
                       padding="lg"
@@ -411,10 +486,12 @@ export default function ProductPage() {
           </Stack>
         </Container>
 
-        <Stack>
-          <OrderButton />
-          <CartButton onAddToCart={handleAddToCart} />
-        </Stack>
+        {isLoggedout ? null : (
+                  <Stack>
+                    <OrderButton />
+                    <CartButton onAddToCart={handleAddToCart} />
+                  </Stack>
+                )}
       </AppShell.Main>
     </AppShell>
   );
