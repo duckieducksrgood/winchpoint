@@ -9,7 +9,9 @@ import datetime
 import jwt
 from rest_framework.exceptions import AuthenticationFailed 
 from rest_framework.permissions import IsAuthenticated
+from django.core.mail import send_mail
 from django.conf import settings
+import random
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -67,6 +69,66 @@ class UserProfileView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+class SendResetCodeView(APIView):
+    def post(self, request, format=None):
+        email = request.data.get('email')
+        if not email:
+            return Response({'message': 'Email is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        reset_code = random.randint(1000, 9999)
+        user.reset_code = reset_code
+        user.save()
+        
+        send_mail(
+            'Password Reset Code',
+            f'Your password reset code is {reset_code}',
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+            fail_silently=False,
+        )
+        
+        return Response({'message': 'Reset code sent to email'}, status=status.HTTP_200_OK)
+
+class VerifyResetCodeView(APIView):
+    def post(self, request, format=None):
+        email = request.data.get('email')
+        reset_code = request.data.get('reset_code')
+        
+        if not email or not reset_code:
+            return Response({'message': 'Email and reset code are required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(email=email, reset_code=reset_code)
+        except User.DoesNotExist:
+            return Response({'message': 'Invalid reset code'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response({'message': 'Reset code verified'}, status=status.HTTP_200_OK)
+
+class ResetPasswordView(APIView):
+    def post(self, request, format=None):
+        email = request.data.get('email')
+        new_password = request.data.get('new_password')
+        
+        if not email or not new_password:
+            return Response({'message': 'Email and new password are required'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        user.set_password(new_password)
+        user.reset_code = None
+        user.save()
+        
+        return Response({'message': 'Password reset successful'}, status=status.HTTP_200_OK)
+    
 class UpdateAllUsersView(APIView):
     # permission_classes = [IsAuthenticated]
     def get(self, request, format=None):
@@ -160,15 +222,15 @@ class CustomTokenObtainPairView(TokenObtainPairView):
             return response
 
         except User.DoesNotExist:
-            return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         except jwt.ExpiredSignatureError:
-            return Response({'detail': 'Token has expired'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'message': 'Token has expired'}, status=status.HTTP_401_UNAUTHORIZED)
         except jwt.InvalidTokenError:
-            return Response({'detail': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'message': 'Invalid token'}, status=status.HTTP_401_UNAUTHORIZED)
         except AuthenticationFailed as e:
-            return Response({'detail': 'Invalid username or password!'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Invalid username or password!'}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            return Response({'detail': 'An error occurred', 'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'An error occurred', 'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class CustomTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):

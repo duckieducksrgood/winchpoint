@@ -125,6 +125,8 @@ export default function IndexPage() {
                 fullWidth
                 mt="md"
                 radius="md"
+                component="a"
+                href="https://www.youtube.com/watch?v=3GwQ2rXD1aI"
               >
                 Watch Now
               </Button>
@@ -158,6 +160,8 @@ export default function IndexPage() {
                 fullWidth
                 mt="md"
                 radius="md"
+                component="a"
+                href="https://www.youtube.com/watch?v=-83OdoaUVPo"
               >
                 Watch Now
               </Button>
@@ -191,6 +195,8 @@ export default function IndexPage() {
                 fullWidth
                 mt="md"
                 radius="md"
+                component="a"
+                href="https://www.youtube.com/watch?v=vO3kZWoGvWo&t=64s"
               >
                 Watch Now
               </Button>
@@ -253,6 +259,8 @@ export default function IndexPage() {
                 fullWidth
                 mt="md"
                 radius="md"
+                component="a"
+                href="https://www.youtube.com/watch?v=bQwWBingo00"
               >
                 Watch Now
               </Button>
@@ -288,6 +296,8 @@ export default function IndexPage() {
                 fullWidth
                 mt="md"
                 radius="md"
+                component="a"
+                href="https://www.youtube.com/watch?v=DfAARf8OZiM"
               >
                 Watch Now
               </Button>
@@ -324,6 +334,8 @@ export default function IndexPage() {
                 fullWidth
                 mt="md"
                 radius="md"
+                component="a"
+                href="https://www.youtube.com/watch?v=a24DKf4LkSU"
               >
                 Watch Now
               </Button>

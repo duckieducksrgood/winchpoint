@@ -11,6 +11,7 @@ from django.contrib.auth import get_user_model
 from inventoryApp.models import Product
 import boto3
 from botocore.exceptions import ClientError
+from django.core.mail import send_mail
 
 # Create your views here.
 User = get_user_model()
@@ -177,6 +178,11 @@ class OrderCrud(APIView):
                     price=item.product.price
                 )
                 item.delete()
+            
+            # Reduce stock based on order items
+            for item in order.items.all():
+                item.product.stock -= item.quantity
+                item.product.save()
 
             return Response({
                 'message': 'Order created successfully',
@@ -210,22 +216,69 @@ class OrderCrud(APIView):
 
         order_id = request.data.get('order_id')
         if not order_id:
-            return Response({'error': 'Order ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({'error': 'Order ID is required'}, status=status.HTTP_400_BAD_REQUEST)
 
         if role == 'admin':
-            order = get_object_or_404(Order, id=order_id)
+                order = get_object_or_404(Order, id=order_id)
         else:
-            user = get_object_or_404(User, username=username)
-            order = get_object_or_404(Order, id=order_id, customer=user)
+                user = get_object_or_404(User, username=username)
+                order = get_object_or_404(Order, id=order_id, customer=user)
+            
+        old_status = order.status
+        old_tracking = order.tracking_number
+            
         order.status = request.data.get('status', order.status)
-        order.tracking_number = request.data.get('tracking_number', order.tracking_number)
+        order.tracking_number = request.data.get('tracking_number', order.tracking_number)            
         order.payment_method = request.data.get('payment_method', order.payment_method)
         order.proof_of_payment = request.data.get('proof_of_payment', order.proof_of_payment)
-        
-        order.save()
+            
+            # Handle status change notifications
+        if order.status != old_status:
+                status_messages = {
+                    'Pending': 'Your order is now being processed.',
+                    'Completed': 'Your order has been completed and is on its way!',
+                    'Cancelled': 'Your order has been cancelled. Any payments will be refunded.'
+                }
+                
+                send_mail(
+                    f'Order #{order.id} Status Update',
+                    f'Dear Customer,\n\n{status_messages.get(order.status, "Your order status has been updated.")}\n\nOrder ID: {order.id}\nNew Status: {order.status}',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [order.customer.email],
+                    fail_silently=True,
+                )
 
+            # Handle tracking number updates
+        if order.tracking_number and order.tracking_number != old_tracking:
+                send_mail(
+                    f'Tracking Number Updated for Order #{order.id}',
+                    f'Dear Customer,\n\nYour order tracking number has been updated.\n\nOrder ID: {order.id}\nTracking Number: {order.tracking_number}',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [order.customer.email],
+                    fail_silently=True,
+                )
+
+            # Handle cancellation and stock updates
+        if order.status == 'Cancelled':
+                items_info = []
+                for item in order.items.all():
+                    item.product.stock += item.quantity
+                    item.product.save()
+                    items_info.append(f"- {item.quantity}x {item.product.name}")
+                
+                send_mail(
+                    f'Order #{order.id} Cancelled',
+                    f'Dear Customer,\n\nYour order has been cancelled. The following items have been returned to stock:\n\n{"\n".join(items_info)}\n\nIf you have any questions, please contact our support team.',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [order.customer.email],
+                    fail_silently=True,
+                )
+            
+        order.save()
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+        
 
     def delete(self, request, format=None):
         access_token = request.COOKIES.get('jwt_access_token')

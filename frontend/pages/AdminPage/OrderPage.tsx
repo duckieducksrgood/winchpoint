@@ -18,11 +18,18 @@ import {
   SimpleGrid,
   Menu,
   Text,
+  Tabs,
 } from "@mantine/core";
-import { IconEdit, IconTrash, IconCheck, IconX } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconTrash,
+  IconCheck,
+  IconX,
+  IconSearch,
+} from "@tabler/icons-react";
 import dayjs from "dayjs";
 import HeaderMegaMenu from "../../components/HeaderComponent/header";
-import { decodeToken, useUserStore } from "../../utils/auth";
+import withRoleProtection, { decodeToken, useUserStore } from "../../utils/auth";
 import HeaderNav from "../../components/HeaderComponent/headerNav";
 
 interface Order {
@@ -53,7 +60,7 @@ interface QRModel {
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
-export default function OrderManagementPage() {
+const OrderManagementPage = () => {
   const {
     data: orders = [],
     error,
@@ -71,6 +78,11 @@ export default function OrderManagementPage() {
   const [orderDetailsModalOpen, setOrderDetailsModalOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [qrType, setQrType] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState<string | null>(
+    null
+  );
+  const [statusFilter, setStatusFilter] = useState<string | null>("Pending");
 
   if (error) {
     notifications.show({
@@ -229,7 +241,17 @@ export default function OrderManagementPage() {
     }
   };
 
-  const rows = orders.map((order) => (
+  const filteredOrders = orders.filter((order) => {
+    return (
+      (statusFilter ? order.status === statusFilter : true) &&
+      (searchTerm ? order.customer.toString().includes(searchTerm) : true) &&
+      (paymentMethodFilter
+        ? order.payment_method === paymentMethodFilter
+        : true)
+    );
+  });
+
+  const rows = filteredOrders.map((order) => (
     <Table.Tr key={order.id} onClick={() => handleRowClick(order.id)}>
       <Table.Td>{order.id}</Table.Td>
       <Table.Td>{order.customer}</Table.Td>
@@ -263,8 +285,7 @@ export default function OrderManagementPage() {
     </Table.Tr>
   ));
 
-    const [openedNav, setOpenedNav] = useState(false);
-
+  const [openedNav, setOpenedNav] = useState(false);
 
   return (
     <AppShell
@@ -287,23 +308,103 @@ export default function OrderManagementPage() {
             <Text size="lg" w={500}>
               Orders
             </Text>
-            <Table striped highlightOnHover withTableBorder withColumnBorders>
-              <Table.Thead>
-                <Table.Tr>
-                  <Table.Th>ID</Table.Th>
-                  <Table.Th>CustomerID</Table.Th>
-                  <Table.Th>Status</Table.Th>
-                  <Table.Th>Created At</Table.Th>
-                  <Table.Th>Total Price</Table.Th>
-                  <Table.Th>Payment Method</Table.Th>
-                  <Table.Th>Paid</Table.Th>
-                  <Table.Th>Tracking Number</Table.Th>
-                  <Table.Th>Special Instructions</Table.Th>
-                  <Table.Th>Actions</Table.Th>
-                </Table.Tr>
-              </Table.Thead>
-              <Table.Tbody>{rows}</Table.Tbody>
-            </Table>
+            <Group mb="md">
+              <TextInput
+                placeholder="Search by Customer ID"
+                leftSection={<IconSearch size={16} />}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.currentTarget.value)}
+              />
+              <Select
+                placeholder="Filter by Payment Method"
+                data={qrCodes.map((qr) => ({
+                  value: qr.type,
+                  label: qr.type,
+                }))}
+                value={paymentMethodFilter}
+                onChange={setPaymentMethodFilter}
+                clearable
+              />
+            </Group>
+            <Tabs value={statusFilter} onChange={setStatusFilter}>
+              <Tabs.List>
+                <Tabs.Tab value="Pending">Pending</Tabs.Tab>
+                <Tabs.Tab value="Completed">Completed</Tabs.Tab>
+                <Tabs.Tab value="Cancelled">Cancelled</Tabs.Tab>
+              </Tabs.List>
+              <Tabs.Panel value="Pending">
+                <Table
+                  striped
+                  highlightOnHover
+                  withTableBorder
+                  withColumnBorders
+                >
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>ID</Table.Th>
+                      <Table.Th>CustomerID</Table.Th>
+                      <Table.Th>Status</Table.Th>
+                      <Table.Th>Created At</Table.Th>
+                      <Table.Th>Total Price</Table.Th>
+                      <Table.Th>Payment Method</Table.Th>
+                      <Table.Th>Paid</Table.Th>
+                      <Table.Th>Tracking Number</Table.Th>
+                      <Table.Th>Special Instructions</Table.Th>
+                      <Table.Th>Actions</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>{rows}</Table.Tbody>
+                </Table>
+              </Tabs.Panel>
+              <Tabs.Panel value="Completed">
+                <Table
+                  striped
+                  highlightOnHover
+                  withTableBorder
+                  withColumnBorders
+                >
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>ID</Table.Th>
+                      <Table.Th>CustomerID</Table.Th>
+                      <Table.Th>Status</Table.Th>
+                      <Table.Th>Created At</Table.Th>
+                      <Table.Th>Total Price</Table.Th>
+                      <Table.Th>Payment Method</Table.Th>
+                      <Table.Th>Paid</Table.Th>
+                      <Table.Th>Tracking Number</Table.Th>
+                      <Table.Th>Special Instructions</Table.Th>
+                      <Table.Th>Actions</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>{rows}</Table.Tbody>
+                </Table>
+              </Tabs.Panel>
+              <Tabs.Panel value="Cancelled">
+                <Table
+                  striped
+                  highlightOnHover
+                  withTableBorder
+                  withColumnBorders
+                >
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>ID</Table.Th>
+                      <Table.Th>CustomerID</Table.Th>
+                      <Table.Th>Status</Table.Th>
+                      <Table.Th>Created At</Table.Th>
+                      <Table.Th>Total Price</Table.Th>
+                      <Table.Th>Payment Method</Table.Th>
+                      <Table.Th>Paid</Table.Th>
+                      <Table.Th>Tracking Number</Table.Th>
+                      <Table.Th>Special Instructions</Table.Th>
+                      <Table.Th>Actions</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>{rows}</Table.Tbody>
+                </Table>
+              </Tabs.Panel>
+            </Tabs>
           </SimpleGrid>
 
           <Modal
@@ -459,3 +560,4 @@ export default function OrderManagementPage() {
     </AppShell>
   );
 }
+export default withRoleProtection(OrderManagementPage, ["admin"]);

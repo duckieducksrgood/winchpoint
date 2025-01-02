@@ -17,6 +17,7 @@ import {
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import HeaderMegaMenu from "../../components/HeaderComponent/header";
 import HeaderNav from "../../components/HeaderComponent/headerNav";
+import withRoleProtection from "../../utils/auth";
 
 interface User {
   id: number;
@@ -30,7 +31,7 @@ interface User {
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
-export default function UserManagementPage() {
+const UserManagementPage = () => {
   const { data: users = [], error, mutate } = useSWR<User[]>("users/", fetcher);
   const [addModalOpened, setAddModalOpened] = useState(false);
   const [editModalOpened, setEditModalOpened] = useState(false);
@@ -345,4 +346,5 @@ export default function UserManagementPage() {
       </AppShell.Main>
     </AppShell>
   );
-}
+};
+export default withRoleProtection(UserManagementPage, ["admin"]);

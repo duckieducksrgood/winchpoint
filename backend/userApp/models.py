@@ -1,4 +1,3 @@
-# users/models.py
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -16,8 +15,8 @@ class User(AbstractUser):
         ],
         default='customer'  # Default role is customer
     )
-    # profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True, default='/images/default.png')  # Profile picture of the user
     delivery_address = models.TextField(null=True, blank=True)  # Delivery address of the user
+    reset_code = models.CharField(max_length=6, null=True, blank=True)  # Reset code for password reset
 
     USERNAME_FIELD = 'username'  # Username is the unique identifier
     REQUIRED_FIELDS = ['email']  # Email is required for creating a user

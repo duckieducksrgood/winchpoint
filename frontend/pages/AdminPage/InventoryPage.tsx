@@ -40,6 +40,7 @@ import {
 } from "@tabler/icons-react";
 import HeaderMegaMenu from "../../components/HeaderComponent/header";
 import HeaderNav from "../../components/HeaderComponent/headerNav";
+import withRoleProtection from "../../utils/auth";
 
 interface Product {
   productID: number;
@@ -60,7 +61,7 @@ interface Category {
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
-export default function InventoryPage() {
+const InventoryPage = () => {
   const [opened, { open, close }] = useDisclosure(false);
   const [editModalOpened, setEditModalOpened] = useState(false);
   const [addModalOpened, setAddModalOpened] = useState(false);
@@ -557,9 +558,13 @@ export default function InventoryPage() {
               />
               <Autocomplete
                 label="Sub Category"
-                data={products.map((product) => ({
-                  value: product.subCategory.toString(),
-                  label: product.subCategory,
+                data={[
+                  ...Array.from(
+                    new Set(products.map((product) => product.subCategory))
+                  ),
+                ].map((subCategory) => ({
+                  value: subCategory,
+                  label: subCategory,
                 }))}
                 placeholder="Select sub category or type to create a new one"
                 onChange={(value) =>
@@ -645,9 +650,11 @@ export default function InventoryPage() {
               />
               <Autocomplete
                 label="Sub Category"
-                data={products.map((product) => ({
-                  value: product.subCategory,
-                  label: product.subCategory,
+                data={Array.from(
+                  new Set(products.map((product) => product.subCategory))
+                ).map((subCategory) => ({
+                  value: subCategory,
+                  label: subCategory,
                 }))}
                 value={selectedProduct?.subCategory || ""}
                 placeholder="Select sub category or type to create a new one"
@@ -775,4 +782,6 @@ export default function InventoryPage() {
       </AppShell.Main>
     </AppShell>
   );
-}
+};
+
+export default withRoleProtection(InventoryPage, ["admin"]);

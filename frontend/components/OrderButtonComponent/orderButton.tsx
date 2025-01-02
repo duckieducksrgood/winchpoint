@@ -10,6 +10,7 @@ import {
   Tabs,
   Table,
   rem,
+  Tooltip,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useState } from "react";
@@ -66,7 +67,7 @@ export function OrderButton() {
     data: orders = [],
     error,
     mutate,
-  } = useSWR<IOrder[]>("orders/", fetcher);
+  } = useSWR<IOrder[]>("orders/", fetcher, { refreshInterval: 1000 });
 
   if (error) {
     notifications.show({
@@ -78,7 +79,9 @@ export function OrderButton() {
 
   const handleCancelOrder = async (orderId: number) => {
     try {
-      await axios.delete(`orders/`, { data: { order_id: orderId, status:'Cancelled' } });
+      await axios.delete(`orders/`, {
+        data: { order_id: orderId, status: "Cancelled" },
+      });
       notifications.show({
         title: "Success",
         message: "Order cancelled",
@@ -121,19 +124,37 @@ export function OrderButton() {
           )}
         </Table.Td>
         <Table.Td>{order.order_delivery_address}</Table.Td>
+        <Table.Td>
+          {order.tracking_number ? (
+            order.tracking_number
+          ) : order.status === "Cancelled" ? (
+            <Text>Cancelled</Text>
+          ) : (
+            <Tooltip label="Wait for admin and check email">
+              <Text>Pending</Text>
+            </Tooltip>
+          )}
+        </Table.Td>
         {showActions && (
           <Table.Td>
-            {order.status === "Pending" && (
-              <Button
-                color="red"
-                onClick={() => {
-                  setOrderToCancel(order.id);
-                  setCancelModalOpened(true);
-                }}
-              >
-                Cancel
-              </Button>
-            )}
+            {order.status === "Pending" &&
+              (order.tracking_number ? (
+                <Tooltip label="Cannot cancel, tracking number assigned">
+                  <Text>Tracking Assigned</Text>
+                </Tooltip>
+              ) : (
+                <Tooltip label="Wait for admin to verify payment or cancel">
+                  <Button
+                    color="red"
+                    onClick={() => {
+                      setOrderToCancel(order.id);
+                      setCancelModalOpened(true);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </Tooltip>
+              ))}
           </Table.Td>
         )}
       </Table.Tr>
@@ -149,6 +170,7 @@ export function OrderButton() {
       <Table.Th>Payment Method</Table.Th>
       <Table.Th>Paid</Table.Th>
       <Table.Th>Delivery Address</Table.Th>
+      <Table.Th>Tracking Number</Table.Th>
       {showActions && <Table.Th>Action</Table.Th>}
     </Table.Tr>
   );

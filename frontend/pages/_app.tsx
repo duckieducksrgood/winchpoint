@@ -5,6 +5,8 @@ import Head from "next/head";
 import { MantineProvider } from "@mantine/core";
 import { theme } from "../theme";
 import { useEffect } from "react";
+import "@mantine/notifications/styles.css";
+import { Notifications } from "@mantine/notifications";
 
 export default function App({ Component, pageProps }: any) {
   useEffect(() => {
@@ -17,6 +19,7 @@ export default function App({ Component, pageProps }: any) {
   }, []);
   return (
     <MantineProvider theme={theme}>
+      <Notifications />
       <Head>
         <title>Mantine Template</title>
         <meta

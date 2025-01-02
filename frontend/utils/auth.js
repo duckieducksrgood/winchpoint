@@ -110,9 +110,9 @@ export const login = async (username, password) => {
     const role = token.role;
     return { ...response.data, role };
   } catch (error) {
+    const errorMessage = error?.response?.data?.message;
     notifications.show({
-      title: "Login Error",
-      message: error.response?.data?.detail || "An error occurred",
+      message: errorMessage,
       color: "red",
     });
     throw error;
@@ -143,6 +143,27 @@ export const logout = async () => {
     console.error("Logout error:", error);
     return false;
   }
+};
+
+export const sendResetCode = async (email) => {
+  const response = await axios.post("send_reset_code/", { email });
+  return response.data;
+};
+
+export const verifyResetCode = async (email, resetCode) => {
+  const response = await axios.post("verify_reset_code/", {
+    email,
+    reset_code: resetCode,
+  });
+  return response.data;
+};
+
+export const resetPassword = async (email, newPassword) => {
+  const response = await axios.post("reset_password/", {
+    email,
+    new_password: newPassword,
+  });
+  return response.data;
 };
 
 export const useUserStore = create((set) => ({

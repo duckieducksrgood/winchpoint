@@ -72,7 +72,11 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
     useDisclosure(false);
   const [activePage, setPage] = useState(1);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
-  const { data: cartData, error, mutate } = useSWR<ICart>("cart/", fetcher);
+  const {
+    data: cartData,
+    error,
+    mutate,
+  } = useSWR<ICart>("cart/", fetcher, { refreshInterval: 1000 });
 
   //pangadd ng proof of payment
   const [qrCodes, setQrCodes] = useState<

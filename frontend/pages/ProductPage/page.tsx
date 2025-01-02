@@ -1,36 +1,34 @@
 import {
   AppShell,
-  AspectRatio,
-  Burger,
-  Button,
   Container,
-  Group,
+  Stack,
   Title,
   Text,
-  UnstyledButton,
-  Image,
-  Card,
-  Badge,
-  Flex,
-  Stack,
   Divider,
   Box,
   ScrollArea,
-  Center,
+  Card,
+  Badge,
+  Image,
+  Group,
+  Button,
   Popover,
+  Tooltip,
   NumberInput,
   Select,
+  Center,
+  LoadingOverlay,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import classes from "../../components/module.css/MobileNavbar.module.css";
-import HeaderMegaMenu from "../../components/HeaderComponent/header";
-import { useState } from "react";
-import { notifications } from "@mantine/notifications";
-import axios from "../../utils/axiosInstance";
-import CartButton from "../../components/CartButtonComponent/cartButton";
-import OrderButton from "../../components/OrderButtonComponent/orderButton";
+import { useState, useEffect } from "react";
 import useSWR from "swr";
+import axios from "../../utils/axiosInstance";
+import { notifications } from "@mantine/notifications";
+import { IconShoppingCart } from "@tabler/icons-react";
+import HeaderMegaMenu from "../../components/HeaderComponent/header";
 import HeaderNav from "../../components/HeaderComponent/headerNav";
+import OrderButton from "../../components/OrderButtonComponent/orderButton";
+import CartButton from "../../components/CartButtonComponent/cartButton";
 import { useUserStore } from "../../utils/auth";
 
 interface Product {
@@ -52,7 +50,7 @@ export default function ProductPage() {
   const { isLoggedout } = useUserStore();
   const { data: products = [], error } = useSWR<Product[]>(
     "inventory/",
-    fetcher
+    fetcher,{refreshInterval: 1000}
   );
   const [opened, { toggle }] = useDisclosure();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -273,22 +271,32 @@ export default function ProductPage() {
                         closeOnClickOutside
                       >
                         <Popover.Target>
-                          <Button
-                            variant="outline"
-                            fullWidth
-                            mt="auto"
-                            radius="md"
-                            style={{ marginTop: "auto" }}
-                            onClick={() =>
-                              setPopoverOpened(
-                                popoverOpened === product.productID
-                                  ? null
-                                  : product.productID
-                              )
+                          <Tooltip
+                            label={
+                              product.stock > 0
+                                ? `In stock: ${product.stock}`
+                                : "Out of stock"
                             }
+                            position="top"
                           >
-                            Add to cart
-                          </Button>
+                            <Button
+                              disabled={product.stock === 0 || isLoggedout}
+                              variant="outline"
+                              fullWidth
+                              mt="auto"
+                              radius="md"
+                              style={{ marginTop: "auto" }}
+                              onClick={() =>
+                                setPopoverOpened(
+                                  popoverOpened === product.productID
+                                    ? null
+                                    : product.productID
+                                )
+                              }
+                            >
+                              Add to cart
+                            </Button>
+                          </Tooltip>
                         </Popover.Target>
                         <Popover.Dropdown>
                           <Stack>
@@ -440,22 +448,32 @@ export default function ProductPage() {
                         closeOnClickOutside
                       >
                         <Popover.Target>
-                          <Button
-                            variant="outline"
-                            fullWidth
-                            mt="auto"
-                            radius="md"
-                            style={{ marginTop: "auto" }}
-                            onClick={() =>
-                              setPopoverOpened(
-                                popoverOpened === product.productID
-                                  ? null
-                                  : product.productID
-                              )
+                          <Tooltip
+                            label={
+                              product.stock > 0
+                                ? `In stock: ${product.stock}`
+                                : "Out of stock"
                             }
+                            position="top"
                           >
-                            Add to cart
-                          </Button>
+                            <Button
+                              disabled={product.stock === 0 || isLoggedout}
+                              variant="outline"
+                              fullWidth
+                              mt="auto"
+                              radius="md"
+                              style={{ marginTop: "auto" }}
+                              onClick={() =>
+                                setPopoverOpened(
+                                  popoverOpened === product.productID
+                                    ? null
+                                    : product.productID
+                                )
+                              }
+                            >
+                              Add to cart
+                            </Button>
+                          </Tooltip>
                         </Popover.Target>
                         <Popover.Dropdown>
                           <Stack>
@@ -487,11 +505,11 @@ export default function ProductPage() {
         </Container>
 
         {isLoggedout ? null : (
-                  <Stack>
-                    <OrderButton />
-                    <CartButton onAddToCart={handleAddToCart} />
-                  </Stack>
-                )}
+          <Stack>
+            <OrderButton />
+            <CartButton onAddToCart={handleAddToCart} />
+          </Stack>
+        )}
       </AppShell.Main>
     </AppShell>
   );
