@@ -23,6 +23,7 @@ import { useUserStore } from "../utils/auth";
 import CartButton from "../components/CartButtonComponent/cartButton";
 import OrderButton from "../components/OrderButtonComponent/orderButton";
 import HeaderNav from "../components/HeaderComponent/headerNav";
+import { Carousel } from "@mantine/carousel";
 
 export default function IndexPage() {
   const [opened, { toggle }] = useDisclosure();
@@ -52,28 +53,78 @@ export default function IndexPage() {
 
       <AppShell.Main p={0}>
         <Container fluid p={0} m={0}>
-          <div
-            style={{
-              width: "auto",
-              height: "75vh",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              overflow: "hidden",
-
-              filter: "blur(10px)",
+          <Carousel
+            height={600}
+            loop
+            withControls
+            styles={{
+              indicator: {
+                backgroundColor: "white",
+              },
             }}
           >
-            <video autoPlay loop muted playsInline>
-              <source src="dd1.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          </div>
+            <Carousel.Slide>
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              >
+                <source src="1.mp4" type="video/mp4" />
+              </video>
+            </Carousel.Slide>
+            <Carousel.Slide>
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              >
+                <source src="2.mp4" type="video/mp4" />
+              </video>
+            </Carousel.Slide>
+            <Carousel.Slide>
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              >
+                <source src="3.mp4" type="video/mp4" />
+              </video>
+            </Carousel.Slide>
+            <Carousel.Slide>
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              >
+                <source src="4.mp4" type="video/mp4" />
+              </video>
+            </Carousel.Slide>
+            <Carousel.Slide>
+              <video
+                autoPlay
+                loop
+                muted
+                playsInline
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              >
+                <source src="5.mp4" type="video/mp4" />
+              </video>
+            </Carousel.Slide>
+          </Carousel>
         </Container>
+
         <div
           style={{
             position: "absolute",
-            top: "50%",
+            top: "40%",
             left: "50%",
             transform: "translate(-50%, -50%)",
             color: "white",

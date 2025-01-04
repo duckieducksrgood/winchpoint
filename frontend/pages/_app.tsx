@@ -7,6 +7,7 @@ import { theme } from "../theme";
 import { useEffect } from "react";
 import "@mantine/notifications/styles.css";
 import { Notifications } from "@mantine/notifications";
+import "@mantine/carousel/styles.css";
 
 export default function App({ Component, pageProps }: any) {
   useEffect(() => {
