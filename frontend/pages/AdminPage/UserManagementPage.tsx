@@ -86,7 +86,8 @@ const UserManagementPage = () => {
       });
       setEditModalOpened(false);
       mutate(); // Refresh the data
-    } catch (error) {
+    } catch (error: any) {
+      // Show backend error if available
       notifications.show({
         message: "Failed to update user",
         color: "red",
