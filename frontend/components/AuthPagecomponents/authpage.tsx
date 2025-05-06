@@ -16,6 +16,7 @@ import {
   Image,
   Stack,
   Transition,
+  useMantineColorScheme,
 } from "@mantine/core";
 import { useState } from "react";
 import { useRouter } from "next/router";
@@ -32,6 +33,7 @@ import { IconMail, IconLock, IconUser, IconArrowBack } from "@tabler/icons-react
 
 export default function AuthenticationImage() {
   const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
   const router = useRouter();
   const [isRegistering, setIsRegistering] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
@@ -166,7 +168,7 @@ export default function AuthenticationImage() {
         p="xl"
         withBorder
         style={{
-          backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.white,
+          backgroundColor: colorScheme === 'dark' ? theme.colors.dark[8] : theme.white,
           position: 'relative',
           overflow: 'hidden'
         }}

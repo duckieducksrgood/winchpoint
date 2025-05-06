@@ -12,8 +12,8 @@ export function AdminFooter() {
       <Container size="xl" py="md">
         <Divider mb="md" />
         
-        <Group position="apart" align="center">
-          <Stack spacing={2}>
+        <Group justify="space-between" align="center">
+        <Stack gap={2}>
             <Text size="sm" c="dimmed">
               © {currentYear} Winch Point Offroad House. All rights reserved.
             </Text>
@@ -22,7 +22,7 @@ export function AdminFooter() {
             </Text>
           </Stack>
           
-          <Group spacing="md">
+          <Group gap="md">
             <Anchor size="sm" c="dimmed" href="/AdminPage/AdminHome">
               Dashboard
             </Anchor>
@@ -37,7 +37,7 @@ export function AdminFooter() {
             </Anchor>
           </Group>
           
-          <Group spacing="sm">
+          <Group gap="sm">
             <ActionIcon variant="subtle" color="gray" aria-label="Support">
               <IconHeadset size={18} stroke={1.5} />
             </ActionIcon>
