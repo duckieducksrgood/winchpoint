@@ -24,7 +24,6 @@ import { useState, useEffect } from "react";
 import useSWR from "swr";
 import axios from "../../utils/axiosInstance";
 import { notifications } from "@mantine/notifications";
-import { IconShoppingCart } from "@tabler/icons-react";
 import HeaderMegaMenu from "../../components/HeaderComponent/header";
 import HeaderNav from "../../components/HeaderComponent/headerNav";
 import OrderButton from "../../components/OrderButtonComponent/orderButton";
@@ -50,19 +49,16 @@ export default function ProductPage() {
   const { isLoggedout } = useUserStore();
   const { data: products = [], error } = useSWR<Product[]>(
     "inventory/",
-    fetcher,{refreshInterval: 1000}
+    fetcher,
+    { refreshInterval: 1000 }
   );
   const [opened, { toggle }] = useDisclosure();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [popoverOpened, setPopoverOpened] = useState<number | null>(null);
-  const [selectedMerchSubcategory, setSelectedMerchSubcategory] = useState<
-    string | null
-  >(null);
-  const [selectedPartsSubcategory, setSelectedPartsSubcategory] = useState<
-    string | null
-  >(null);
+  const [selectedSubcategories, setSelectedSubcategories] = useState<
+    Record<string, string | null>
+  >({});
   const [openedNav, setOpenedNav] = useState(false);
 
   const handleAddToCart = async (productId: number, quantity: number = 1) => {
@@ -89,37 +85,40 @@ export default function ProductPage() {
     }
   };
 
+  // Get unique categories
+  const categories = Array.from(
+    new Set(products.map((product) => product.category))
+  ).filter(Boolean);
+
+  // Get subcategories for each category
+  const getSubcategoriesForCategory = (category: string) => {
+    return Array.from(
+      new Set(
+        products
+          .filter((product) => product.category === category)
+          .map((product) => product.subCategory)
+      )
+    ).filter(Boolean);
+  };
+
   // Filter products by category and subcategory
-  const merchProducts = products.filter(
-    (product) =>
-      product.category === "UAZAP Merch" &&
-      (!selectedMerchSubcategory ||
-        product.subCategory === selectedMerchSubcategory)
-  );
+  const getProductsForCategory = (category: string) => {
+    const selectedSubcategory = selectedSubcategories[category];
 
-  const carPartsProducts = products.filter(
-    (product) =>
-      product.category === "UAZAP Car Parts" &&
-      (!selectedPartsSubcategory ||
-        product.subCategory === selectedPartsSubcategory)
-  );
+    return products.filter(
+      (product) =>
+        product.category === category &&
+        (!selectedSubcategory || product.subCategory === selectedSubcategory)
+    );
+  };
 
-  // Get unique subcategories
-  const merchSubcategories = Array.from(
-    new Set(
-      products
-        .filter((product) => product.category === "UAZAP Merch")
-        .map((product) => product.subCategory)
-    )
-  ).filter(Boolean);
-
-  const partsSubcategories = Array.from(
-    new Set(
-      products
-        .filter((product) => product.category === "UAZAP Car Parts")
-        .map((product) => product.subCategory)
-    )
-  ).filter(Boolean);
+  // Handle subcategory filter change
+  const handleSubcategoryChange = (category: string, value: string | null) => {
+    setSelectedSubcategories((prev) => ({
+      ...prev,
+      [category]: value,
+    }));
+  };
 
   return (
     <AppShell
@@ -150,359 +149,193 @@ export default function ProductPage() {
           </Stack>
         </Container>
 
-        <Container fluid p={0} m={0}>
-          <Stack justify="column" gap="md">
-            <Title
-              order={1}
-              ta="center"
-              size={"60px"}
-              c={"white"}
-              component="a"
-              p={100}
-            >
-              𝗨𝗔𝗭𝗔𝗣 𝗠𝗘𝗥𝗖𝗛
-            </Title>
-
-            <Center>
-              <Select
-                label="Filter by Subcategory"
-                placeholder="Select subcategory"
-                data={merchSubcategories.map((sub) => ({
-                  value: sub,
-                  label: sub,
-                }))}
-                value={selectedMerchSubcategory}
-                onChange={setSelectedMerchSubcategory}
-                clearable
-                style={{ width: 200 }}
-              />
-            </Center>
-
-            <ScrollArea type="scroll" scrollbarSize={12} offsetScrollbars>
-              <Box
+        {categories.map((category) => (
+          <Container fluid p={0} m={0} key={category}>
+            <Stack justify="column" gap="md">
+              <Title
+                order={1}
+                ta="center"
+                size={"60px"}
+                c={"white"}
+                component="a"
                 p={100}
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "center",
-                  overflowX: "auto",
-                }}
               >
+                {category}
+              </Title>
+
+              <Center>
+                <Select
+                  label="Filter by Subcategory"
+                  placeholder="Select subcategory"
+                  data={getSubcategoriesForCategory(category).map((sub) => ({
+                    value: sub,
+                    label: sub,
+                  }))}
+                  value={selectedSubcategories[category] || null}
+                  onChange={(value) => handleSubcategoryChange(category, value)}
+                  clearable
+                  style={{ width: 200 }}
+                />
+              </Center>
+
+              <ScrollArea type="scroll" scrollbarSize={12} offsetScrollbars>
                 <Box
+                  p={100}
                   style={{
+                    width: "100%",
                     display: "flex",
-                    gap: "10px",
+                    justifyContent: "center",
+                    overflowX: "auto",
                   }}
                 >
-                  {merchProducts.map((product) => (
-                    <Card
-                      shadow="sm"
-                      padding="lg"
-                      key={product.productID}
-                      radius="md"
-                      style={{
-                        backgroundColor: "#f5f5f5",
-                        display: "flex",
-                        flexDirection: "column",
-                        height: "400px", // Fixed height
-                        width: "300px", // Fixed width
-                      }}
-                    >
-                      <Card.Section
-                        style={{ position: "relative", height: "200px" }}
+                  <Box
+                    style={{
+                      display: "flex",
+                      gap: "10px",
+                      flexWrap: "wrap",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {getProductsForCategory(category).map((product) => (
+                      <Card
+                        shadow="sm"
+                        padding="lg"
+                        key={product.productID}
+                        radius="md"
+                        style={{
+                          backgroundColor: "#f5f5f5",
+                          display: "flex",
+                          flexDirection: "column",
+                          height: "400px", // Fixed height
+                          width: "300px", // Fixed width
+                          margin: "10px",
+                        }}
                       >
-                        {product.onSale && (
-                          <Badge
-                            color="green"
-                            variant="filled"
-                            style={{
-                              position: "absolute",
-                              top: "10px",
-                              right: "10px",
-                              zIndex: 1,
-                            }}
-                          >
-                            Sale
-                          </Badge>
-                        )}
-                        <Image
-                          src={product.image}
-                          alt={product.name}
-                          height={160}
-                          fit="cover"
-                          style={{ objectFit: "cover", height: "100%" }}
-                        />
-                      </Card.Section>
-
-                      <Group justify="apart" mt="md" mb="xs" gap={10}>
-                        <Title
-                          order={5}
-                          style={{ flex: 1, textAlign: "center" }}
+                        <Card.Section
+                          style={{ position: "relative", height: "200px" }}
                         >
-                          {product.name}
-                        </Title>
-                      </Group>
-
-                      <Text
-                        size="md"
-                        c="dimmed"
-                        style={{ textAlign: "center" }}
-                      >
-                        {product.salePrice > 0 ? (
-                          <>
-                            <Text component="span" td="line-through" c="dimmed">
-                              ₱{product.price}
-                            </Text>{" "}
-                            <Text component="span" c="red">
-                              ₱{product.salePrice}
-                            </Text>
-                          </>
-                        ) : (
-                          `₱${product.price}`
-                        )}
-                      </Text>
-                      <Popover
-                        width={200}
-                        position="bottom"
-                        withArrow
-                        shadow="md"
-                        opened={popoverOpened === product.productID}
-                        onClose={() => setPopoverOpened(null)}
-                        closeOnClickOutside
-                      >
-                        <Popover.Target>
-                          <Tooltip
-                            label={
-                              product.stock > 0
-                                ? `In stock: ${product.stock}`
-                                : "Out of stock"
-                            }
-                            position="top"
-                          >
-                            <Button
-                              disabled={product.stock === 0 || isLoggedout}
-                              variant="outline"
-                              fullWidth
-                              mt="auto"
-                              radius="md"
-                              style={{ marginTop: "auto" }}
-                              onClick={() =>
-                                setPopoverOpened(
-                                  popoverOpened === product.productID
-                                    ? null
-                                    : product.productID
-                                )
-                              }
+                          {product.onSale && (
+                            <Badge
+                              color="green"
+                              variant="filled"
+                              style={{
+                                position: "absolute",
+                                top: "10px",
+                                right: "10px",
+                                zIndex: 1,
+                              }}
                             >
-                              Add to cart
-                            </Button>
-                          </Tooltip>
-                        </Popover.Target>
-                        <Popover.Dropdown>
-                          <Stack>
-                            <NumberInput
-                              value={quantity}
-                              onChange={(val) => setQuantity(Number(val) || 1)}
-                              min={1}
-                              max={product.stock}
-                              label="Quantity"
-                            />
-                            <Button
-                              onClick={() =>
-                                handleAddToCart(product.productID, quantity)
-                              }
-                              loading={loading}
-                            >
-                              Add to cart
-                            </Button>
-                          </Stack>
-                        </Popover.Dropdown>
-                      </Popover>
-                    </Card>
-                  ))}
-                </Box>
-              </Box>
-            </ScrollArea>
-            <Divider my={"xl"} mx={150} color="black" />
-          </Stack>
-        </Container>
+                              Sale
+                            </Badge>
+                          )}
+                          <Image
+                            src={product.image}
+                            alt={product.name}
+                            height={160}
+                            fit="cover"
+                            style={{ objectFit: "cover", height: "100%" }}
+                          />
+                        </Card.Section>
 
-        <Container fluid p={0} m={0}>
-          <Stack justify="column" gap="md">
-            <Title
-              order={1}
-              ta="center"
-              size={"60px"}
-              c={"white"}
-              component="a"
-              p={100}
-            >
-              Car Care Products
-            </Title>
-
-            <Center>
-              <Select
-                label="Filter by Subcategory"
-                placeholder="Select subcategory"
-                data={partsSubcategories.map((sub) => ({
-                  value: sub,
-                  label: sub,
-                }))}
-                value={selectedPartsSubcategory}
-                onChange={setSelectedPartsSubcategory}
-                clearable
-                style={{ width: 200 }}
-              />
-            </Center>
-
-            <ScrollArea type="scroll" scrollbarSize={12} offsetScrollbars>
-              <Box
-                p={100}
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  justifyContent: "center",
-                  overflowX: "auto",
-                }}
-              >
-                <Box
-                  style={{
-                    display: "flex",
-                    gap: "10px",
-                  }}
-                >
-                  {carPartsProducts.map((product) => (
-                    <Card
-                      shadow="sm"
-                      padding="lg"
-                      key={product.productID}
-                      radius="md"
-                      style={{
-                        backgroundColor: "#f5f5f5",
-                        display: "flex",
-                        flexDirection: "column",
-                        height: "400px", // Fixed height
-                        width: "300px", // Fixed width
-                      }}
-                    >
-                      <Card.Section
-                        style={{ position: "relative", height: "200px" }}
-                      >
-                        {product.onSale && (
-                          <Badge
-                            color="green"
-                            variant="filled"
-                            style={{
-                              position: "absolute",
-                              top: "10px",
-                              right: "10px",
-                              zIndex: 1,
-                            }}
+                        <Group justify="apart" mt="md" mb="xs" gap={10}>
+                          <Title
+                            order={5}
+                            style={{ flex: 1, textAlign: "center" }}
                           >
-                            Sale
-                          </Badge>
-                        )}
-                        <Image
-                          src={product.image}
-                          alt={product.name}
-                          height={160}
-                          fit="cover"
-                          style={{ objectFit: "cover", height: "100%" }}
-                        />
-                      </Card.Section>
+                            {product.name}
+                          </Title>
+                        </Group>
 
-                      <Group justify="apart" mt="md" mb="xs" gap={10}>
-                        <Title
-                          order={5}
-                          style={{ flex: 1, textAlign: "center" }}
+                        <Text
+                          size="md"
+                          c="dimmed"
+                          style={{ textAlign: "center" }}
                         >
-                          {product.name}
-                        </Title>
-                      </Group>
-                      <Text
-                        size="md"
-                        c="dimmed"
-                        style={{ textAlign: "center" }}
-                      >
-                        {product.salePrice > 0 ? (
-                          <>
-                            <Text component="span" td="line-through" c="dimmed">
-                              ₱{product.price}
-                            </Text>{" "}
-                            <Text component="span" c="red">
-                              ₱{product.salePrice}
-                            </Text>
-                          </>
-                        ) : (
-                          `₱${product.price}`
-                        )}
-                      </Text>
-
-                      <Popover
-                        width={200}
-                        position="bottom"
-                        withArrow
-                        shadow="md"
-                        opened={popoverOpened === product.productID}
-                        onClose={() => setPopoverOpened(null)}
-                        closeOnClickOutside
-                      >
-                        <Popover.Target>
-                          <Tooltip
-                            label={
-                              product.stock > 0
-                                ? `In stock: ${product.stock}`
-                                : "Out of stock"
-                            }
-                            position="top"
-                          >
-                            <Button
-                              disabled={product.stock === 0 || isLoggedout}
-                              variant="outline"
-                              fullWidth
-                              mt="auto"
-                              radius="md"
-                              style={{ marginTop: "auto" }}
-                              onClick={() =>
-                                setPopoverOpened(
-                                  popoverOpened === product.productID
-                                    ? null
-                                    : product.productID
-                                )
+                          {product.salePrice > 0 ? (
+                            <>
+                              <Text
+                                component="span"
+                                td="line-through"
+                                c="dimmed"
+                              >
+                                ₱{product.price}
+                              </Text>{" "}
+                              <Text component="span" c="red">
+                                ₱{product.salePrice}
+                              </Text>
+                            </>
+                          ) : (
+                            `₱${product.price}`
+                          )}
+                        </Text>
+                        <Popover
+                          width={200}
+                          position="bottom"
+                          withArrow
+                          shadow="md"
+                          opened={popoverOpened === product.productID}
+                          onClose={() => setPopoverOpened(null)}
+                          closeOnClickOutside
+                        >
+                          <Popover.Target>
+                            <Tooltip
+                              label={
+                                product.stock > 0
+                                  ? `In stock: ${product.stock}`
+                                  : "Out of stock"
                               }
+                              position="top"
                             >
-                              Add to cart
-                            </Button>
-                          </Tooltip>
-                        </Popover.Target>
-                        <Popover.Dropdown>
-                          <Stack>
-                            <NumberInput
-                              value={quantity}
-                              onChange={(val) => setQuantity(Number(val) || 1)}
-                              min={1}
-                              max={product.stock}
-                              label="Quantity"
-                            />
-                            <Button
-                              onClick={() =>
-                                handleAddToCart(product.productID, quantity)
-                              }
-                              loading={loading}
-                            >
-                              Add to cart
-                            </Button>
-                          </Stack>
-                        </Popover.Dropdown>
-                      </Popover>
-                    </Card>
-                  ))}
+                              <Button
+                                disabled={product.stock === 0 || isLoggedout}
+                                variant="outline"
+                                fullWidth
+                                mt="auto"
+                                radius="md"
+                                style={{ marginTop: "auto" }}
+                                onClick={() =>
+                                  setPopoverOpened(
+                                    popoverOpened === product.productID
+                                      ? null
+                                      : product.productID
+                                  )
+                                }
+                              >
+                                Add to cart
+                              </Button>
+                            </Tooltip>
+                          </Popover.Target>
+                          <Popover.Dropdown>
+                            <Stack>
+                              <NumberInput
+                                value={quantity}
+                                onChange={(val) =>
+                                  setQuantity(Number(val) || 1)
+                                }
+                                min={1}
+                                max={product.stock}
+                                label="Quantity"
+                              />
+                              <Button
+                                onClick={() =>
+                                  handleAddToCart(product.productID, quantity)
+                                }
+                                loading={loading}
+                              >
+                                Add to cart
+                              </Button>
+                            </Stack>
+                          </Popover.Dropdown>
+                        </Popover>
+                      </Card>
+                    ))}
+                  </Box>
                 </Box>
-              </Box>
-            </ScrollArea>
-            <Divider my={"xl"} mx={150} color="black" />
-          </Stack>
-        </Container>
+              </ScrollArea>
+              <Divider my={"xl"} mx={150} color="black" />
+            </Stack>
+          </Container>
+        ))}
 
         {isLoggedout ? null : (
           <Stack>

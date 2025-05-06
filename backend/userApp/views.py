@@ -13,6 +13,18 @@ from django.core.mail import send_mail
 from django.conf import settings
 import random
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.decorators import api_view
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+@api_view(['GET'])
+def get_user_count(request):
+    try:
+        count = User.objects.count()
+        return Response({'count': count})
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserPaymentView(APIView):
@@ -85,6 +97,7 @@ class SendResetCodeView(APIView):
         user.reset_code = reset_code
         user.save()
         
+        # First send plain text email as fallback
         send_mail(
             'Password Reset Code',
             f'Your password reset code is {reset_code}',
@@ -92,6 +105,20 @@ class SendResetCodeView(APIView):
             [email],
             fail_silently=False,
         )
+        
+        # Then try to send HTML email
+        try:
+            send_html_email(
+                'Password Reset Code - Winch Point Offroad House',
+                'emails/password_reset.html',
+                email,
+                {
+                    'reset_code': reset_code
+                }
+            )
+        except Exception as e:
+            print(f"HTML email could not be sent: {e}")
+            # Regular email already sent as fallback
         
         return Response({'message': 'Reset code sent to email'}, status=status.HTTP_200_OK)
 
@@ -147,18 +174,19 @@ class UpdateAllUsersView(APIView):
         except User.DoesNotExist:
             return Response({'message': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         
-        # Check if password is in the request data
-        if 'password' in request.data:
-            new_password = request.data['password']
-            user.set_password(new_password)  # Hash and set the new password
-            user.save()
-            return Response({'message': 'Password updated successfully'}, status=status.HTTP_200_OK)
+        # Update text fields
+        user.first_name = request.data.get('first_name', user.first_name)
+        user.last_name = request.data.get('last_name', user.last_name)
+        user.email = request.data.get('email', user.email)
+        user.delivery_address = request.data.get('delivery_address', user.delivery_address)
         
-        serializer = UserSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # Handle profile picture if present
+        if 'profile_picture' in request.FILES:
+            user.profile_picture = request.FILES['profile_picture']
+        
+        user.save()
+        serializer = UserSerializer(user)
+        return Response(serializer.data)
     
     def delete(self, request, format=None):
         user_id = request.query_params.get('user_id')
@@ -218,6 +246,12 @@ class CustomTokenObtainPairView(TokenObtainPairView):
                 # Set cookies in response
                 response.set_cookie(key='jwt_access_token', value=new_access_token, httponly=True, samesite='none', secure=True)
                 response.set_cookie(key='jwt_refresh_token', value=refresh_token, httponly=True, samesite='none', secure=True)
+                
+                # Add redirect URL based on user role
+                if user.role == 'admin':
+                    response.data['redirect_url'] = '/AdminPage/AdminHome'
+                else:
+                    response.data['redirect_url'] = '/'
 
             return response
 
@@ -267,4 +301,13 @@ class CustomTokenRefreshView(TokenRefreshView):
 
         except Exception as e:
             return Response({'message': str(e)}, status=400)
+
+# urls.py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    # ... other URL patterns
+    path('api/users/count', views.get_user_count, name='user-count'),
+]
 

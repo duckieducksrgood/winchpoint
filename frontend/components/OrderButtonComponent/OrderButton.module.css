@@ -1,0 +1,254 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap');
+
+/* Order Button Styling with drag effect */
+.orderButton {
+  position: fixed;
+  bottom: 6rem;
+  right: 2rem;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 12px 24px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  transition: transform 0.4s cubic-bezier(0.33, 1, 0.68, 1),
+              box-shadow 0.3s cubic-bezier(0.33, 1, 0.68, 1),
+              background-color 0.3s ease;
+  will-change: transform;
+  background: linear-gradient(to right, #5961c9, #4351b5);
+}
+
+.orderButton:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  background: linear-gradient(to right, #4c51a8, #3a45a0);
+}
+
+.orderBadge {
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  animation: pulse 2s infinite ease-in-out;
+}
+
+/* Modal Styling */
+.orderModal {
+  font-family: 'Montserrat', sans-serif;
+  min-width: 320px;
+}
+
+/* Tabs Styling */
+.tabs {
+  margin-top: 10px;
+}
+
+.tabsList {
+  margin-bottom: 15px;
+}
+
+.tabItem {
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.tabItem:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+}
+
+/* Table Container */
+.tableContainer {
+  border: 1px solid #eaeaea;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  padding: 16px;
+  background-color: #f8f9fa;
+}
+
+.tableContainer:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Table Styling */
+.ordersTable {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.ordersTable th {
+  background-color: #f9f9f9;
+  font-weight: 600;
+  color: #2c3e50;
+  padding: 12px 15px;
+}
+
+/* Order Row Styling */
+.orderRow {
+  transition: all 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.orderRow:hover {
+  background-color: rgba(94, 139, 126, 0.05);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: relative;
+  z-index: 1;
+}
+
+/* Status Indicators */
+.checkIcon {
+  color: #5e8b7e;
+  animation: fadeInGrow 0.5s ease-out;
+}
+
+.xIcon {
+  color: #e74c3c;
+  animation: fadeInGrow 0.5s ease-out;
+}
+
+.trackingNumber {
+  font-weight: 600;
+  color: #4351b5;
+}
+
+.pendingStatus {
+  color: #f39c12;
+  font-weight: 500;
+}
+
+.cancelledStatus {
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+.assignedStatus {
+  color: #3498db;
+  font-weight: 500;
+}
+
+/* Buttons */
+.cancelButton {
+  transition: all 0.3s ease;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.cancelButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(231, 76, 60, 0.2);
+}
+
+/* Empty State */
+.emptyOrdersMessage {
+  padding: 40px 20px;
+  border: 1px dashed #d1d1d1;
+  background-color: #f8f9fa;
+  text-align: center;
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* Confirmation Modal */
+.confirmationModal {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.confirmationContent {
+  padding: 10px;
+}
+
+.noButton, .yesButton {
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.noButton:hover {
+  background-color: #f1f1f1;
+  transform: translateY(-2px);
+}
+
+.yesButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(231, 76, 60, 0.2);
+}
+
+/* Order Card Styling */
+.orderCard {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.orderCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Cart Item Card Styling */
+.cartItemCard {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+}
+
+.cartItemCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* Animations */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInGrow {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .orderButton {
+    bottom: 5.5rem;
+    right: 1.5rem;
+    padding: 10px 18px;
+  }
+}
+
+@media (max-width: 576px) {
+  .orderCard, .cartItemCard {
+    padding: 12px;
+  }
+}
+
+/* Animation for reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .orderButton, .orderRow, .tabItem, .cancelButton, .orderBadge {
+    transition: none;
+    animation: none;
+    transform: none;
+    will-change: auto;
+  }
+}

@@ -167,6 +167,7 @@ export const resetPassword = async (email, newPassword) => {
 };
 
 export const useUserStore = create((set) => ({
+  user: null,
   address: null,
   role: null,
   profilePicture: null,
@@ -176,6 +177,7 @@ export const useUserStore = create((set) => ({
     try {
       const { data: token } = await axios.get("fetchdecodedtoken/");
       set({
+        user: { username: token.username },
         address: token.address,
         role: token.role,
         isLoggedout: false,
@@ -183,10 +185,10 @@ export const useUserStore = create((set) => ({
       });
     } catch (error) {
       // console.error("User data fetching error:", error);
-      // set({ isError: true, isLoggedout: false });
       if (error.response && error.response.status === 401) {
         console.error("Unauthorized access - 401");
         set({
+          user: null,
           role: null,
           isLoggedout: true,
           error: "Unauthorized access - please check your credentials.",
@@ -197,7 +199,8 @@ export const useUserStore = create((set) => ({
       }
     }
   },
-  clearUserData: () => set({ role: null, profilePicture: null }),
+  clearUserData: () => set({ user: null, role: null, profilePicture: null }),
+  setUser: (userData) => set({ user: userData, isLoggedout: false }),
 }));
 
 export const fetchRegions = async () => {
@@ -244,6 +247,8 @@ export const fetchBarangays = async (cityMunicipalityCode) => {
           barangay.municipalityCode === cityMunicipalityCode
       )
     );
+    console.log("Current user from store:", user);
+    console.log("Fetched users:", users);
     return response.data.filter(
       (barangay) =>
         barangay.cityCode === cityMunicipalityCode ||

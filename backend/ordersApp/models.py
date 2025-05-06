@@ -13,6 +13,19 @@ class Order(models.Model):
     payment_method = models.CharField(max_length=50, null=True)
     proof_of_payment = models.ImageField(upload_to='proof_of_payment/', null=True)
     order_delivery_address = models.TextField(null=True)
+    
+    REFUND_STATUS_CHOICES = [
+        ('To Be Refunded', 'To Be Refunded'),
+        ('Refunded', 'Refunded'),
+    ]
+    refund_status = models.CharField(
+        max_length=20,
+        choices=REFUND_STATUS_CHOICES,
+        null=True,
+        blank=True
+    )
+    refund_proof = models.CharField(max_length=255, null=True, blank=True)  # URL to proof image
+    refund_date = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"Order {self.id} by {self.user.username}"

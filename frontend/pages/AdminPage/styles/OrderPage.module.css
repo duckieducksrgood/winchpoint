@@ -1,0 +1,460 @@
+.main {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Add background image with blur effect - just like AdminHome */
+.main::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/backgrounds/offroad-bg.jpg'); 
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  opacity: 0.15;
+  filter: blur(8px);
+  z-index: -1;
+  transform: scale(1.1); /* Prevents blur edges from showing */
+}
+
+/* Add subtle gradient overlay */
+.main::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(59, 96, 100, 0.05), rgba(0, 0, 0, 0.1));
+  z-index: -1;
+}
+
+.container {
+  width: 100%;
+  max-width: 1600px;
+  position: relative;
+  z-index: 1;
+  padding-top: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.welcomeCard {
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8)),
+    url('/images/dashboard-pattern.svg');
+  background-size: cover;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+}
+
+.welcomeCard:hover {
+  transform: translateY(-3px);
+}
+
+.dashboardIcon {
+  background: linear-gradient(45deg, #3b6064, #5e8b7e);
+  color: white;
+  box-shadow: 0 4px 12px rgba(34, 139, 230, 0.2);
+  transition: all 0.3s;
+}
+
+.dashboardIcon:hover {
+  transform: rotate(10deg);
+}
+
+.statCard {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  height: 100%;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.statIcon {
+  transition: transform 0.3s ease;
+}
+
+.statCard:hover .statIcon {
+  transform: scale(1.2);
+}
+
+/* Counter card styles */
+.counterCard {
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.counterCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.counterIcon {
+  transition: transform 0.2s ease;
+}
+
+.counterCard:hover .counterIcon {
+  transform: scale(1.1);
+}
+
+/* Table styling */
+.tableContainer {
+  height: 60vh;
+  overflow: auto;
+  border-radius: 4px;
+  position: relative;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.tableHeader {
+  background: linear-gradient(to right, #f8f9fa, #e9ecef);
+  padding: 15px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.searchInput {
+  flex: 1;
+}
+
+.statusBadge {
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.pendingBadge {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.completedBadge {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.cancelledBadge {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* QR code management styling */
+.qrManagement {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.qrPreview {
+  border: 1px dashed #dee2e6;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  background-color: #f8f9fa;
+}
+
+/* Tabs styling */
+.tabs {
+  margin-bottom: 20px;
+}
+
+.tabItem {
+  transition: all 0.2s ease;
+}
+
+.tabItem:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Table row styling */
+.tableRow {
+  opacity: 0;
+  animation: fadeIn 0.3s ease forwards;
+  transition: background-color 0.2s;
+}
+
+.tableRow:hover {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Empty state message */
+.emptyOrdersMessage {
+  padding: 40px 0;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
+}
+
+/* Animation classes */
+.fadeIn {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+.fadeInSecond {
+  animation: fadeIn 1s ease-in-out;
+  animation-delay: 0.2s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.fadeInThird {
+  animation: fadeIn 1s ease-in-out;
+  animation-delay: 0.4s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+.fadeInFourth {
+  animation: fadeIn 1s ease-in-out;
+  animation-delay: 0.6s;
+  opacity: 0;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Add this missing icon */
+.iconCash {
+  color: #40c057;
+}
+
+/* Add these additional CSS classes */
+.tabsContainer {
+  min-height: 600px; /* Should be slightly larger than table container + footer */
+}
+
+.tableWrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px; /* Consistent spacing */
+  height: 100%; /* Let the wrapper adjust to the fixed container */
+}
+
+.tableFooter {
+  padding: 12px;
+  background: var(--mantine-color-gray-0);
+  border: 1px solid var(--mantine-color-gray-3);
+  border-top: none;
+  border-radius: 0 0 8px 8px; /* Rounded bottom corners */
+  position: relative; /* Keep position consistent */
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px; /* Match most of the table container height */
+  background-color: #ffffff;
+  border: none; /* Remove border as the container already has one */
+  padding: 40px 20px;
+  text-align: center;
+}
+
+/* Fix animation delays */
+.rowDelay1 { animation-delay: 0.05s; }
+.rowDelay2 { animation-delay: 0.1s; }
+.rowDelay3 { animation-delay: 0.15s; }
+.rowDelay4 { animation-delay: 0.2s; }
+.rowDelay5 { animation-delay: 0.25s; }
+.rowDelay6 { animation-delay: 0.3s; }
+.rowDelay7 { animation-delay: 0.35s; }
+.rowDelay8 { animation-delay: 0.4s; }
+.rowDelay9 { animation-delay: 0.45s; }
+.rowDelay10 { animation-delay: 0.5s; }
+
+/* Add animation for rows */
+@keyframes rowFadeIn {
+  from { opacity: 0; transform: translateX(3px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Tab panel animations */
+.tabPanel {
+  position: relative;
+  will-change: transform, opacity;
+  transform-origin: top;
+}
+
+.tabs [data-active="true"] {
+  position: relative;
+}
+
+.tabs [data-active="true"]::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--mantine-color-blue-6);
+}
+
+/* Add new missing icon for cash */
+.iconCash {
+  background: linear-gradient(45deg, #40c057, #2b8a3e);
+  color: white;
+}
+
+/* Hero title styling */
+.heroTitle {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-top: 0.25rem;
+  line-height: 1.2;
+}
+
+.counterNumber {
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1;
+  animation: countUp 0.8s ease-out forwards;
+}
+
+/* Folder tabs styling */
+.folderTabsList {
+  background: #f8fafb;
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 2px 8px rgba(60,60,60,0.04);
+  padding: 2px 4px;
+  gap: 2px;
+  display: flex;
+  border-bottom: 1.5px solid #e9ecef;
+}
+
+.folderTab {
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 10px 10px 0 0;
+  min-width: 90px;
+  padding: 7px 18px 7px 18px;
+  transition: background 0.2s, color 0.2s;
+  background: #f1f3f5;
+  color: #495057;
+  border: none;
+  margin-right: 2px;
+  border-bottom: 2px solid transparent;
+}
+
+.folderTab[data-active="true"] {
+  background: #fff;
+  color: #228be6;
+  box-shadow: 0 2px 8px rgba(60,60,60,0.06);
+  border-bottom: 2.5px solid #40c057;
+  z-index: 2;
+}
+
+.revenueTabsTop {
+  margin-bottom: 18px;
+  margin-top: -30px;
+  z-index: 10;
+  position: relative;
+}
+
+.revenueTabsBox {
+  margin-bottom: 0;
+  margin-top: -8px;
+}
+
+.browserTabsList {
+  background: transparent;
+  border-bottom: 2px solid #e9ecef;
+  padding: 0 0 2px 0;
+  gap: 0;
+  display: flex;
+}
+
+.browserTab {
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px 8px 0 0;
+  min-width: 80px;
+  padding: 7px 18px 7px 18px;
+  margin-right: 2px;
+  background: #f1f3f5;
+  color: #495057;
+  border: none;
+  border-bottom: 2px solid transparent;
+  transition: background 0.2s, color 0.2s, border-bottom 0.2s;
+}
+
+.browserTab[data-active="true"] {
+  background: #fff;
+  color: #228be6;
+  border-bottom: 2.5px solid #40c057;
+  z-index: 2;
+  box-shadow: 0 2px 8px rgba(60,60,60,0.06);
+}
+
+/* Revenue card styling */
+.revenueTabs {
+  margin-bottom: 8px;
+}
+
+.revenueTabsList {
+  gap: 4px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.revenueTab {
+  font-size: 12px;
+  padding: 4px 10px;
+  height: 26px;
+  min-width: auto;
+  font-weight: 500;
+  color: var(--mantine-color-blue-9);
+}
+
+/* Counter animation classes */
+@keyframes countUp {
+  from {
+    opacity: 0.3;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced animations for order status cards */
+.statCard {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}

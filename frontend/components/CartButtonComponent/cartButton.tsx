@@ -14,13 +14,32 @@ import {
   Select,
   LoadingOverlay,
   FileInput,
+  Transition,
+  Paper,
+  Box,
+  Title,
+  Divider,
+  Table,
+  ThemeIcon,
+  Tooltip,
+  Card,
+  Grid,
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { useState, useEffect } from "react";
+import { useDisclosure, useViewportSize } from "@mantine/hooks";
+import { useState, useEffect, useRef, useCallback } from "react";
 import useSWR from "swr";
 import axios from "../../utils/axiosInstance";
 import { notifications } from "@mantine/notifications";
-import { IconShoppingCart, IconTrash } from "@tabler/icons-react";
+import {
+  IconShoppingCart,
+  IconTrash,
+  IconArrowRight,
+  IconMapPin,
+  IconUpload,
+  IconCheck,
+  IconX,
+  IconPackage,
+} from "@tabler/icons-react";
 import classes from "./Demo.module.css";
 import {
   fetchRegions,
@@ -76,19 +95,68 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
     data: cartData,
     error,
     mutate,
-  } = useSWR<ICart>("cart/", fetcher, { refreshInterval: 1000 });
+  } = useSWR<ICart>("cart/", fetcher, { refreshInterval: 3000 });
 
-  //pangadd ng proof of payment
+  // Scroll position state for animation - Matched with OrderButton
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const [buttonPosition, setButtonPosition] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const animationFrame = useRef<number | null>(null);
+  const { height: viewportHeight } = useViewportSize();
+
+  // Animation states
+  const [transitioning, setTransitioning] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState<"address" | "payment">(
+    "address"
+  );
+
+  //Payment related states
   const [qrCodes, setQrCodes] = useState<
     { value: string; label: string; qr_code: string }[]
   >([]);
   const { data: qrData } = useSWR("qr/", fetcher);
-  // Add these states inside the CartButton component
   const [selectedQrCode, setSelectedQrCode] = useState<string | null>(null);
   const [proofOfPayment, setProofOfPayment] = useState<File | null>(null);
   const [proofOfPaymentPreview, setProofOfPaymentPreview] = useState<
     string | null
   >(null);
+
+  // Smooth button animation - Matched with OrderButton
+  const updateButtonPosition = useCallback(() => {
+    const targetPosition = window.scrollY;
+    let currentPosition = buttonPosition;
+    const distance = (targetPosition - currentPosition) * 0.1;
+
+    if (Math.abs(distance) > 0.5) {
+      currentPosition += distance;
+      setButtonPosition(currentPosition);
+      animationFrame.current = requestAnimationFrame(updateButtonPosition);
+    } else {
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current);
+        animationFrame.current = null;
+      }
+    }
+  }, [buttonPosition]);
+
+  // Handle scroll events - Matched with OrderButton
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollPosition(window.scrollY);
+
+      if (animationFrame.current === null) {
+        animationFrame.current = requestAnimationFrame(updateButtonPosition);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (animationFrame.current) {
+        cancelAnimationFrame(animationFrame.current);
+      }
+    };
+  }, [updateButtonPosition]);
 
   useEffect(() => {
     if (qrData) {
@@ -122,7 +190,6 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
     last_name: "",
     email: "",
     username: "",
-    profile_picture: null,
     delivery_address: "",
   });
 
@@ -130,21 +197,20 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
   const [regions, setRegions] = useState<{ value: string; label: string }[]>(
     []
   );
-  const [provinces, setProvinces] = useState<
-    { value: string; label: string }[]
-  >([]);
+  const [provinces, setProvinces] = useState<{ value: string; label: string }[]>(
+    []
+  );
   const [citiesMunicipalities, setCitiesMunicipalities] = useState<
     { value: string; label: string }[]
   >([]);
-  const [barangays, setBarangays] = useState<
-    { value: string; label: string }[]
-  >([]);
+  const [barangays, setBarangays] = useState<{ value: string; label: string }[]>(
+    []
+  );
 
   const [selectedRegion, setSelectedRegion] = useState<string | null>(null);
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
-  const [selectedCityMunicipality, setSelectedCityMunicipality] = useState<
-    string | null
-  >(null);
+  const [selectedCityMunicipality, setSelectedCityMunicipality] =
+    useState<string | null>(null);
   const [selectedBarangay, setSelectedBarangay] = useState<string | null>(null);
   const [exactAddress, setExactAddress] = useState<string>("");
 
@@ -169,6 +235,9 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
     cityMunicipality: false,
     barangay: false,
   });
+
+  // Processing state
+  const [processingOrder, setProcessingOrder] = useState(false);
 
   // Load Regions Effect
   useEffect(() => {
@@ -208,6 +277,7 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
           title: "Error",
           message: "Failed to fetch user data",
           color: "red",
+          icon: <IconX size={18} />,
         });
         setLoading(false);
       }
@@ -235,6 +305,14 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
 
     setUserData((prev) => ({ ...prev, delivery_address: deliveryAddress }));
     setExactAddress(exactAddress);
+  };
+
+  // Function to get items for current page
+  const getVisibleItems = () => {
+    if (!cartData?.items) return [];
+    const itemsPerPage = 5;
+    const startIndex = (activePage - 1) * itemsPerPage;
+    return cartData.items.slice(startIndex, startIndex + itemsPerPage);
   };
 
   const handleRegionChange = async (regionCode: string | null) => {
@@ -370,6 +448,7 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
   // Cart Functions
   const handleRemoveItem = async (productId: number) => {
     try {
+      setTransitioning(true);
       await axios.delete("cart/", {
         data: { product_id: productId },
       });
@@ -377,14 +456,18 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
       notifications.show({
         title: "Success",
         message: "Item removed from cart",
-        color: "green",
+        color: "teal",
+        icon: <IconCheck size={18} />,
       });
+      setTimeout(() => setTransitioning(false), 300);
     } catch (error: any) {
       notifications.show({
         title: "Error",
         message: error.response?.data?.message || "Failed to remove item",
         color: "red",
+        icon: <IconX size={18} />,
       });
+      setTransitioning(false);
     }
   };
 
@@ -413,6 +496,7 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
         title: "Error",
         message: "Please set a delivery address",
         color: "red",
+        icon: <IconX size={18} />,
       });
       return;
     }
@@ -422,12 +506,13 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
         title: "Error",
         message: "Please select a payment method and upload proof of payment",
         color: "red",
+        icon: <IconX size={18} />,
       });
       return;
     }
 
+    setProcessingOrder(true);
     const formData = new FormData();
-    // Convert array to comma-separated string
     formData.append("items", selectedItems.join(","));
     formData.append("delivery_address", userData.delivery_address);
     formData.append("total_price", calculateTotal().toString());
@@ -443,22 +528,32 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
         },
       });
       await mutate();
-      closeCheckout();
-      close();
+
       notifications.show({
-        title: "Success",
-        message: "Order placed successfully",
-        color: "green",
+        title: "Order Placed",
+        message: "Your order has been successfully placed!",
+        color: "teal",
+        icon: <IconCheck size={18} />,
       });
+
       setSelectedItems([]);
       setSelectedQrCode(null);
       setProofOfPayment(null);
       setProofOfPaymentPreview(null);
+      setCheckoutStep("address");
+
+      setTimeout(() => {
+        closeCheckout();
+        close();
+        setProcessingOrder(false);
+      }, 500);
     } catch (error: any) {
+      setProcessingOrder(false);
       notifications.show({
         title: "Error",
         message: error.response?.data?.message || "Failed to place order",
         color: "red",
+        icon: <IconX size={18} />,
       });
     }
   };
@@ -472,7 +567,8 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
       notifications.show({
         title: "Success",
         message: "Address updated successfully",
-        color: "green",
+        color: "teal",
+        icon: <IconCheck size={18} />,
       });
       setEditing(false);
     } catch (error: any) {
@@ -480,6 +576,7 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
         title: "Error",
         message: error.response?.data?.message || "Failed to update address",
         color: "red",
+        icon: <IconX size={18} />,
       });
     }
   };
@@ -496,236 +593,588 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
   };
 
   if (loading) {
-    return <LoadingOverlay visible={true} />;
+    return <LoadingOverlay visible={true} overlayProps={{ blur: 2 }} />;
   }
 
   return (
     <>
-      <Group>
-        <Button
-          leftSection={<IconShoppingCart size={20} />}
-          size="lg"
-          radius="xl"
-          onClick={open}
-          style={{
-            position: "fixed",
-            bottom: "2rem",
-            right: "2rem",
-            zIndex: 1000,
-          }}
-        >
-          Cart
-          {cartData && cartData.items && cartData.items.length > 0 && (
-            <Badge color="red" variant="filled" size="sm" ml={5}>
-              {cartData.items.length}
-            </Badge>
-          )}
-        </Button>
-      </Group>
+      {/* Cart Button - Matched with OrderButton */}
+      <Button
+        leftSection={<IconShoppingCart size={20} />}
+        size="lg"
+        radius="xl"
+        onClick={open}
+        style={{
+          position: "fixed",
+          bottom: "2rem",
+          right: "2rem",
+          zIndex: 1000,
+          transform: isHovered
+            ? `translateY(${buttonPosition * 0.05}px) scale(1.05)`
+            : `translateY(${buttonPosition * 0.05}px)`,
+          transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+          background: "linear-gradient(45deg, #228be6, #4dabf7)",
+          border: "none",
+        }}
+        className={classes.orderButton} // Using same class as OrderButton
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        Cart
+        {cartData && cartData.items && cartData.items.length > 0 && (
+          <Badge
+            color="red"
+            variant="filled"
+            size="sm"
+            ml={5}
+            className={classes.orderBadge} // Using same class as OrderButton
+          >
+            {cartData.items.length}
+          </Badge>
+        )}
+      </Button>
 
+      {/* Cart Modal - Matched with OrderButton */}
       <Modal
         centered
         opened={opened}
-        onClose={close}
-        title="Your Cart"
-        size="lg"
+        onClose={() => {
+          setTransitioning(true);
+          setTimeout(() => {
+            close();
+            setTransitioning(false);
+          }, 300);
+        }}
+        title={
+          <Title order={3} className={classes.modalTitle}>
+            Your Shopping Cart
+          </Title>
+        }
+        size="xl" // Changed from "lg" to "xl" for more space
+        className={classes.orderModal} // Using same class as OrderButton
+        transitionProps={{ duration: 300, transition: "slide-down" }}
+        overlayProps={{ blur: 3 }}
       >
+        <LoadingOverlay visible={transitioning} overlayProps={{ blur: 2 }} />
         <Stack>
-          {cartData?.items.length === 0 && (
-            <Text ta="center" c="dimmed">
-              Your cart is empty
-            </Text>
-          )}
-          {cartData?.items.map((item) => (
-            <Checkbox.Card
-              key={item.id}
-              className={classes.root}
-              radius="md"
-              checked={selectedItems.includes(item.id)}
-              onClick={() => handleItemSelect(item.id)}
-            >
-              <Group wrap="nowrap" align="flex-start">
-                <Checkbox.Indicator />
-                <Image
-                  src={item.product.image}
-                  alt={item.product.name}
-                  width={80}
-                  height={80}
-                  radius="md"
-                  fit="cover"
-                />
-                <div>
-                  <Text className={classes.label}>{item.product.name}</Text>
-                  <Text className={classes.description}>
-                    Quantity: {item.quantity}
-                  </Text>
-                  <Text className={classes.description}>
-                    Price: ₱{item.product.price * item.quantity}
-                  </Text>
-                </div>
-                <ActionIcon
-                  color="red"
-                  variant="subtle"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveItem(item.product.productID);
-                  }}
-                >
-                  <IconTrash size={16} />
-                </ActionIcon>
-              </Group>
-            </Checkbox.Card>
-          ))}
-          {cartData && cartData.items && cartData.items.length > 0 && (
+          {!cartData?.items || cartData.items.length === 0 ? (
+            <Paper p="xl" radius="md" className={classes.emptyOrdersMessage}>
+              <Text ta="center" c="dimmed" size="lg">
+                Your cart is empty
+              </Text>
+            </Paper>
+          ) : (
             <>
-              <Center>
+              <Paper p="md" radius="md" className={classes.tableContainer}>
+                {getVisibleItems().map((item, index) => (
+                  <Transition
+                    key={item.id}
+                    mounted={true}
+                    transition="fade"
+                    duration={300}
+                    exitDuration={100}
+                    delay={index * 50}
+                  >
+                    {(styles) => (
+                      <Card
+                        withBorder
+                        radius="md"
+                        mb="md"
+                        style={{
+                          ...styles,
+                          transition: "all 0.2s ease",
+                          backgroundColor: selectedItems.includes(item.id)
+                            ? "rgba(44, 136, 152, 0.1)"
+                            : undefined,
+                        }}
+                        className={classes.cartItemCard}
+                      >
+                        <Grid align="center">
+                          <Grid.Col span={1}>
+                            <Checkbox
+                              checked={selectedItems.includes(item.id)}
+                              onChange={() => handleItemSelect(item.id)}
+                              radius="xl"
+                              size="md"
+                            />
+                          </Grid.Col>
+
+                          <Grid.Col span={2}>
+                            <Image
+                              src={item.product.image}
+                              alt={item.product.name}
+                              width={70}
+                              height={70}
+                              radius="md"
+                              fit="cover"
+                            />
+                          </Grid.Col>
+
+                          <Grid.Col span={4}>
+                            <Text size="md" fw={500} lineClamp={2}>
+                              {item.product.name}
+                            </Text>
+                          </Grid.Col>
+
+                          <Grid.Col span={2} style={{ textAlign: "center" }}>
+                            <Badge size="lg" variant="outline" radius="sm">
+                              ₱{item.product.price.toLocaleString()}
+                            </Badge>
+                          </Grid.Col>
+
+                          <Grid.Col span={1} style={{ textAlign: "center" }}>
+                            <Text fw={500} size="sm">
+                              x{item.quantity}
+                            </Text>
+                          </Grid.Col>
+
+                          <Grid.Col span={2} style={{ textAlign: "right" }}>
+                            <Text fw={700} size="md" c="teal">
+                              ₱{(item.product.price * item.quantity).toLocaleString()}
+                            </Text>
+                          </Grid.Col>
+
+                          <Grid.Col span={1} style={{ textAlign: "right" }}>
+                            <ActionIcon
+                              color="red"
+                              variant="subtle"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveItem(item.product.productID);
+                              }}
+                              style={{
+                                transition: "transform 0.2s ease",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = "scale(1.2)";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = "scale(1)";
+                              }}
+                            >
+                              <IconTrash size={16} />
+                            </ActionIcon>
+                          </Grid.Col>
+                        </Grid>
+                      </Card>
+                    )}
+                  </Transition>
+                ))}
+              </Paper>
+
+              {/* Pagination */}
+              <Center my="md">
                 <Pagination
-                  total={Math.ceil(cartData.items.length / 5)}
+                  total={Math.max(
+                    1,
+                    Math.ceil((cartData?.items?.length || 0) / 5)
+                  )}
                   value={activePage}
                   onChange={setPage}
-                  mt="sm"
+                  radius="md"
+                  size="md"
+                  withEdges
                 />
               </Center>
-              <Stack gap="xs" mt="md">
-                <Text fw={500} ta="right">
-                  Total Selected: ₱{calculateTotal()}
-                </Text>
+
+              {/* Summary and checkout button */}
+              <Card withBorder radius="md" p="md" className={classes.cartSummary}>
+                <Group justify="space-between" mb="xs">
+                  <Text fw={600} size="lg">
+                    Selected Items ({selectedItems.length} of {cartData.items.length})
+                  </Text>
+                </Group>
+
+                <Divider my="sm" />
+
+                {selectedItems.length > 0 ? (
+                  <>
+                    <Stack spacing="xs" mb="md">
+                      {cartData.items
+                        .filter((item) => selectedItems.includes(item.id))
+                        .map((item) => (
+                          <Group key={item.id} position="apart">
+                            <Text size="sm" lineClamp={1}>
+                              {item.product.name} (x{item.quantity})
+                            </Text>
+                            <Text size="sm" fw={500}>
+                              ₱{(item.product.price * item.quantity).toLocaleString()}
+                            </Text>
+                          </Group>
+                        ))}
+                    </Stack>
+                    <Divider my="sm" />
+                  </>
+                ) : (
+                  <Text c="dimmed" ta="center" mb="md">
+                    Select items from your cart to proceed
+                  </Text>
+                )}
+
+                <Group position="apart" mb="md">
+                  <Text fw={700} size="lg">
+                    Total Amount
+                  </Text>
+                  <Text fw={700} size="xl" c="teal">
+                    ₱{calculateTotal().toLocaleString()}
+                  </Text>
+                </Group>
+
                 <Button
                   fullWidth
-                  color="green"
+                  style={{
+                    background: "linear-gradient(45deg, #12b886, #38d9a9)",
+                    border: "none",
+                    transition: "transform 0.3s",
+                  }}
+                  size="lg"
+                  radius="md"
                   onClick={openCheckout}
                   disabled={selectedItems.length === 0}
+                  rightSection={<IconArrowRight size={18} />}
+                  className={classes.checkoutButton}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0)";
+                  }}
                 >
-                  Checkout Selected Items ({selectedItems.length})
+                  Proceed to Checkout
                 </Button>
-              </Stack>
+              </Card>
             </>
           )}
         </Stack>
       </Modal>
 
-      {/* checkout modal */}
+      {/* Checkout Modal with Steps */}
       <Modal
         centered
         opened={checkoutOpened}
-        onClose={closeCheckout}
-        title="Checkout"
+        onClose={() => {
+          if (processingOrder) return;
+          setTransitioning(true);
+          setTimeout(() => {
+            closeCheckout();
+            setCheckoutStep("address");
+            setTransitioning(false);
+          }, 300);
+        }}
+        title={
+          <Title order={3} className={classes.modalTitle}>
+            {checkoutStep === "address"
+              ? "Delivery Details"
+              : "Payment Information"}
+          </Title>
+        }
         size="lg"
+        className={classes.orderModal}
+        transitionProps={{ duration: 300, transition: "fade" }}
+        overlayProps={{ blur: 3 }}
       >
-        <Stack>
-          <Group justify="apart">
-            <Text>Delivery Address:</Text>
-            <Button variant="subtle" onClick={() => setEditing(!editing)}>
-              {editing ? "Cancel Edit" : "Change Address"}
-            </Button>
-          </Group>
-          {!editing ? (
-            <TextInput
-              value={userData.delivery_address}
-              readOnly
-              style={{ flex: 1 }}
-            />
-          ) : (
-            <>
-              <Select
-                label="Region"
-                placeholder="Select Region"
-                data={regions}
-                value={selectedRegion}
-                onChange={handleRegionChange}
-                searchable
-                disabled={loadingAddress.region}
-              />
-              <Select
-                label="Province"
-                placeholder="Select Province"
-                data={provinces}
-                value={selectedProvince}
-                onChange={handleProvinceChange}
-                searchable
-                disabled={!selectedRegion || loadingAddress.province}
-              />
-              <Select
-                label="City/Municipality"
-                placeholder="Select City/Municipality"
-                data={citiesMunicipalities}
-                value={selectedCityMunicipality}
-                onChange={handleCityMunicipalityChange}
-                searchable
-                disabled={!selectedProvince || loadingAddress.cityMunicipality}
-              />
-              <Select
-                label="Barangay"
-                placeholder="Select Barangay"
-                data={barangays}
-                value={selectedBarangay}
-                onChange={handleBarangayChange}
-                searchable
-                disabled={!selectedCityMunicipality || loadingAddress.barangay}
-              />
-              <TextInput
-                label="Exact Address"
-                placeholder="House/Building Number, Street Name"
-                value={exactAddress}
-                onChange={handleExactAddressChange}
-              />
-              <Group justify="right" mt="md">
-                <Button variant="default" onClick={handleCancelEdit}>
-                  Cancel
-                </Button>
-                <Button color="green" onClick={handleSaveAddress}>
-                  Save
+        <LoadingOverlay
+          visible={processingOrder || transitioning}
+          overlayProps={{ blur: 3 }}
+        />
+
+        {checkoutStep === "address" ? (
+          <Stack>
+            <Paper p="md" radius="md" withBorder>
+              <Group justify="apart" mb="md">
+                <Text fw={600} size="md">
+                  <IconMapPin
+                    size={18}
+                    style={{ marginRight: 8, verticalAlign: "text-bottom" }}
+                  />
+                  Delivery Address
+                </Text>
+                <Button variant="subtle" onClick={() => setEditing(!editing)} radius="md" compact>
+                  {editing ? "Cancel" : "Change"}
                 </Button>
               </Group>
-            </>
-          )}
-          <Text fw={500} ta="right">
-            Total Amount: ₱{calculateTotal()}
-          </Text>
-          {/* // Add these elements inside the checkout modal's Stack component */}
-          <Select
-            label="Payment Method"
-            placeholder="Select Payment Method"
-            data={qrCodes}
-            value={selectedQrCode}
-            onChange={setSelectedQrCode}
-            searchable
-            clearable
-          />
-          {selectedQrCode && (
-            <Image
-              src={qrCodes.find((qr) => qr.value === selectedQrCode)?.qr_code}
-              alt="QR Code"
-              width={150}
-              height={150}
-              fit="contain"
-              mb="md"
-            />
-          )}
-          <FileInput
-            label="Upload Proof of Payment"
-            placeholder="Choose file"
-            accept="image/*"
-            onChange={handleProofOfPaymentChange}
-            mb="md"
-          />
-          {proofOfPaymentPreview && (
-            <Image
-              src={proofOfPaymentPreview}
-              alt="Proof of Payment Preview"
-              w={150}
-              h={50}
-            />
-          )}
-          <Button
-            fullWidth
-            color="green"
-            onClick={handleCheckout}
-            disabled={selectedItems.length === 0 || (editing && !exactAddress)}
-          >
-            Confirm Order
-          </Button>
-        </Stack>
+
+              {!editing ? (
+                <Paper p="sm" bg="rgba(0,0,0,0.03)" radius="sm">
+                  <Text size="md">
+                    {userData.delivery_address || "No address set"}
+                  </Text>
+                </Paper>
+              ) : (
+                <Box>
+                  <Select
+                    label="Region"
+                    placeholder="Select Region"
+                    data={regions}
+                    value={selectedRegion}
+                    onChange={handleRegionChange}
+                    searchable
+                    disabled={loadingAddress.region}
+                    radius="md"
+                    mb="sm"
+                  />
+                  <Select
+                    label="Province"
+                    placeholder="Select Province"
+                    data={provinces}
+                    value={selectedProvince}
+                    onChange={handleProvinceChange}
+                    searchable
+                    disabled={!selectedRegion || loadingAddress.province}
+                    radius="md"
+                    mb="sm"
+                  />
+                  <Select
+                    label="City/Municipality"
+                    placeholder="Select City/Municipality"
+                    data={citiesMunicipalities}
+                    value={selectedCityMunicipality}
+                    onChange={handleCityMunicipalityChange}
+                    searchable
+                    disabled={
+                      !selectedProvince || loadingAddress.cityMunicipality
+                    }
+                    radius="md"
+                    mb="sm"
+                  />
+                  <Select
+                    label="Barangay"
+                    placeholder="Select Barangay"
+                    data={barangays}
+                    value={selectedBarangay}
+                    onChange={handleBarangayChange}
+                    searchable
+                    disabled={!selectedCityMunicipality || loadingAddress.barangay}
+                    radius="md"
+                    mb="sm"
+                  />
+                  <TextInput
+                    label="Exact Address"
+                    placeholder="House/Building Number, Street Name"
+                    value={exactAddress}
+                    onChange={handleExactAddressChange}
+                    radius="md"
+                    mb="sm"
+                  />
+                  <Group justify="right" mt="md">
+                    <Button variant="default" onClick={handleCancelEdit} radius="md">
+                      Cancel
+                    </Button>
+                    <Button
+                      color="teal"
+                      onClick={handleSaveAddress}
+                      radius="md"
+                      style={{
+                        transition: "transform 0.2s ease",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = "translateY(-2px)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "translateY(0)";
+                      }}
+                    >
+                      Save Address
+                    </Button>
+                  </Group>
+                </Box>
+              )}
+            </Paper>
+
+            <Paper p="md" radius="md" withBorder>
+              <Text fw={600} size="md" mb="md">
+                Order Summary
+              </Text>
+
+              {selectedItems.length > 0 && cartData?.items && (
+                <Stack spacing="xs">
+                  {cartData.items
+                    .filter((item) => selectedItems.includes(item.id))
+                    .map((item, index) => (
+                      <Transition
+                        key={item.id}
+                        mounted={true}
+                        transition="fade"
+                        duration={300}
+                        delay={index * 50}
+                      >
+                        {(styles) => (
+                          <Group
+                            key={item.id}
+                            justify="space-between"
+                            style={styles}
+                          >
+                            <Text size="sm" lineClamp={1}>
+                              {item.product.name} x{item.quantity}
+                            </Text>
+                            <Text size="sm" fw={500}>
+                              ₱{(item.product.price * item.quantity).toLocaleString()}
+                            </Text>
+                          </Group>
+                        )}
+                      </Transition>
+                    ))}
+                  <Divider my="sm" />
+                  <Group justify="space-between">
+                    <Text fw={600}>Total Amount</Text>
+                    <Text fw={700} size="lg" c="teal">
+                      ₱{calculateTotal().toLocaleString()}
+                    </Text>
+                  </Group>
+                </Stack>
+              )}
+            </Paper>
+
+            <Button
+              fullWidth
+              style={{
+                background: "linear-gradient(45deg, #12b886, #38d9a9)",
+                border: "none",
+                transition: "transform 0.3s",
+              }}
+              size="lg"
+              mt="md"
+              radius="md"
+              onClick={() => setCheckoutStep("payment")}
+              disabled={
+                !userData.delivery_address || userData.delivery_address === ""
+              }
+              rightSection={<IconArrowRight size={18} />}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+              }}
+            >
+              Continue to Payment
+            </Button>
+          </Stack>
+        ) : (
+          <Stack>
+            <Paper p="md" radius="md" withBorder>
+              <Text fw={600} size="md" mb="lg">
+                Select Payment Method
+              </Text>
+
+              <Select
+                label="Payment Method"
+                placeholder="Select Payment Method"
+                data={qrCodes}
+                value={selectedQrCode}
+                onChange={setSelectedQrCode}
+                searchable
+                clearable
+                radius="md"
+                mb="md"
+              />
+
+              {selectedQrCode && (
+                <Transition
+                  mounted={!!selectedQrCode}
+                  transition="fade"
+                  duration={300}
+                >
+                  {(styles) => (
+                    <Center mb="lg" style={styles}>
+                      <Box>
+                        <Image
+                          src={
+                            qrCodes.find((qr) => qr.value === selectedQrCode)
+                              ?.qr_code
+                          }
+                          alt="QR Code"
+                          width={200}
+                          height={200}
+                          fit="contain"
+                          style={{
+                            border: "1px solid #e9ecef",
+                            borderRadius: "8px",
+                            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                          }}
+                        />
+                        <Text ta="center" size="sm" c="dimmed" mt="xs">
+                          Scan to pay with {selectedQrCode}
+                        </Text>
+                      </Box>
+                    </Center>
+                  )}
+                </Transition>
+              )}
+
+              <FileInput
+                label="Upload Proof of Payment"
+                placeholder="Choose file"
+                accept="image/*"
+                onChange={handleProofOfPaymentChange}
+                radius="md"
+                icon={<IconUpload size={16} />}
+              />
+
+              {proofOfPaymentPreview && (
+                <Transition
+                  mounted={!!proofOfPaymentPreview}
+                  transition="fade"
+                  duration={300}
+                >
+                  {(styles) => (
+                    <Box mt="md" style={styles}>
+                      <Text size="sm" fw={500} mb="xs">
+                        Payment Proof Preview:
+                      </Text>
+                      <Image
+                        src={proofOfPaymentPreview}
+                        alt="Proof of Payment Preview"
+                        height={150}
+                        radius="md"
+                        fit="contain"
+                        style={{
+                          border: "1px solid #e9ecef",
+                          borderRadius: "8px",
+                          boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                        }}
+                      />
+                    </Box>
+                  )}
+                </Transition>
+              )}
+            </Paper>
+
+            <Group grow mt="lg">
+              <Button
+                variant="outline"
+                color="gray"
+                onClick={() => setCheckoutStep("address")}
+                radius="md"
+                size="lg"
+              >
+                Back to Address
+              </Button>
+              <Button
+                style={{
+                  background: "linear-gradient(45deg, #12b886, #38d9a9)",
+                  border: "none",
+                  transition: "transform 0.3s",
+                }}
+                onClick={handleCheckout}
+                disabled={
+                  selectedItems.length === 0 || !selectedQrCode || !proofOfPayment
+                }
+                radius="md"
+                size="lg"
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
+              >
+                Place Order
+              </Button>
+            </Group>
+          </Stack>
+        )}
       </Modal>
     </>
   );

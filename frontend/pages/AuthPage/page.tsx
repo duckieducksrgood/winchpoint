@@ -8,15 +8,42 @@ import OrderButton from "../../components/OrderButtonComponent/orderButton";
 import { useUserStore } from "../../utils/auth";
 import { useState } from "react";
 import HeaderNav from "../../components/HeaderComponent/headerNav";
+import axios from "axios";
+import { useRouter } from "next/router";
 
 export default function AuthPage() {
   const [opened, { toggle }] = useDisclosure();
   const [openedNav, setOpenedNav] = useState(false);
+  const router = useRouter();
+  const { role, profilePicture, fetchUserData, isLoggedout, setUser } = useUserStore();
 
   function handleAddToCart(productId: number, quantity: number): void {
     console.log("Nothing to do here. Just a placeholder.");
   }
-  const { role, profilePicture, fetchUserData, isLoggedout } = useUserStore();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await axios.post("login/", {
+        username,
+        password,
+      });
+
+      // After successful login:
+      setUser({
+        username: response.data.username,
+        role: response.data.role, // Include role if available
+      });
+
+      // Store token, redirect, etc.
+
+      // Redirect to appropriate page
+      router.push("/"); // or wherever
+    } catch (error) {
+      // Handle login error
+    }
+  };
 
   return (
     <AppShell

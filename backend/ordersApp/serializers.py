@@ -26,17 +26,7 @@ class CartSerializer(serializers.ModelSerializer):
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = '__all__'
-
-# class CartSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Cart
-#         fields = '__all__'
-
-# class CartItemSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = CartItem
-#         fields = '__all__'
+        fields = '__all__'  # Fix: Don't mix '__all__' with explicit fields
 
 class PaymentQrSerializer(serializers.ModelSerializer):
     class Meta:

@@ -12,6 +12,7 @@ from inventoryApp.models import Product
 import boto3
 from botocore.exceptions import ClientError
 from django.core.mail import send_mail
+from utils.email_utils import send_html_email
 
 # Create your views here.
 User = get_user_model()
@@ -226,11 +227,17 @@ class OrderCrud(APIView):
             
         old_status = order.status
         old_tracking = order.tracking_number
+        old_refund_status = order.refund_status
             
         order.status = request.data.get('status', order.status)
         order.tracking_number = request.data.get('tracking_number', order.tracking_number)            
         order.payment_method = request.data.get('payment_method', order.payment_method)
         order.proof_of_payment = request.data.get('proof_of_payment', order.proof_of_payment)
+        
+        # Add handling for refund fields
+        order.refund_status = request.data.get('refund_status', order.refund_status)
+        order.refund_proof = request.data.get('refund_proof', order.refund_proof)
+        order.refund_date = request.data.get('refund_date', order.refund_date)
             
             # Handle status change notifications
         if order.status != old_status:
@@ -250,6 +257,7 @@ class OrderCrud(APIView):
 
             # Handle tracking number updates
         if order.tracking_number and order.tracking_number != old_tracking:
+                # Keep the existing plain text email
                 send_mail(
                     f'Tracking Number Updated for Order #{order.id}',
                     f'Dear Customer,\n\nYour order tracking number has been updated.\n\nOrder ID: {order.id}\nTracking Number: {order.tracking_number}',
@@ -257,6 +265,37 @@ class OrderCrud(APIView):
                     [order.customer.email],
                     fail_silently=True,
                 )
+                
+                # Add HTML email version
+                try:
+                    # Get items for the order
+                    items_context = []
+                    for item in order.items.all():
+                        items_context.append({
+                            'name': item.product.name,
+                            'quantity': item.quantity,
+                            'price': item.price
+                        })
+                        
+                    customer_name = f"{order.customer.first_name} {order.customer.last_name}"
+                    
+                    send_html_email(
+                        f'Your Order #{order.id} is Approved and Ready to Ship!',
+                        'emails/order_approved.html',
+                        order.customer.email,
+                        {
+                            'order_id': order.id,
+                            'customer_name': customer_name,
+                            'tracking_number': order.tracking_number,
+                            'items': items_context,
+                            'total_price': order.total_price,
+                            'tracking_url': f"{settings.SITE_URL}/track/{order.tracking_number}",
+                            'site_url': settings.SITE_URL
+                        }
+                    )
+                except Exception as e:
+                    print(f"HTML email could not be sent: {e}")
+                    # Plain text email already sent as fallback
 
             # Handle cancellation and stock updates
         if order.status == 'Cancelled':
@@ -273,6 +312,27 @@ class OrderCrud(APIView):
                     [order.customer.email],
                     fail_silently=True,
                 )
+        
+        # Add email notification for refund status changes
+        if order.refund_status and order.refund_status != old_refund_status:
+            try:
+                customer = order.user if isinstance(order.user, User) else User.objects.get(id=order.user)
+                if customer.email:
+                    refund_template = 'emails/order_refund_status.html'
+                    send_html_email(
+                        subject=f"Order #{order.id} Refund Status: {order.refund_status}",
+                        template_name=refund_template,
+                        to_email=customer.email,
+                        context={
+                            'customer_name': f"{customer.first_name} {customer.last_name}",
+                            'order_id': order.id,
+                            'refund_status': order.refund_status,
+                            'refund_date': order.refund_date,
+                            'items': OrderItem.objects.filter(order=order),
+                        }
+                    )
+            except Exception as e:
+                print(f"Failed to send refund notification email: {e}")
             
         order.save()
         serializer = OrderSerializer(order)
@@ -281,36 +341,64 @@ class OrderCrud(APIView):
         
 
     def delete(self, request, format=None):
-        access_token = request.COOKIES.get('jwt_access_token')
-        if not access_token:
-            return Response({'error': 'Please login first'}, status=status.HTTP_400_BAD_REQUEST)
-
+        order_id = request.data.get('order_id')
+        status_change = request.data.get('status', 'Cancelled')
+        
+        if not order_id:
+            return Response({'message': 'Order ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+        
         try:
-            # Decode token
-            payload = jwt.decode(access_token, settings.SECRET_KEY, algorithms=['HS256'])
-            username = payload.get('username')
-            if not username:
-                return Response({'error': 'Invalid token payload'}, status=status.HTTP_401_UNAUTHORIZED)
-
-            # Get user and specific order
-            user = get_object_or_404(User, username=username)
-            order_id = request.data.get('order_id')
+            order = Order.objects.get(id=order_id)
             
-            if not order_id:
-                return Response({'error': 'Order ID is required'}, status=status.HTTP_400_BAD_REQUEST)
+            # Only restore stock if the order is being cancelled
+            if status_change == 'Cancelled' and order.status != 'Cancelled':
+                # Get items and prepare email data
+                items_info = []
+                for order_item in OrderItem.objects.filter(order=order):
+                    # Get the product and restore stock
+                    product = Product.objects.get(productID=order_item.product)
+                    product.stock += order_item.quantity
+                    product.save()
+                    
+                    # Add item info for the email
+                    items_info.append({
+                        'name': product.name,
+                        'quantity': order_item.quantity
+                    })
                 
-            order = Order.objects.get(id=order_id, customer=user)
-            order.status = 'Cancelled'
+                # Get customer information
+                try:
+                    customer = User.objects.get(username=order.customer)
+                    customer_email = customer.email
+                    customer_name = f"{customer.first_name} {customer.last_name}"
+                except User.DoesNotExist:
+                    customer_email = None
+                    customer_name = "Customer"
+                
+                # Send email notification if we have the customer email
+                if customer_email:
+                    # Send HTML email
+                    send_html_email(
+                        subject=f'Your Order #{order.id} Has Been Cancelled',
+                        template_name='emails/order_cancelled.html',
+                        to_email=customer_email,
+                        context={
+                            'customer_name': customer_name,
+                            'order_id': order.id,
+                            'items': items_info,
+                            'site_url': settings.SITE_URL
+                        }
+                    )
+            
+            # Update the order status
+            order.status = status_change
             order.save()
             
-            return Response(status=status.HTTP_204_NO_CONTENT)
-                
+            return Response({'message': 'Order updated successfully'}, status=status.HTTP_200_OK)
         except Order.DoesNotExist:
-            return Response({'error': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
-        except Order.MultipleObjectsReturned:
-            return Response({'error': 'Multiple orders found'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class CartCrud(APIView):
@@ -447,3 +535,18 @@ class CartCrud(APIView):
             return Response({'error': 'Cart item not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class SendResetCodeView(APIView):
+    def post(self, request):
+        email = request.data.get('email')
+        reset_code = request.data.get('reset_code')
+        
+        send_mail(
+            'Password Reset Code',
+            f'Your password reset code is {reset_code}',
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+            fail_silently=False,
+        )
+        return Response({'message': 'Reset code sent successfully'}, status=status.HTTP_200_OK)

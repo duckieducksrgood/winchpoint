@@ -1,10 +1,11 @@
 import axios from "axios";
 
 export const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL + "api/", // Ensure this is correct
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL + "api/", // Make sure this is correct!
   timeout: 50000,
   headers: {
     "Content-Type": "application/json",
+    // Add any authentication headers if needed
   },
   withCredentials: true,
 });

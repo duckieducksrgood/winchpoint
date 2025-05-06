@@ -1,73 +1,450 @@
-.header {
-  height: 60px;
-  padding-left: var(--mantine-spacing-md);
-  padding-right: var(--mantine-spacing-md);
-  border-bottom: 1px solid
-    light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap');
+
+/* Navbar wrapper - completely overhauled for stutter-free animation */
+.navbarWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
+  background: linear-gradient(to right, #3b6064, #5e8b7e);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.12);
+  padding-top: 10px;
+  
+  /* Stutter-free transitions with GPU acceleration */
+  transition-property: transform, opacity, height;
+  transition-duration: 500ms;
+  transition-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+  
+  /* Hardware acceleration */
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  perspective: 1000px;
 }
 
-.link {
+.navVisible {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+  /* Add a small delay to transform when expanding for smoother animation */
+  transition-delay: 0ms, 0ms, 0ms;
+}
+
+.navCompact {
+  height: 60px;
+  transform: translate3d(0, -15px, 0);
+  opacity: 0.97;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  /* Faster transition when collapsing */
+  transition-duration: 400ms;
+  transition-delay: 0ms;
+}
+
+/* Super smooth header transitions */
+.header {
+  height: 90px;
+  padding: 0;
+  position: relative;
+  
+  /* Use translate3d for GPU acceleration */
+  transform: translate3d(0, 0, 0);
+  transition: height 400ms cubic-bezier(0.33, 1, 0.68, 1);
+  will-change: height;
+}
+
+.headerCompact {
+  height: 60px;
+}
+
+.headerInner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  padding: 0 px;
+}
+
+.dropdownBackground {
+  background-color: rgba(29, 53, 59, 0.98);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 15px;
+}
+
+/* Progress bar for scroll position */
+.progressBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  transition: none;
+  width: var(--scroll-progress, 0%);
+  background: linear-gradient(to right, #a7c4bc, #4ecdc4);
+  
+  /* Make progress updates smoother without transition */
+  transition: none;
+  
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* Left section - Logo and Title */
+.leftSection {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 15px;
+  height: 100%;
+}
+
+.logoLink {
+  text-decoration: none;
   display: flex;
   align-items: center;
   height: 100%;
-  padding-left: var(--mantine-spacing-md);
-  padding-right: var(--mantine-spacing-md);
-  text-decoration: none;
-  color: white;
-  font-weight: 500;
-  font-size: var(--mantine-font-size-sm);
-
-  @media (max-width: $mantine-breakpoint-sm) {
-    height: 42px;
-    width: 100%;
-  }
-
-  /* @mixin hover {
-    background-color: light-dark(
-      var(--mantine-color-gray-0),
-      var(--mantine-color-dark-6)
-    );
-  } */
+  transition: opacity 0.3s ease;
 }
 
-.subLink {
+
+/* Right section - Navigation and Action buttons */
+.rightSection {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 30px;
+  height: 100%;
+}
+
+/* Smooth logo transitions with GPU acceleration */
+.logo {
+  box-shadow: none !important;
+  border: none !important;
+  flex-shrink: 0;
+  transition: all 400ms cubic-bezier(0.33, 1, 0.68, 1) !important;
+  transform: translate3d(0, 0, 0);
+  will-change: width, height;
+}
+
+.titleContainer {
+  transition: all 400ms cubic-bezier(0.33, 1, 0.68, 1);
+  flex-shrink: 0;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.title {
+  font-family: 'Montserrat', sans-serif !important;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  margin: 0 !important;
+  transition: all 400ms cubic-bezier(0.33, 1, 0.68, 1) !important;
+  transform: translate3d(0, 0, 0);
+  will-change: font-size;
+}
+
+/* Navigation styling */
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  height: 100%;
+  padding: 0 5px;
+}
+
+.navLink {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 15px;
+  text-decoration: none;  /* Confirm no underline in base state */
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: 'Montserrat', sans-serif;
+  transition: all 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.navLinkInner {
+  align-items: center;
+}
+
+.navLinkIndicator {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
   width: 100%;
-  padding: var(--mantine-spacing-xs) var(--mantine-spacing-md);
-  border-radius: var(--mantine-radius-md);
+  transform: scaleX(0);
+  transform-origin: center;
+  background-color: #a7c4bc;
+  border-radius: 2px 2px 0 0;
+  transition: transform 0.4s cubic-bezier(0.33, 1, 0.68, 1);
+  opacity: 0.8;
+}
 
-  @mixin hover {
-    background-color: light-dark(
-      var(--mantine-color-gray-0),
-      var(--mantine-color-dark-7)
-    );
+.navLink:hover {
+  color: #a7c4bc;
+  text-decoration: none;  /* This removes the underline */
+}
+
+.navLink:hover .navLinkIndicator {
+  transform: scaleX(0.7);
+}
+
+/* Active page indicator */
+.activeNavLink {
+  color: #a7c4bc !important;
+  font-weight: 600;
+  text-decoration: none;  /* No underline for active links */
+}
+
+.activeNavLink .navLinkIndicator {
+  transform: scaleX(0.7);
+  background-color: #a7c4bc;
+  opacity: 1;
+}
+
+/* Action buttons section */
+
+
+.aboutToggle {
+  cursor: pointer;
+  padding: 8px 15px;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.aboutToggle:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.chevronDown {
+  transition: transform 400ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+.chevronUp {
+  transform: rotate(180deg);
+  transition: transform 400ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+/* Auth button styling */
+.authButton {
+  transition: all 0.3s cubic-bezier(0.33, 1, 0.68, 1) !important;
+  font-family: 'Montserrat', sans-serif !important;
+  font-weight: 500 !important;
+  padding: 8px 20px !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1) !important;
+}
+
+.authButton:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15) !important;
+}
+
+.activeAuthButton {
+  transform: translateY(-2px) !important;
+}
+
+/* Burger menu styling */
+.burger {
+  transition: transform 0.3s ease;
+}
+
+.burger:hover {
+  transform: rotate(15deg);
+}
+
+/* Animations for dropdown content */
+.pulseIcon {
+  animation: pulse 3s infinite ease-in-out;
+}
+
+.fadeInFirst {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
+  animation-delay: 0.1s;
+}
+
+.fadeInSecond {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
+  animation-delay: 0.25s;
+}
+
+.fadeInThird {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
+  animation-delay: 0.4s;
+}
+
+.fadeInFourth {
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
+  animation-delay: 0.55s;
+}
+
+/* Standard CSS keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.dropdownFooter {
-  background-color: light-dark(
-    var(--mantine-color-gray-0),
-    var(--mantine-color-dark-7)
-  );
-  margin: calc(var(--mantine-spacing-md) * -1);
-  margin-top: var(--mantine-spacing-sm);
-  padding: var(--mantine-spacing-md) calc(var(--mantine-spacing-md) * 2);
-  padding-bottom: var(--mantine-spacing-xl);
-  border-top: 1px solid
-    light-dark(var(--mantine-color-gray-1), var(--mantine-color-dark-5));
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
-.mobileLink {
-  color: white;
-  padding: var(--mantine-spacing-md);
-  border-radius: var(--mantine-radius-sm);
-  text-decoration: none;
-  font-weight: 500;
-  display: block;
-  text-align: center;
-  transition: background-color 0.2s;
+/* Social links styling */
+.socialLink {
+  transition: all 0.3s ease;
+  border-radius: 12px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+}
 
-  &:hover {
-    background-color: rgba(223, 216, 216, 0.1);
+.socialLink:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  transform: translateX(8px);
+}
+
+
+
+.socialLink:hover .socialIcon {
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+/* Media queries for responsive adjustments */
+@media (max-width: 1200px) {
+  .navLinks {
+    gap: 20px;
+  }
+  
+  .rightSection {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 992px) {
+  .header {
+    height: 80px;
+    transition: height 350ms cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+  
+  .navLinks {
+    gap: 15px;
+  }
+  
+  .navLink {
+    padding: 0 10px;
+    font-size: 15px;
+  }
+  
+  .logo {
+    width: 55px !important;
+    height: 55px !important;
+  }
+  
+  .title {
+    font-size: 1.3rem !important;
+  }
+  
+  .actionButtons {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .rightSection {
+    display: none;
+  }
+  
+  .header {
+    height: 70px;
+  }
+  
+  .title {
+    font-size: 1.2rem !important;
+  }
+  
+  .headerCompact {
+    height: 60px;
+  }
+  
+  .navCompact {
+    transform: translateY(-15px); /* Use simple translateY instead of translate3d */
+  transition-duration: 350ms; /* Shorter duration for collapse */
+  transition-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
+}
+  
+  .leftSection {
+    justify-content: center;
+  }
+  
+  .navbarWrapper {
+    padding-top: 5px;
+    transition-property: transform, opacity, height;
+    transition-duration: 450ms; /* Slightly reduced for better performance */
+    transition-timing-function: cubic-bezier(0.25, 0.1, 0.25, 1); /* Standard easing */
+    
+    /* Use simpler hardware acceleration to reduce rendering conflicts */
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    will-change: transform;
+  }
+}
+
+/* Add responsive animations that are less intensive on mobile */
+@media (prefers-reduced-motion: reduce) {
+  .navbarWrapper, .header, .logo, .titleContainer, .title, .navLinkIndicator {
+    transition: none;
+  }
+  
+  .pulseIcon {
+    animation: none;
+  }
+  
+  .fadeInFirst,
+  .fadeInSecond,
+  .fadeInThird,
+  .fadeInFourth {
+    opacity: 1;
+    animation: none;
+  }
+  
+  .navLink:hover, .authButton:hover, .aboutToggle:hover {
+    transform: none;
+  }
+  
+  .navCompact {
+    transform: none;
+    opacity: 1;
   }
 }

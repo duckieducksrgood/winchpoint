@@ -1,0 +1,89 @@
+.accountBackground {
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.accountBackground::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/backgrounds/offroad-bg.jpg'); /* Make sure this image exists in public folder */
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  opacity: 0.15; /* Subtle opacity */
+  filter: blur(8px); /* Blur effect */
+  z-index: -1;
+  transform: scale(1.1); /* Prevents blur edges from showing */
+}
+
+/* Add a subtle color tint to match your brand */
+.accountBackground::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 75, 150, 0.05), rgba(0, 0, 0, 0.1));
+  z-index: -1;
+}
+
+/* Make cards slightly translucent to show background */
+.fadeInFirst, .fadeInSecond, .fadeInThird {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.7) !important;
+  transition: all 0.1s ease;
+}
+
+.fadeInFirst:hover, .fadeInSecond:hover, .fadeInThird:hover {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation classes */
+.fadeIn {
+  animation: fadeIn 0.5s ease-in;
+}
+
+.fadeInSecond {
+  animation: fadeIn 0.5s ease-in forwards; /* Removed the 0.2s delay */
+  opacity: 0;
+}
+
+.fadeInThird {
+  animation: fadeIn 0.5s ease-in 0.1s forwards; /* Reduced to 0.1s delay */
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Table styling */
+.tabs {
+  margin-top: 10px;
+}
+
+.tabsList {
+  margin-bottom: 15px;
+}
+
+.orderRow:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}

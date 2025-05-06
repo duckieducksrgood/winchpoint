@@ -131,7 +131,7 @@ export default function IndexPage() {
             textAlign: "center",
           }}
         >
-          <Title order={1}>𝐔𝐀𝐙𝐀𝐏</Title>
+          <Title order={1}>𝚆𝚒𝚗𝚌𝚑 𝙿𝚘𝚒𝚗𝚝 𝙾𝚏𝚏𝚛𝚘𝚊𝚍 𝙷𝚘𝚞𝚜𝚎</Title>
           <Text>
             Ride along for D.I.Y maintenance, car review, off-roading, and car
             camping vlogs!
@@ -139,121 +139,101 @@ export default function IndexPage() {
         </div>
 
         <Container fluid p={0} m={0} bg={"#738873"}>
-          <Title ta={"center"} c={"white"} order={1} p={100}>
-            Products Reviews
-          </Title>
-          <Flex
-            direction={{ base: "column", sm: "row" }}
-            gap={{ base: "sm", sm: "lg" }}
-            justify={{ sm: "center" }}
-            p={50}
-          >
-            <Card
-              shadow="sm"
-              padding="xl"
-              radius="md"
-              bg={"#8f9f8f"}
-              c={"white"}
-            >
-              <Card.Section
-                component="a"
-                href="https://www.youtube.com/watch?v=3GwQ2rXD1aI"
-              >
-                <Image
-                  src="https://img.youtube.com/vi/3GwQ2rXD1aI/maxresdefault.jpg"
-                  h={160}
-                  alt="Norway"
-                />
-              </Card.Section>
+  <Title ta={"center"} c={"white"} order={1} p={50} style={{ fontSize: "2.5rem" }}>
+    Products Review
+  </Title>
+  <Flex
+    direction={{ base: "column", sm: "row" }}
+    gap={{ base: "sm", sm: "lg" }}
+    justify={{ sm: "center" }}
+    p={50}
+    wrap="wrap"
+  >
+    {[
+      {
+        title: "4 Wax Battle Part 1",
+        href: "https://www.youtube.com/watch?v=3GwQ2rXD1aI",
+        img: "https://img.youtube.com/vi/3GwQ2rXD1aI/maxresdefault.jpg",
+      },
+      {
+        title: "P&S Brake Buster Review",
+        href: "https://www.youtube.com/watch?v=-83OdoaUVPo",
+        img: "https://img.youtube.com/vi/-83OdoaUVPo/maxresdefault.jpg",
+      },
+      {
+        title: "Car Shampoo Foam Battle",
+        href: "https://www.youtube.com/watch?v=vO3kZWoGvWo&t=64s",
+        img: "https://img.youtube.com/vi/vO3kZWoGvWo/maxresdefault.jpg",
+      },
+    ].map((product, index) => (
+      <Card
+        key={index}
+        shadow="lg"
+        padding="xl"
+        radius="md"
+        bg={"#8f9f8f"}
+        c={"white"}
+        style={{
+          transition: "transform 0.3s ease, box-shadow 0.3s ease",
+          border: "2px solid #ffffff",
+          borderRadius: "10px",
+          maxWidth: "300px",
+        }}
+        onMouseEnter={(e) => {
+          (e.currentTarget as HTMLElement).style.transform = "scale(1.05)";
+          (e.currentTarget as HTMLElement).style.boxShadow =
+            "0 10px 20px rgba(0, 0, 0, 0.3)";
+        }}
+        onMouseLeave={(e) => {
+          (e.currentTarget as HTMLElement).style.transform = "scale(1)";
+          (e.currentTarget as HTMLElement).style.boxShadow = "none";
+        }}
+      >
+        <Card.Section
+          component="a"
+          href={product.href}
+          style={{
+            overflow: "hidden",
+            borderRadius: "8px",
+          }}
+        >
+          <Image
+            src={product.img}
+            h={200}
+            alt={product.title}
+            style={{
+              transition: "transform 0.3s ease",
+            }}
+            onMouseEnter={(e) =>
+              ((e.target as HTMLImageElement).style.transform = "scale(1.1)")
+            }
+            onMouseLeave={(e) =>
+              ((e.target as HTMLImageElement).style.transform = "scale(1)")
+            }
+          />
+        </Card.Section>
 
-              <Group justify="space-between" mt="md" mb="xs">
-                <Text fw={500}>𝟰 𝗪𝗮𝘅 𝗕𝗮𝘁𝘁𝗹𝗲 𝗣𝗮𝗿𝘁 𝟭</Text>
-              </Group>
+        <Group justify="center" mt="md" mb="xs">
+          <Text fw={700} ta="center" style={{ fontSize: "1.2rem" }}>
+            {product.title}
+          </Text>
+        </Group>
 
-              <Button
-                variant="outline"
-                color="white"
-                fullWidth
-                mt="md"
-                radius="md"
-                component="a"
-                href="https://www.youtube.com/watch?v=3GwQ2rXD1aI"
-              >
-                Watch Now
-              </Button>
-            </Card>
-
-            <Card
-              shadow="sm"
-              padding="xl"
-              radius="md"
-              bg={"#8f9f8f"}
-              c={"white"}
-            >
-              <Card.Section
-                component="a"
-                href="https://www.youtube.com/watch?v=-83OdoaUVPo"
-              >
-                <Image
-                  src="https://img.youtube.com/vi/-83OdoaUVPo/maxresdefault.jpg"
-                  h={160}
-                  alt="Norway"
-                />
-              </Card.Section>
-
-              <Group justify="space-between" mt="md" mb="xs">
-                <Text fw={500}>𝗣&𝗦 𝗕𝗿𝗮𝗸𝗲 𝗕𝘂𝘀𝘁𝗲𝗿 𝗥𝗲𝘃𝗶𝗲𝘄</Text>
-              </Group>
-
-              <Button
-                variant="outline"
-                color="white"
-                fullWidth
-                mt="md"
-                radius="md"
-                component="a"
-                href="https://www.youtube.com/watch?v=-83OdoaUVPo"
-              >
-                Watch Now
-              </Button>
-            </Card>
-
-            <Card
-              shadow="sm"
-              padding="xl"
-              radius="md"
-              bg={"#8f9f8f"}
-              c={"white"}
-            >
-              <Card.Section
-                component="a"
-                href="https://www.youtube.com/watch?v=vO3kZWoGvWo&t=64s"
-              >
-                <Image
-                  src="https://img.youtube.com/vi/vO3kZWoGvWo/maxresdefault.jpg"
-                  h={160}
-                  alt="Norway"
-                />
-              </Card.Section>
-
-              <Group justify="space-between" mt="md" mb="xs">
-                <Text fw={500}>𝗖𝗔𝗥 𝗦𝗛𝗔𝗠𝗣𝗢𝗢 𝗙𝗢𝗔𝗠 𝗕𝗔𝗧𝗧𝗟𝗘</Text>
-              </Group>
-
-              <Button
-                variant="outline"
-                color="white"
-                fullWidth
-                mt="md"
-                radius="md"
-                component="a"
-                href="https://www.youtube.com/watch?v=vO3kZWoGvWo&t=64s"
-              >
-                Watch Now
-              </Button>
-            </Card>
-          </Flex>
-        </Container>
+        <Button
+  variant="filled" // Use "filled" for a solid button
+  color="red" // Set the button color to red
+  fullWidth
+  mt="md"
+  radius="md"
+  component="a"
+  href={product.href}
+>
+  Watch Now
+</Button>
+      </Card>
+    ))}
+  </Flex>
+</Container>
 
         <Container fluid p={0} m={0} bg={"#b6c4b6"}>
           <Stack justify="column" align="center" gap="md" p={250}>
@@ -264,135 +244,135 @@ export default function IndexPage() {
               From DIY Mastery to Off-Road Thrills and Serene Car Camping
               Escapades. Join us as we rev up your passion for cars, skills in
               maintenance, and the thrill of exploration on and off the road.
-              Your adventure begins with 𝐔𝐀𝐙𝐀𝐏!
+              Your adventure begins with 𝐖𝐢𝐧𝐜𝐡 𝐏𝐨𝐢𝐧𝐭 𝐎𝐟𝐟𝐫𝐨𝐚𝐝 𝐇𝐨𝐮𝐬𝐞!
             </Text>
           </Stack>
         </Container>
 
-        <Container fluid p={0} m={0} bg={"#738873"}>
-          <Title ta={"center"} c={"white"} order={1} p={100}>
-            𝗢𝗙𝗙-𝗥𝗢𝗔𝗗𝗜𝗡𝗚
-          </Title>
-          <Flex
-            direction={{ base: "column", sm: "row" }}
-            gap={{ base: "sm", sm: "lg" }}
-            justify={{ sm: "center" }}
-            p={50}
-          >
-            <Card
-              shadow="sm"
-              padding="xl"
-              radius="md"
-              bg={"#8f9f8f"}
-              c={"white"}
+          <Container fluid p={0} m={0} bg={"#738873"}>
+            <Title ta={"center"} c={"white"} order={1} p={100}>
+              𝗢𝗙𝗙-𝗥𝗢𝗔𝗗𝗜𝗡𝗚
+            </Title>
+            <Flex
+              direction={{ base: "column", sm: "row" }}
+              gap={{ base: "sm", sm: "lg" }}
+              justify={{ sm: "center" }}
+              p={50}
             >
-              <Card.Section
-                component="a"
-                href="https://www.youtube.com/watch?v=bQwWBingo00"
-              >
-                <Image
-                  src="https://img.youtube.com/vi/bQwWBingo00/maxresdefault.jpg"
-                  h={160}
-                  alt="Norway"
-                />
-              </Card.Section>
-
-              <Group justify="space-between" mt="md" mb="xs">
-                <Text fw={500}>
-                  𝗖𝗮𝗿 𝗖𝗮𝗺𝗽𝗶𝗻𝗴 & 𝗢𝗳𝗳 𝗥𝗼𝗮𝗱𝗶𝗻𝗴 𝗮𝘁 <br />
-                  𝗥𝗶𝘃𝗲𝗿 𝗥𝗮𝗻𝗰𝗵
-                </Text>
-              </Group>
-
-              <Button
-                variant="outline"
-                color="white"
-                fullWidth
-                mt="md"
+              <Card
+                shadow="sm"
+                padding="xl"
                 radius="md"
-                component="a"
-                href="https://www.youtube.com/watch?v=bQwWBingo00"
+                bg={"#8f9f8f"}
+                c={"white"}
               >
-                Watch Now
-              </Button>
-            </Card>
+                <Card.Section
+                  component="a"
+                  href="https://www.youtube.com/watch?v=bQwWBingo00"
+                >
+                  <Image
+                    src="https://img.youtube.com/vi/bQwWBingo00/maxresdefault.jpg"
+                    h={160}
+                    alt="Norway"
+                  />
+                </Card.Section>
 
-            <Card
-              shadow="sm"
-              padding="xl"
-              radius="md"
-              bg={"#8f9f8f"}
-              c={"white"}
-            >
-              <Card.Section
-                component="a"
-                href="https://www.youtube.com/watch?v=DfAARf8OZiM"
-              >
-                <Image
-                  src="https://img.youtube.com/vi/DfAARf8OZiM/maxresdefault.jpg"
-                  h={160}
-                  alt="Norway"
-                />
-              </Card.Section>
+                <Group justify="space-between" mt="md" mb="xs">
+                  <Text fw={500}>
+                    𝗖𝗮𝗿 𝗖𝗮𝗺𝗽𝗶𝗻𝗴 & 𝗢𝗳𝗳 𝗥𝗼𝗮𝗱𝗶𝗻𝗴 𝗮𝘁 <br />
+                    𝗥𝗶𝘃𝗲𝗿 𝗥𝗮𝗻𝗰𝗵
+                  </Text>
+                </Group>
 
-              <Group justify="space-between" mt="md" mb="xs">
-                <Text fw={500}>
-                  𝗢𝗳𝗳 𝗥𝗼𝗮𝗱𝗶𝗻𝗴 𝗶𝗻 𝘁𝗵𝗲 𝗖𝗶𝘁𝘆❗ <br />| 𝟮𝟬𝟮𝟯 𝟰𝗫𝟰 𝗘𝘅𝗽𝗼 𝗣𝗵𝗶𝗹𝗶𝗽𝗽𝗶𝗻𝗲𝘀
-                </Text>
-              </Group>
+                <Button
+                  variant="outline"
+                  color="white"
+                  fullWidth
+                  mt="md"
+                  radius="md"
+                  component="a"
+                  href="https://www.youtube.com/watch?v=bQwWBingo00"
+                >
+                  Watch Now
+                </Button>
+              </Card>
 
-              <Button
-                variant="outline"
-                color="white"
-                fullWidth
-                mt="md"
+              <Card
+                shadow="sm"
+                padding="xl"
                 radius="md"
-                component="a"
-                href="https://www.youtube.com/watch?v=DfAARf8OZiM"
+                bg={"#8f9f8f"}
+                c={"white"}
               >
-                Watch Now
-              </Button>
-            </Card>
+                <Card.Section
+                  component="a"
+                  href="https://www.youtube.com/watch?v=DfAARf8OZiM"
+                >
+                  <Image
+                    src="https://img.youtube.com/vi/DfAARf8OZiM/maxresdefault.jpg"
+                    h={160}
+                    alt="Norway"
+                  />
+                </Card.Section>
 
-            <Card
-              shadow="sm"
-              padding="xl"
-              radius="md"
-              bg={"#8f9f8f"}
-              c={"white"}
-            >
-              <Card.Section
-                component="a"
-                href="https://www.youtube.com/watch?v=a24DKf4LkSU"
-              >
-                <Image
-                  src="https://img.youtube.com/vi/a24DKf4LkSU/maxresdefault.jpg"
-                  h={160}
-                  alt="Norway"
-                />
-              </Card.Section>
+                <Group justify="space-between" mt="md" mb="xs">
+                  <Text fw={500}>
+                    𝗢𝗳𝗳 𝗥𝗼𝗮𝗱𝗶𝗻𝗴 𝗶𝗻 𝘁𝗵𝗲 𝗖𝗶𝘁𝘆❗ <br />| 𝟮𝟬𝟮𝟯 𝟰𝗫𝟰 𝗘𝘅𝗽𝗼 𝗣𝗵𝗶𝗹𝗶𝗽𝗽𝗶𝗻𝗲𝘀
+                  </Text>
+                </Group>
 
-              <Group justify="space-between" mt="md" mb="xs">
-                <Text ta={"center"} fw={500}>
-                  𝗣𝗶𝗰𝗼 𝗱𝗲 𝗟𝗼𝗿𝗼 𝗧𝗿𝗮𝗶𝗹 | 𝗠𝗮𝗿𝗮𝗴𝗼𝗻𝗱𝗼𝗻 <br />| 𝗛𝗶𝗹𝘂𝘅 𝗖𝗼𝗻𝗾𝘂𝗲𝘀𝘁 𝟰𝘅𝟰 |
-                  𝗠𝘂𝗱𝗱𝘆 𝗧𝗿𝗮𝗶𝗹
-                </Text>
-              </Group>
+                <Button
+                  variant="outline"
+                  color="white"
+                  fullWidth
+                  mt="md"
+                  radius="md"
+                  component="a"
+                  href="https://www.youtube.com/watch?v=DfAARf8OZiM"
+                >
+                  Watch Now
+                </Button>
+              </Card>
 
-              <Button
-                variant="outline"
-                color="white"
-                fullWidth
-                mt="md"
+              <Card
+                shadow="sm"
+                padding="xl"
                 radius="md"
-                component="a"
-                href="https://www.youtube.com/watch?v=a24DKf4LkSU"
+                bg={"#8f9f8f"}
+                c={"white"}
               >
-                Watch Now
-              </Button>
-            </Card>
-          </Flex>
-        </Container>
+                <Card.Section
+                  component="a"
+                  href="https://www.youtube.com/watch?v=a24DKf4LkSU"
+                >
+                  <Image
+                    src="https://img.youtube.com/vi/a24DKf4LkSU/maxresdefault.jpg"
+                    h={160}
+                    alt="Norway"
+                  />
+                </Card.Section>
+
+                <Group justify="space-between" mt="md" mb="xs">
+                  <Text ta={"center"} fw={500}>
+                    𝗣𝗶𝗰𝗼 𝗱𝗲 𝗟𝗼𝗿𝗼 𝗧𝗿𝗮𝗶𝗹 | 𝗠𝗮𝗿𝗮𝗴𝗼𝗻𝗱𝗼𝗻 <br />| 𝗛𝗶𝗹𝘂𝘅 𝗖𝗼𝗻𝗾𝘂𝗲𝘀𝘁 𝟰𝘅𝟰 |
+                    𝗠𝘂𝗱𝗱𝘆 𝗧𝗿𝗮𝗶𝗹
+                  </Text>
+                </Group>
+
+                <Button
+                  variant="outline"
+                  color="white"
+                  fullWidth
+                  mt="md"
+                  radius="md"
+                  component="a"
+                  href="https://www.youtube.com/watch?v=a24DKf4LkSU"
+                >
+                  Watch Now
+                </Button>
+              </Card>
+            </Flex>
+          </Container>
         {isLoggedout ? null : (
           <Stack>
             <OrderButton />

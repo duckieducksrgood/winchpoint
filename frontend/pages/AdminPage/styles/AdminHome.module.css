@@ -1,0 +1,219 @@
+.main {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.main::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('/backgrounds/offroad-bg.jpg'); /* Add your offroad image to public/backgrounds folder */
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  opacity: 0.15; /* Subtle opacity */
+  filter: blur(8px); /* Blur effect */
+  z-index: -1;
+  transform: scale(1.1); /* Prevents blur edges from showing */
+}
+
+.main::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(0, 75, 150, 0.05), rgba(0, 0, 0, 0.1));
+  z-index: -1;
+}
+
+.container {
+  margin-top: 100px; /* Increase this value to push content down */
+  padding-bottom: 40px;
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Welcome card with gradient similar to header */
+.welcomeCard {
+  background: linear-gradient(to right, rgba(59, 96, 100, 0.08), rgba(94, 139, 126, 0.08));
+  border-left: 4px solid #5e8b7e;
+  transition: all 0.3s ease;
+  background-color: rgba(255, 255, 255, 0.85) !important; /* Slightly transparent white */
+  backdrop-filter: blur(4px); /* Additional blur for content behind cards */
+  border: 1px solid rgba(255, 255, 255, 0.7) !important; /* More visible border */
+}
+
+.welcomeCard:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  background-color: rgba(255, 255, 255, 0.95) !important; /* More opaque on hover */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.dashboardIcon {
+  background: linear-gradient(to right bottom, #3b6064, #5e8b7e);
+  box-shadow: 0 4px 12px rgba(94, 139, 126, 0.3);
+  animation: pulse 3s infinite ease-in-out;
+}
+
+/* Stats cards styling */
+.statCard {
+  transition: all 0.3s ease;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer; /* Add cursor pointer to indicate clickable */
+  background-color: rgba(255, 255, 255, 0.85) !important; /* Slightly transparent white */
+  backdrop-filter: blur(4px); /* Additional blur for content behind cards */
+  border: 1px solid rgba(255, 255, 255, 0.7) !important; /* More visible border */
+}
+
+.statCard::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: transparent;
+  transition: all 0.3s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.1);
+  background-color: rgba(255, 255, 255, 0.95) !important; /* More opaque on hover */
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.statCard:hover::after {
+  background: linear-gradient(to right, #3b6064, #5e8b7e);
+}
+
+/* Special class for user card */
+.userCard:hover::after {
+  background: linear-gradient(to right, #20c997, #5e8b7e);
+}
+
+/* Add this to your existing CSS */
+.orderCard {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.orderCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+}
+
+.orderCard:hover::after {
+  background: linear-gradient(to right, #7950f2, #9775fa);
+}
+
+/* Card button styling */
+.cardButton {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1;
+}
+
+.statIcon {
+  width: 40px;
+  height: 40px;
+  transition: all 0.3s ease;
+}
+
+.statCard:hover .statIcon {
+  transform: scale(1.2);
+}
+
+.cardHeader {
+  margin-bottom: 10px;
+}
+
+.counterValue {
+  transition: all 0.5s ease;
+  animation: countUp 1.5s ease-out forwards;
+}
+
+.progressBar {
+  overflow: hidden;
+  margin-top: 15px;
+  margin-bottom: 5px;
+  height: 8px;
+}
+
+.loader {
+  margin: 30px auto;
+  display: block;
+}
+
+.sectionTitle {
+  position: relative;
+  display: inline-block;
+  padding-bottom: 10px;
+  margin-bottom: 25px;
+}
+
+.sectionTitle::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(to right, #3b6064, #5e8b7e);
+  border-radius: 10px;
+}
+
+/* Animation classes */
+.fadeIn {
+  animation: fadeIn 0.8s ease-out forwards;
+}
+
+.fadeInSecond {
+  opacity: 0;
+  animation: fadeIn 0.8s ease-out forwards;
+  animation-delay: 0.3s;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

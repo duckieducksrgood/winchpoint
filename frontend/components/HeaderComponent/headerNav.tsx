@@ -44,7 +44,7 @@ export default function HeaderNav({ openedNav, setOpenedNav }: HeaderNavProps) {
               href="/"
             />
             <Title c="white" order={3}>
-              ㄩ 闩 Ⲍ 闩 尸
+            𝑾𝒊𝒏𝒄𝒉 𝑷𝒐𝒊𝒏𝒕 𝑶𝒇𝒇𝒓𝒐𝒂𝒅 𝑯𝒐𝒖𝒔𝒆
             </Title>
           </Group>
           <Burger

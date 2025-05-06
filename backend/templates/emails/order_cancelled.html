@@ -1,0 +1,20 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<h2 style="color: #3b6064; margin-bottom: 20px;">Order Cancelled</h2>
+<p style="font-size: 16px; margin-bottom: 15px;">Hello {{ customer_name }},</p>
+
+<p style="font-size: 16px; margin-bottom: 15px;">Your order #{{ order_id }} has been cancelled. The following items have been returned to stock:</p>
+
+<ul style="background-color: #f3f7f4; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+    {% for item in items %}
+    <li style="margin-bottom: 8px;">{{ item.quantity }}x {{ item.name }}</li>
+    {% endfor %}
+</ul>
+
+<p style="font-size: 16px; margin-bottom: 25px;">If you have any questions about this cancellation, please contact our customer support team.</p>
+
+<div style="text-align: center; margin: 30px 0;">
+    <a href="{{ site_url }}/ProductPage/page" style="display: inline-block; background: linear-gradient(to right, #3b6064, #5e8b7e); color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; margin: 15px 0;">Continue Shopping</a>
+</div>
+{% endblock %}
