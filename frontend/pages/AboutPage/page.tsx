@@ -114,7 +114,7 @@ export default function AboutPage() {
             <Grid align="center" justify="center" gutter={50}>
               <Grid.Col span={{ base: 12, md: 10 }}>
                 <Box style={{ zIndex: 2, position: "relative" }}>
-                  <Group position="center" mb="md">
+                  <Group justify="center" mb="md">
                     <div style={{ 
                       backgroundColor: "rgba(255, 255, 255, 0.15)", 
                       borderRadius: "50%", 
@@ -186,7 +186,7 @@ export default function AboutPage() {
         </Box>
 
         <Container size="lg" py="xl">
-          <Stack spacing={50}>
+          <Stack gap={50}>
             {programmers.map((programmer, index) => (
               <Card
                 key={index}
@@ -214,7 +214,7 @@ export default function AboutPage() {
                         mb="md"
                         style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
                       />
-                      <Group position="center" spacing="md">
+                      <Group justify="center" gap="md">
                         <Box 
                           component="a" 
                           href={programmer.social.github} 
@@ -224,9 +224,7 @@ export default function AboutPage() {
                             borderRadius: "50%",
                             padding: "10px",
                             display: "flex",
-                            transition: "all 0.2s ease"
-                          }}
-                          sx={{
+                            transition: "all 0.2s ease",
                             "&:hover": {
                               backgroundColor: "#e0e0e0",
                               transform: "translateY(-3px)"
@@ -244,9 +242,7 @@ export default function AboutPage() {
                             borderRadius: "50%",
                             padding: "10px",
                             display: "flex",
-                            transition: "all 0.2s ease"
-                          }}
-                          sx={{
+                            transition: "all 0.2s ease",
                             "&:hover": {
                               backgroundColor: "#e0e0e0",
                               transform: "translateY(-3px)"
@@ -260,8 +256,8 @@ export default function AboutPage() {
                   </Grid.Col>
 
                   <Grid.Col span={{ base: 12, md: 8 }}>
-                    <Stack spacing="md">
-                      <Group position="apart" align="center">
+                    <Stack gap="md">
+                      <Group justify="apart" align="center">
                         <Title order={2} ff="'Poppins', sans-serif" fw={700}>
                           {programmer.name}
                         </Title>
@@ -279,7 +275,7 @@ export default function AboutPage() {
                         </Badge>
                       </Group>
 
-                      <Group spacing="xs">
+                      <Group gap="xs">
                         <IconSchool size={18} color={theme.colors.green[6]} />
                         <Text size="sm" fw={500} c="dimmed">BSIT Student at De La Salle University - Dasmariñas</Text>
                       </Group>
@@ -331,7 +327,7 @@ export default function AboutPage() {
                 background: "linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)"
               }}
             >
-              <Group position="center" spacing="md" mb="lg">
+              <Group justify="center" gap="md" mb="lg">
                 <Box
                   style={{
                     backgroundColor: theme.colors.green[0],
@@ -362,8 +358,8 @@ export default function AboutPage() {
                 Built with modern web technologies, we offer a seamless experience for exploring
                 off-road gear, sharing trail experiences, and connecting with fellow enthusiasts.
               </Text>
-              <Group position="center" mt="xl" spacing={50}>
-                <Group spacing="xs" align="center">
+              <Group justify="center" mt="xl" gap={50}>
+                <Group gap="xs" align="center">
                   <Box
                     style={{
                       backgroundColor: theme.colors.green[0],
@@ -376,7 +372,7 @@ export default function AboutPage() {
                   </Box>
                   <Text size="md" fw={600} c="dark.7">Quality Equipment</Text>
                 </Group>
-                <Group spacing="xs" align="center">
+                <Group gap="xs" align="center">
                   <Box
                     style={{
                       backgroundColor: theme.colors.green[0],
@@ -389,7 +385,7 @@ export default function AboutPage() {
                   </Box>
                   <Text size="md" fw={600} c="dark.7">Trail Expertise</Text>
                 </Group>
-                <Group spacing="xs" align="center">
+                <Group gap="xs" align="center">
                   <Box
                     style={{
                       backgroundColor: theme.colors.green[0],

@@ -11,7 +11,7 @@
   max-width: 450px;
   padding-top: 80px;
 
-  @media (max-width: $mantine-breakpoint-sm) {
+  @media (max-width: mantine-breakpoint-sm) {
     max-width: 100%;
   }
 }

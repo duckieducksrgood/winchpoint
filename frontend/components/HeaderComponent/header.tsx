@@ -336,7 +336,7 @@ export default function HeaderMegaMenu({
                       </Group>
                       
                       <Box mb="xl" className={classes.fadeInFirst}>
-                        <Group mb="sm" spacing="xs">
+                        <Group mb="sm" gap="xs">
                           <ThemeIcon color="teal" variant="light" size="md" radius="xl">
                             <IconPackage size={16} />
                           </ThemeIcon>
@@ -349,7 +349,7 @@ export default function HeaderMegaMenu({
                       </Box>
                       
                       <Box mb="xl" className={classes.fadeInSecond}>
-                        <Group mb="sm" spacing="xs">
+                        <Group mb="sm" gap="xs">
                           <ThemeIcon color="blue" variant="light" size="md" radius="xl">
                             <IconShoppingCart size={16} />
                           </ThemeIcon>
@@ -362,7 +362,7 @@ export default function HeaderMegaMenu({
                       </Box>
                       
                       <Box mb="xl" className={classes.fadeInThird}>
-                        <Group mb="sm" spacing="xs">
+                        <Group mb="sm" gap="xs">
                           <ThemeIcon color="green" variant="light" size="md" radius="xl">
                             <IconMountain size={16} />
                           </ThemeIcon>
@@ -385,14 +385,14 @@ export default function HeaderMegaMenu({
                         </Title>
                       </Group>
                       
-                      <Stack spacing="lg">                        
+                      <Stack gap="lg">                        
                         <Anchor
                           href="https://www.facebook.com/profile.php?id=100063916543113"
                           target="_blank"
                           underline="never"
                           className={`${classes.socialLink} ${classes.fadeInSecond}`}
                         >
-                          <Group spacing="sm">
+                          <Group gap="sm">
                             <ThemeIcon color="blue" variant="light" size="lg" radius="xl" className={classes.socialIcon}>
                               <IconUser size={20} />
                             </ThemeIcon>
@@ -406,7 +406,7 @@ export default function HeaderMegaMenu({
                           underline="never"
                           className={`${classes.socialLink} ${classes.fadeInThird}`}
                         >
-                          <Group spacing="sm">
+                          <Group gap="sm">
                             <ThemeIcon color="red" variant="light" size="lg" radius="xl" className={classes.socialIcon}>
                               <IconSettings size={20} />
                             </ThemeIcon>
@@ -419,7 +419,7 @@ export default function HeaderMegaMenu({
                           underline="never"
                           className={`${classes.socialLink} ${classes.fadeInFourth}`}
                         >
-                          <Group spacing="sm">
+                          <Group gap="sm">
                             <ThemeIcon color="gray" variant="light" size="lg" radius="xl" className={classes.socialIcon}>
                               <IconCompass size={20} />
                             </ThemeIcon>
@@ -481,7 +481,7 @@ export default function HeaderMegaMenu({
                       href="/AdminPage/InventoryPage"
                       className={`${classes.navLink} ${isActivePath("/AdminPage/InventoryPage") ? classes.activeNavLink : ""}`}
                     >
-                      <Group spacing={7} className={classes.navLinkInner}>
+                      <Group gap={7} className={classes.navLinkInner}>
                         <IconPackage size={18} stroke={1.5} />
                         <span>Inventory</span>
                       </Group>
@@ -491,7 +491,7 @@ export default function HeaderMegaMenu({
                       href="/AdminPage/OrderPage" 
                       className={`${classes.navLink} ${isActivePath("/AdminPage/OrderPage") ? classes.activeNavLink : ""}`}
                     >
-                      <Group spacing={7} className={classes.navLinkInner}>
+                      <Group gap={7} className={classes.navLinkInner}>
                         <IconPackage size={18} stroke={1.5} />
                         <span>Orders</span>
                       </Group>
@@ -501,7 +501,7 @@ export default function HeaderMegaMenu({
                       href="/AdminPage/UserManagementPage"
                       className={`${classes.navLink} ${isActivePath("/AdminPage/UserManagementPage") ? classes.activeNavLink : ""}`}
                     >
-                      <Group spacing={7} className={classes.navLinkInner}>
+                      <Group gap={7} className={classes.navLinkInner}>
                         <IconUser size={18} stroke={1.5} />
                         <span>Users</span>
                       </Group>
@@ -514,7 +514,7 @@ export default function HeaderMegaMenu({
                       href="/" 
                       className={`${classes.navLink} ${isActivePath("/") && router.pathname === "/" ? classes.activeNavLink : ""}`}
                     >
-                      <Group spacing={7} className={classes.navLinkInner}>
+                      <Group gap={7} className={classes.navLinkInner}>
                         <IconCompass size={18} stroke={1.5} />
                         <span>Home</span>
                       </Group>
@@ -524,7 +524,7 @@ export default function HeaderMegaMenu({
                       href="/ProductPage/page" 
                       className={`${classes.navLink} ${isActivePath("/ProductPage") ? classes.activeNavLink : ""}`}
                     >
-                      <Group spacing={7} className={classes.navLinkInner}>
+                      <Group gap={7} className={classes.navLinkInner}>
                         <IconShoppingCart size={18} stroke={1.5} />
                         <span>Shop</span>
                       </Group>
@@ -534,7 +534,7 @@ export default function HeaderMegaMenu({
                       href="/AboutPage/page" 
                       className={`${classes.navLink} ${isActivePath("/AboutPage") ? classes.activeNavLink : ""}`}
                     >
-                      <Group spacing={7} className={classes.navLinkInner}>
+                      <Group gap={7} className={classes.navLinkInner}>
                         <IconMountain size={18} stroke={1.5} />
                         <span>About</span>
                       </Group>
@@ -545,7 +545,7 @@ export default function HeaderMegaMenu({
 
                 {/* Action buttons */}
                 <Group className={classes.actionButtons}>
-                  <Group align="center" spacing={5} className={classes.aboutToggle} onClick={toggle}>
+                  <Group align="center" gap={5} className={classes.aboutToggle} onClick={toggle}>
                     <Text c="white" size="sm" fw={500} ff="'Montserrat', sans-serif">Discover</Text>
                     <IconChevronDown 
                       size={16} 
@@ -580,7 +580,7 @@ export default function HeaderMegaMenu({
                         e.currentTarget.style.boxShadow = 'none';
                         e.currentTarget.querySelector('svg')?.style.setProperty('transform', 'translateX(-3px)');
                       }}
-                      onMouseLeave={(e) => {
+                      onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                         e.currentTarget.style.transform = 'scale(1)';
                         e.currentTarget.style.boxShadow = 'none';
                         e.currentTarget.querySelector('svg')?.style.removeProperty('transform');
@@ -613,13 +613,6 @@ export default function HeaderMegaMenu({
                         </UnstyledButton>
                       </Menu.Target>
 
-                      {console.log("User data:", {
-                        storedUser: user,
-                        selectedUsername,
-                        users: users.map(u => u.username),
-                        currentUser
-                      })}
-
                       <Menu.Dropdown>
                         <Menu.Label>{currentUser?.first_name || 'User'} {currentUser?.last_name || ''}</Menu.Label>
                         <Menu.Label c="dimmed">
@@ -633,7 +626,10 @@ export default function HeaderMegaMenu({
                           My Account
                         </Menu.Item>
                         <Menu.Item 
-                          onClick={() => logout()} 
+                          onClick={() => {
+                            logout();
+                            router.push("/");
+                          }} 
                           leftSection={<IconLogout size={14} />} 
                           color="red"
                         >

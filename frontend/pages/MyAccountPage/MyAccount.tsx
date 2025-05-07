@@ -565,7 +565,7 @@ const MyAccount = () => {
                                   transition="fade"
                                   duration={300}
                                   exitDuration={100}
-                                  delay={index * 50} // Stagger animation
+                                  timingFunction={`cubic-bezier(0.4, 0, 0.2, 1) ${index * 50}ms`} // Stagger animation with delay
                                 >
                                   {(styles) => (
                                     <Table.Tr style={{ ...styles, transition: 'all 0.2s ease' }} className={classes.orderRow}>
@@ -605,7 +605,7 @@ const MyAccount = () => {
                                           <Button
                                             color="red"
                                             size="xs"
-                                            compact
+                                            variant="outline"
                                             onClick={() => {
                                               // Handle cancel
                                             }}
@@ -671,7 +671,7 @@ const MyAccount = () => {
                                   transition="fade"
                                   duration={300}
                                   exitDuration={100}
-                                  delay={index * 50}
+                                  timingFunction={`cubic-bezier(0.4, 0, 0.2, 1) ${index * 50}ms`}
                                 >
                                   {(styles) => (
                                     <Table.Tr style={{ ...styles, transition: 'all 0.2s ease' }}>
@@ -771,14 +771,14 @@ const MyAccount = () => {
 
           {currentUser && activeTab === "settings" && (
             <Card shadow="sm" p="lg" radius="md" withBorder className={classes.fadeInThird}>
-              <Group position="apart" mb={20}>
+              <Group justify="apart" mb={20}>
                 <Title order={3} fw={600} ff="'Montserrat', sans-serif">
                   Account Settings
                 </Title>
                 <Badge size="lg" color="blue">Coming Soon</Badge>
               </Group>
-              <Group position="center" py={50}>
-                <Stack spacing="md" align="center">
+              <Group justify="center" py={50}>
+                <Stack gap="md" align="center">
                   <ThemeIcon size={60} radius="md" color="gray.3">
                     <IconSettings size={40} />
                   </ThemeIcon>

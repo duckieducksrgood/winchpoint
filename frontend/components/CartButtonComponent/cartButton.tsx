@@ -674,7 +674,8 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
                     transition="fade"
                     duration={300}
                     exitDuration={100}
-                    delay={index * 50}
+                    timingFunction={`cubic-bezier(0.4, 0, 0.2, 1)`}
+                    onEnter={() => new Promise(resolve => setTimeout(resolve, index * 50))}
                   >
                     {(styles) => (
                       <Card
@@ -780,7 +781,7 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
 
               {/* Summary and checkout button */}
               <Card withBorder radius="md" p="md" className={classes.cartSummary}>
-                <Group justify="space-between" mb="xs">
+                <Group justify="apart" mb="xs">
                   <Text fw={600} size="lg">
                     Selected Items ({selectedItems.length} of {cartData.items.length})
                   </Text>
@@ -790,11 +791,11 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
 
                 {selectedItems.length > 0 ? (
                   <>
-                    <Stack spacing="xs" mb="md">
+                    <Stack gap="xs" mb="md">
                       {cartData.items
                         .filter((item) => selectedItems.includes(item.id))
                         .map((item) => (
-                          <Group key={item.id} justify="space-between">
+                          <Group key={item.id} justify="apart">
                             <Text size="sm" lineClamp={1}>
                               {item.product.name} (x{item.quantity})
                             </Text>
@@ -890,10 +891,10 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
                   />
                   Delivery Address
                 </Text>
-                <Button variant="subtle" onClick={() => setEditing(!editing)} radius="md" compact>
+                <Button variant="subtle" onClick={() => setEditing(!editing)} radius="md" size="sm">
                   {editing ? "Cancel" : "Change"}
-                </Button>
-              </Group>
+                </Button>             
+                </Group>
 
               {!editing ? (
                 <Paper p="sm" bg="rgba(0,0,0,0.03)" radius="sm">
@@ -988,7 +989,7 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
               </Text>
 
               {selectedItems.length > 0 && cartData?.items && (
-                <Stack spacing="xs">
+                <Stack gap="xs">
                   {cartData.items
                     .filter((item) => selectedItems.includes(item.id))
                     .map((item, index) => (
@@ -997,12 +998,13 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
                         mounted={true}
                         transition="fade"
                         duration={300}
-                        delay={index * 50}
+                        timingFunction={`cubic-bezier(0.25, 0.4, 0.55, ${0.8 + index * 0.05})`}
+                        exitDuration={100}
                       >
                         {(styles) => (
                           <Group
                             key={item.id}
-                            justify="space-between"
+                            justify="apart"
                             style={styles}
                           >
                             <Text size="sm" lineClamp={1}>
@@ -1041,10 +1043,10 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
                 !userData.delivery_address || userData.delivery_address === ""
               }
               rightSection={<IconArrowRight size={18} />}
-              onMouseEnter={(e) => {
+              onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.transform = "translateY(-2px)";
               }}
-              onMouseLeave={(e) => {
+              onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
                 e.currentTarget.style.transform = "translateY(0)";
               }}
             >
@@ -1076,29 +1078,29 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
                   transition="fade"
                   duration={300}
                 >
-                  {(styles) => (
-                    <Center mb="lg" style={styles}>
-                      <Box>
-                        <Image
-                          src={
-                            qrCodes.find((qr) => qr.value === selectedQrCode)
-                              ?.qr_code
-                          }
-                          alt="QR Code"
-                          width={200}
-                          height={200}
-                          fit="contain"
-                          style={{
-                            border: "1px solid #e9ecef",
-                            borderRadius: "8px",
-                            boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
-                          }}
-                        />
-                        <Text ta="center" size="sm" c="dimmed" mt="xs">
-                          Scan to pay with {selectedQrCode}
-                        </Text>
-                      </Box>
-                    </Center>
+                  {(styles: React.CSSProperties) => (
+                  <Center mb="lg" style={styles}>
+                    <Box>
+                    <Image
+                      src={
+                      qrCodes.find((qr) => qr.value === selectedQrCode)
+                        ?.qr_code
+                      }
+                      alt="QR Code"
+                      width={200}
+                      height={200}
+                      fit="contain"
+                      style={{
+                      border: "1px solid #e9ecef",
+                      borderRadius: "8px",
+                      boxShadow: "0 2px 10px rgba(0,0,0,0.1)",
+                      }}
+                    />
+                    <Text ta="center" size="sm" c="dimmed" mt="xs">
+                      Scan to pay with {selectedQrCode}
+                    </Text>
+                    </Box>
+                  </Center>
                   )}
                 </Transition>
               )}
@@ -1109,7 +1111,7 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
                 accept="image/*"
                 onChange={handleProofOfPaymentChange}
                 radius="md"
-                icon={<IconUpload size={16} />}
+                leftSection={<IconUpload size={16} />}
               />
 
               {proofOfPaymentPreview && (
@@ -1118,7 +1120,7 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
                   transition="fade"
                   duration={300}
                 >
-                  {(styles) => (
+                  {(styles: React.CSSProperties) => (
                     <Box mt="md" style={styles}>
                       <Text size="sm" fw={500} mb="xs">
                         Payment Proof Preview:
@@ -1163,12 +1165,6 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
                 }
                 radius="md"
                 size="lg"
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
               >
                 Place Order
               </Button>

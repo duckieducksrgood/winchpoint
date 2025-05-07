@@ -32,7 +32,6 @@ import {
   Menu,
   AppShell,
   UnstyledButton,
-  Autocomplete,
   Paper,
   SimpleGrid,
   ThemeIcon,
@@ -41,7 +40,8 @@ import {
   Switch,
   ScrollArea,
   Tooltip,
-  Input
+  Input,
+  ComboboxData
 } from "@mantine/core";
 
 import {
@@ -50,20 +50,16 @@ import {
   IconPlus,
   IconChevronDown,
   IconPackage,
-  IconSquareCheck,
-  IconUsers,
-  IconCalendar,
   IconSearch,
-  IconFilter,
   IconRefresh,
   IconBoxMultiple,
-  IconCategory,
-  IconShoppingCart,
+ IconCategory,
   IconTags,
   IconPackageImport,
   IconArrowsSort,
   IconSortAscending,
   IconSortDescending,
+  IconFilter,
 } from "@tabler/icons-react";
 
 interface Product {
@@ -86,7 +82,12 @@ interface Category {
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
 // Animated counter component for dynamic number displays
-const AnimatedCounter = ({ value, formatter = (val) => val }) => {
+interface AnimatedCounterProps {
+  value: number | undefined;
+  formatter?: (val: number) => string | number;
+}
+
+const AnimatedCounter = ({ value, formatter = (val: number) => val }: AnimatedCounterProps) => {
   const [count, setCount] = useState(0);
   
   useEffect(() => {
@@ -517,8 +518,7 @@ const InventoryPage = () => {
               width={50}
               height={50}
               radius="md"
-              fit="contain"
-              withPlaceholder
+             fit="contain"
             />
           </Table.Td>
           <Table.Td>
@@ -662,7 +662,7 @@ const InventoryPage = () => {
             <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }}>
               {/* Title Section */}
               <Box style={{ gridColumn: 'span 1 / span 2' }}>
-                <Group align="center" noWrap>
+                <Group align="center" wrap="nowrap">
                   <ThemeIcon size={48} radius="md" className={classes.dashboardIcon}>
                     <IconPackage size={24} />
                   </ThemeIcon>
@@ -693,7 +693,7 @@ const InventoryPage = () => {
                 </Group>
                 
                 <Box mt={15}>
-                  <Group position="apart" mb={5}>
+                  <Group justify="space-between" mb={5}>
                     <Text size="xs" c="dimmed">Available Stock</Text>
                     <Text size="xs" fw={500}>
                       {Math.round(((totalProducts - lowStockProducts) / totalProducts) * 100)}%
@@ -725,7 +725,7 @@ const InventoryPage = () => {
                 </Group>
                 
                 <Box mt={15}>
-                  <Group position="apart" mb={5}>
+                  <Group justify="space-between" mb={5}>
                     <Text size="xs" c="dimmed">Need Restock</Text>
                     <Text size="xs" fw={500} c="red">
                       {outOfStockProducts} out of stock
@@ -749,7 +749,7 @@ const InventoryPage = () => {
                 style={{ cursor: 'pointer' }}
                 onClick={() => setInventoryInfoModalOpened(true)}
               >
-                <Group justify="space-between">
+                <Group justify="space-between" wrap="nowrap">
                   <Text size="xs" c="dimmed" className={classes.statTitle}>Inventory Value</Text>
                   <Group gap={4}>
                     <ThemeIcon size={24} radius="xl" color="grape">
@@ -770,7 +770,7 @@ const InventoryPage = () => {
                   </Title>
                 </Group>
                 
-                <Group position="apart" mt={15}>
+                <Group justify="space-between" mt={15}>
                   <Text size="xs" c="dimmed">Categories</Text>
                   <Badge size="sm" radius="sm">{totalCategories}</Badge>
                 </Group>
@@ -807,7 +807,7 @@ const InventoryPage = () => {
                     }}
                     className={classes.categoryCard}
                   >
-                    <Group position="apart" noWrap>
+                    <Group justify="space-between" wrap="nowrap">
                       <Text fw={600} size="sm" truncate>{category.name}</Text>
                       <Badge size="sm">{productCount}</Badge>
                     </Group>
@@ -821,7 +821,7 @@ const InventoryPage = () => {
                       color="blue" 
                       radius="xl"
                     />
-                    <Group position="right" mt={8} spacing={5}>
+                    <Group justify="flex-end" mt={8} gap={5}>
                       <ActionIcon 
                         size="sm" 
                         variant="subtle"
@@ -978,44 +978,44 @@ const InventoryPage = () => {
                     <Table.Thead className={classes.tableHeader} style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                       <Table.Tr>
                         <Table.Th onClick={() => handleSort('productID')} style={{ cursor: 'pointer' }}>
-                          <Group position="apart" noWrap>
+                          <Group justify="space-between" wrap="nowrap">
                             <span>ID</span>
                             {getSortIcon('productID')}
                           </Group>
                         </Table.Th>
                         <Table.Th>Image</Table.Th>
                         <Table.Th onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
-                          <Group position="apart" noWrap>
+                          <Group justify="space-between" wrap="nowrap">
                             <span>Name</span>
                             {getSortIcon('name')}
                           </Group>
                         </Table.Th>
                         <Table.Th onClick={() => handleSort('description')} style={{ cursor: 'pointer' }}>
-                          <Group position="apart" noWrap>
+                          <Group justify="space-between" wrap="nowrap">
                             <span>Description</span>
                             {getSortIcon('description')}
                           </Group>
                         </Table.Th>
                         <Table.Th onClick={() => handleSort('price')} style={{ cursor: 'pointer' }}>
-                          <Group position="apart" noWrap>
+                          <Group justify="space-between" wrap="nowrap">
                             <span>Price</span>
                             {getSortIcon('price')}
                           </Group>
                         </Table.Th>
                         <Table.Th onClick={() => handleSort('stock')} style={{ cursor: 'pointer' }}>
-                          <Group position="apart" noWrap>
+                          <Group justify="space-between" wrap="nowrap">
                             <span>Stock</span>
                             {getSortIcon('stock')}
                           </Group>
                         </Table.Th>
                         <Table.Th onClick={() => handleSort('category')} style={{ cursor: 'pointer' }}>
-                          <Group position="apart" noWrap>
+                          <Group justify="space-between" wrap="nowrap">
                             <span>Category</span>
                             {getSortIcon('category')}
                           </Group>
                         </Table.Th>
                         <Table.Th onClick={() => handleSort('subCategory')} style={{ cursor: 'pointer' }}>
-                          <Group position="apart" noWrap>
+                          <Group justify="space-between" wrap="nowrap">
                             <span>Sub Category</span>
                             {getSortIcon('subCategory')}
                           </Group>
@@ -1042,19 +1042,19 @@ const InventoryPage = () => {
                     <Table.Thead className={classes.tableHeader} style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                       <Table.Tr>
                         <Table.Th onClick={() => handleSort('categoryID')} style={{ cursor: 'pointer' }}>
-                          <Group position="apart" noWrap>
+                          <Group justify="space-between" wrap="nowrap">
                             <span>ID</span>
                             {getSortIcon('categoryID')}
                           </Group>
                         </Table.Th>
                         <Table.Th onClick={() => handleSort('name')} style={{ cursor: 'pointer' }}>
-                          <Group position="apart" noWrap>
+                          <Group justify="space-between" wrap="nowrap">
                             <span>Name</span>
                             {getSortIcon('name')}
                           </Group>
                         </Table.Th>
                         <Table.Th onClick={() => handleSort('description')} style={{ cursor: 'pointer' }}>
-                          <Group position="apart" noWrap>
+                          <Group justify="space-between" wrap="nowrap">
                             <span>Description</span>
                             {getSortIcon('description')}
                           </Group>
@@ -1088,7 +1088,7 @@ const InventoryPage = () => {
                       <Text size="sm" c="dimmed">
                         Showing {sortedProducts.length} of {products.length} products
                       </Text>
-                      <Group gap={8}>
+                      <Group gap={8} wrap="nowrap">
                         <Text size="sm" c="dimmed">Low Stock:</Text>
                         <Badge color="orange" size="sm">{lowStockProducts}</Badge>
                         <Text size="sm" c="dimmed" ml={8}>Out of Stock:</Text>
@@ -1114,7 +1114,7 @@ const InventoryPage = () => {
             centered
             size="md"
           >
-            <Stack spacing="md">
+            <Stack gap="md">
               <TextInput
                 label="Name"
                 value={newProduct.name}
@@ -1141,8 +1141,8 @@ const InventoryPage = () => {
                 }
                 required
                 min={0}
-                precision={2}
-                prefixSections={<Text size="sm">₱</Text>}
+                decimalScale={2}
+                leftSection={<Text size="sm">₱</Text>}
               />
               <NumberInput
                 label="Stock"
@@ -1163,40 +1163,42 @@ const InventoryPage = () => {
                   newProduct.category ? newProduct.category.toString() : ""
                 }
                 onChange={(value) => {
-                  setNewProduct({
+                    setNewProduct({
                     ...newProduct,
                     category: value || "",
-                  });
-                }}
-                clearable
-                required
-              />
-              <Autocomplete
-                label="Sub Category (Optional)"
-                data={Array.from(
-                  new Set(products.filter(p => p.subCategory).map((product) => product.subCategory))
-                ).map((subCategory) => ({
-                  value: subCategory,
-                  label: subCategory,
-                }))}
-                placeholder="Select sub category or create new"
-                value={newProduct.subCategory || ""}
-                onChange={(value) =>
-                  setNewProduct({ ...newProduct, subCategory: value })
-                }
-                creatable
-                getCreateLabel={(query) => `+ Create "${query}"`}
-                onCreate={(query) => {
-                  return query;
-                }}
-              />
-              <FileInput
-                label="Image"
-                placeholder="Upload product image"
-                onChange={(file) => setFiles(file ? [file] : [])}
-                clearable
-                accept="image/*"
-              />
+                    });
+                  }}
+                  clearable
+                  required
+                  />
+                  <Select
+                  label="Sub Category (Optional)"
+                  data={Array.from(
+                    new Set(products.filter(p => p.subCategory).map((product) => product.subCategory))
+                  ).map((subCategory) => ({
+                    value: subCategory as string,
+                    label: subCategory as string,
+                  }))}
+                  placeholder="Select sub category or create new"
+                  value={newProduct.subCategory || ""}
+                  onChange={(value: string | null) =>
+                    setNewProduct({ ...newProduct, subCategory: value || "" })
+                  }
+                  searchable
+                  allowDeselect
+                  getCreateLabel={(query: string) => `+ Create "${query}"`}
+                  onCreate={(query: string) => {
+                    return query;
+                  }}
+                  combobox
+                  />
+                  <FileInput
+                  label="Image"
+                  placeholder="Upload product image"
+                  onChange={(file: File | null) => setFiles(file ? [file] : [])}
+                  clearable
+                  accept="image/*"
+                  />
               <Button
                 onClick={handleAddProduct}
                 fullWidth
@@ -1217,7 +1219,7 @@ const InventoryPage = () => {
             size="md"
           >
             {selectedProduct && (
-              <Stack spacing="md">
+              <Stack gap="md">
                 <TextInput
                   label="Name"
                   value={selectedProduct.name || ""}
@@ -1249,59 +1251,61 @@ const InventoryPage = () => {
                   }
                   required
                   min={0}
-                  precision={2}
-                  prefixSections={<Text size="sm">₱</Text>}
-                />
-                <NumberInput
-                  label="Stock"
-                  value={selectedProduct.stock || 0}
-                  onChange={(value) =>
-                    setSelectedProduct((prev) =>
-                      prev ? { ...prev, stock: Number(value) || 0 } : prev
-                    )
-                  }
-                  required
-                  min={0}
-                />
-                <Select
-                  label="Category"
-                  data={categories.map((category) => ({
-                    value: category.name,
-                    label: category.name,
-                  }))}
-                  value={
-                    selectedProduct.category
-                      ? selectedProduct.category.toString()
-                      : ""
-                  }
-                  onChange={(value) =>
-                    setSelectedProduct((prev) =>
-                      prev ? { ...prev, category: value || "" } : prev
-                    )
-                  }
-                  clearable
-                  required
-                />
-                <Autocomplete
-                  label="Sub Category (Optional)"
-                  data={Array.from(
-                    new Set(products.filter(p => p.subCategory).map((product) => product.subCategory))
-                  ).map((subCategory) => ({
-                    value: subCategory,
-                    label: subCategory,
-                  }))}
-                  value={selectedProduct.subCategory || ""}
-                  placeholder="Select sub category or create new"
-                  onChange={(value) =>
-                    setSelectedProduct((prev) =>
-                      prev ? { ...prev, subCategory: value } : prev
-                    )
-                  }
+                  decimalScale={2}
+                  leftSection={<Text size="sm">₱</Text>}
+                          />
+                          <NumberInput
+                            label="Stock"
+                            value={selectedProduct.stock || 0}
+                            onChange={(value: number | string) =>
+                            setSelectedProduct((prev) =>
+                              prev ? { ...prev, stock: Number(value) || 0 } : prev
+                            )
+                            }
+                            required
+                            min={0}
+                          />
+                          <Select
+                            label="Category"
+                            data={categories.map((category: Category) => ({
+                            value: category.name,
+                            label: category.name,
+                            }))}
+                            value={
+                            selectedProduct.category
+                              ? selectedProduct.category.toString()
+                              : ""
+                            }
+                            onChange={(value: string | null) =>
+                            setSelectedProduct((prev) =>
+                              prev ? { ...prev, category: value || "" } : prev
+                            )
+                            }
+                            clearable
+                          />
+                          <Select
+                            label="Sub Category (Optional)"
+                            data={Array.from(
+                            new Set(products.filter((p: Product) => p.subCategory).map((product: Product) => product.subCategory))
+                            ).map((subCategory: string) => ({
+                            value: subCategory,
+                            label: subCategory,
+                            }))}
+                            value={selectedProduct.subCategory || ""}
+                            placeholder="Select sub category or create new"
+                            onChange={(value: string | null) =>
+                            setSelectedProduct((prev) =>
+                              prev ? { ...prev, subCategory: value || "" } : prev
+                            )
+                            }
+                  searchable
+                  allowDeselect
                   creatable
-                  getCreateLabel={(query) => `+ Create "${query}"`}
-                  onCreate={(query) => {
+                  createLabel={(query: string) => `+ Create "${query}"`}
+                  onCreate={(query: string) => {
                     return query;
                   }}
+                  combobox
                 />
                 <FileInput
                   label="Image"
@@ -1345,7 +1349,7 @@ const InventoryPage = () => {
             <Text>
               Are you sure you want to delete "{selectedProduct?.name}"? This action cannot be undone.
             </Text>
-            <Group position="right" mt="md">
+            <Group justify="flex-end" mt="md">
               <Button
                 variant="outline"
                 onClick={() => setDeleteModalOpened(false)}
@@ -1366,7 +1370,7 @@ const InventoryPage = () => {
             centered
             size="md"
           >
-            <Stack spacing="md">
+            <Stack gap="md">
               <TextInput
                 label="Name"
                 value={newCategory.name}
@@ -1408,7 +1412,7 @@ const InventoryPage = () => {
             size="md"
           >
             {selectedCategory && (
-              <Stack spacing="md">
+              <Stack gap="md">
                 <TextInput
                   label="Name"
                   value={selectedCategory.name || ""}
@@ -1459,7 +1463,7 @@ const InventoryPage = () => {
                 These products will become uncategorized.
               </Text>
             )}
-            <Group position="right" mt="md">
+            <Group justify="flex-end" mt="md">
               <Button
                 variant="outline"
                 onClick={() => setCategoryDeleteModalOpened(false)}
@@ -1480,10 +1484,10 @@ const InventoryPage = () => {
             centered
             size="lg"
           >
-            <Stack spacing="lg">
+            <Stack gap="lg">
               <Paper withBorder p="md" radius="md">
                 <Title order={4} mb="md">Total Inventory Value</Title>
-                <Group position="apart">
+                <Group justify="space-between" wrap="nowrap">
                   <Text size="lg" fw={500}>Total Value:</Text>
                   <Text size="lg" fw={700} c="grape">
                     ₱{totalInventoryValue.toLocaleString('en-US', { 
@@ -1509,22 +1513,22 @@ const InventoryPage = () => {
                     </Table.Tr>
                   </Table.Thead>
                   <Table.Tbody>
-                    {Object.entries(inventoryValueDetails.valueByCategory).sort((a, b) => b[1] - a[1]).map(([categoryName, value]) => {
+                    {Object.entries(inventoryValueDetails.valueByCategory).sort((a, b) => (b[1] as number) - (a[1] as number)).map(([categoryName, value]) => {
                       const productsCount = products.filter(p => p.category === categoryName).length;
-                      const percentage = (value / totalInventoryValue) * 100;
+                      const percentage = ((value as number) / totalInventoryValue) * 100;
                       
                       return (
                         <Table.Tr key={categoryName}>
                           <Table.Td>{categoryName}</Table.Td>
                           <Table.Td>{productsCount}</Table.Td>
                           <Table.Td>
-                            ₱{value.toLocaleString('en-US', { 
+                            ₱{(value as number).toLocaleString('en-US', { 
                               minimumFractionDigits: 2, 
                               maximumFractionDigits: 2 
                             })}
                           </Table.Td>
                           <Table.Td>
-                            <Group position="apart" noWrap spacing={5}>
+                            <Group justify="space-between" wrap="nowrap" gap={5}>
                               <Text>{percentage.toFixed(1)}%</Text>
                               <Progress 
                                 value={percentage} 
@@ -1557,15 +1561,14 @@ const InventoryPage = () => {
                     {inventoryValueDetails.topProducts.map(product => (
                       <Table.Tr key={product.productID}>
                         <Table.Td>
-                          <Group spacing="sm">
+                          <Group gap="sm" wrap="nowrap">
                             <Image 
                               src={product.image || "/placeholder.png"} 
                               width={30} 
                               height={30} 
                               radius="sm"
                               fit="contain"
-                              withPlaceholder
-                            />
+                           />
                             <Text>{product.name}</Text>
                           </Group>
                         </Table.Td>

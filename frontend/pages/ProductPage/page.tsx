@@ -172,7 +172,7 @@ export default function ProductPage() {
                     label: sub,
                   }))}
                   value={selectedSubcategories[category] || null}
-                  onChange={(value) => handleSubcategoryChange(category, value)}
+                  onChange={(value: string | null) => handleSubcategoryChange(category, value)}
                   clearable
                   style={{ width: 200 }}
                 />
@@ -309,7 +309,7 @@ export default function ProductPage() {
                             <Stack>
                               <NumberInput
                                 value={quantity}
-                                onChange={(val) =>
+                                onChange={(val: number | string | null) =>
                                   setQuantity(Number(val) || 1)
                                 }
                                 min={1}

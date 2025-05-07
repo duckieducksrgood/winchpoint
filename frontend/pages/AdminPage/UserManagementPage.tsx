@@ -80,7 +80,7 @@ const UserManagementPage = () => {
   const [sortField, setSortField] = useState("id");
   const [sortDirection, setSortDirection] = useState("asc");
   const [activeTab, setActiveTab] = useState("all-users");
-  const tabsListRef = useRef(null);
+  const tabsListRef = useRef<HTMLDivElement | null>(null);
   const [indicatorStyle, setIndicatorStyle] = useState({});
 
   const [newUser, setNewUser] = useState<User>({
@@ -150,7 +150,7 @@ const UserManagementPage = () => {
 
   useEffect(() => {
     if (tabsListRef.current) {
-      const activeTabElement = tabsListRef.current.querySelector('[data-active="true"]');
+      const activeTabElement = tabsListRef.current.querySelector<HTMLElement>('[data-active="true"]');
       if (activeTabElement) {
         setIndicatorStyle({
           width: `${activeTabElement.offsetWidth}px`,
@@ -393,10 +393,10 @@ const UserManagementPage = () => {
         <Container size="xl" pt={80} pb={30} className={classes.container}>
           {/* Hero Section with Key Metrics - Fixed Icon Position */}
           <Paper radius="md" p="xl" mb="lg" withBorder className={classes.heroSection}>
-            <SimpleGrid cols={4} breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
+            <SimpleGrid cols={{ base: 1, sm: 4 }}>
               {/* Welcome Message with Fixed Icon */}
               <div style={{ gridColumn: 'span 2' }}>
-                <Group align="center" noWrap>
+                <Group align="center" wrap="wrap">
                   <div className={classes.iconContainer}>
                     <ThemeIcon size={48} radius="md" className={classes.dashboardIcon}>
                       <IconUserCog size={24} />
@@ -439,7 +439,7 @@ const UserManagementPage = () => {
 
                     {/* Admin/Customer distribution */}
                     <Box mt={12}>
-                      <Group mb={4} position="apart">
+                      <Group mb={4} justify="space-between">
                         <Text size="xs">Admins</Text>
                         <Text size="xs">Customers</Text>
                       </Group>
@@ -457,7 +457,7 @@ const UserManagementPage = () => {
                           style={{ borderRadius: '0 4px 4px 0' }}
                         />
                       </Group>
-                      <Group position="apart" mt={4}>
+                      <Group justify="space-between" mt={4}>
                         <Text size="xs" fw={500}>{adminUsers}</Text>
                         <Text size="xs" fw={500}>{customerUsers}</Text>
                       </Group>
@@ -554,7 +554,7 @@ const UserManagementPage = () => {
             
             {/* Stats Card 3: New Users (7 Days) */}
             <Card shadow="sm" withBorder p="md" className={classes.statCard}>
-              <Group position="apart" align="flex-start">
+              <Group justify="space-between" align="flex-start">
                 <div>
                   <Group mb={6} gap={6}>
                     <IconUserPlus size={16} color="#e64980" />
@@ -608,7 +608,7 @@ const UserManagementPage = () => {
                 </Group>
               </Group>
               
-              <Group position="center">
+              <Group justify="center">
                 {/* Donut chart visualization */}
                 <Box style={{
                   position: 'relative',
@@ -647,12 +647,12 @@ const UserManagementPage = () => {
                 </Box>
                 
                 {/* Legend */}
-                <Stack spacing={5} ml={10}>
-                  <Group spacing="xs">
+                <Stack gap={5} ml={10}>
+                  <Group gap="xs">
                     <Box w={8} h={8} bg="#228be6" style={{ borderRadius: "2px" }} />
                     <Text size="xs">Admin: {adminUsers}</Text>
                   </Group>
-                  <Group spacing="xs">
+                  <Group gap="xs">
                     <Box w={8} h={8} bg="#40c057" style={{ borderRadius: "2px" }} />
                     <Text size="xs">Customer: {customerUsers}</Text>
                   </Group>
@@ -685,7 +685,7 @@ const UserManagementPage = () => {
                 </Popover.Target>
                 
                 <Popover.Dropdown p="md">
-                  <Stack spacing="md">
+                  <Stack gap="md">
                     <Box>
                       <Text fw={600} size="sm" mb={10} c="dark">Sort By</Text>
                       
@@ -693,7 +693,7 @@ const UserManagementPage = () => {
                         value={sortField}
                         onChange={setSortField}
                         name="sortField"
-                        spacing="xs"
+                        style={{ gap: '8px' }}
                       >
                         <SimpleGrid cols={2} spacing="sm" verticalSpacing="xs">
                           <Radio value="id" label="ID" />
@@ -788,10 +788,10 @@ const UserManagementPage = () => {
           {/* Tabs with fixed height container */}
           <Tabs 
             value={activeTab}
-            onChange={setActiveTab}
+            onChange={(value) => value !== null && setActiveTab(value)}
             className={`${classes.fadeInFourth} ${classes.tabs}`}
           >
-            <Tabs.List mb="xs">
+            <Tabs.List mb="xs" ref={tabsListRef}>
               <Tabs.Tab 
                 value="all-users" 
                 leftSection={<IconUsers size={16} />}
@@ -841,7 +841,7 @@ const UserManagementPage = () => {
               >
                 <Box className={classes.tableWrapper}>
                   <Box className={classes.tableContainer}>
-                    <Table.ScrollContainer>
+                    <Table.ScrollContainer minWidth={800}>
                       <Table striped highlightOnHover withTableBorder style={{ borderCollapse: "collapse" }}>
                         <Table.Thead style={{ position: "sticky", top: 0, background: "white", zIndex: 10 }}>
                           <Table.Tr>

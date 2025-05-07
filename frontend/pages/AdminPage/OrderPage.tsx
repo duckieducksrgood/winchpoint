@@ -130,7 +130,12 @@ const calculatePercentage = (count: number, total: number) => {
 };
 
 // Fix the AnimatedCounter component
-const AnimatedCounter = ({ value, formatter = (val) => val }) => {
+interface AnimatedCounterProps {
+  value: number;
+  formatter?: (val: number) => string | number;
+}
+
+const AnimatedCounter = ({ value, formatter = (val: number) => val }: AnimatedCounterProps) => {
   const [count, setCount] = useState(0);
   
   useEffect(() => {
@@ -153,7 +158,7 @@ const AnimatedCounter = ({ value, formatter = (val) => val }) => {
     };
     
     requestAnimationFrame(animation);
-  }, [value]);
+  }, [value, count]);
   
   return <>{formatter(count)}</>;
 };
@@ -416,7 +421,7 @@ const OrderPage = () => {
       
       setEditModalOpened(false);
       await mutate(undefined, { revalidate: true });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error updating order:", error);
       
       if (error.response) {
@@ -623,7 +628,7 @@ const OrderPage = () => {
             {order.tracking_number || "None yet"}
           </Table.Td>
           <Table.Td style={{ width: "15%" }}>
-            <Group gap={4}>
+            <Group gap={4} justify="left">
               <Tooltip label="View Order Details">
                 <ActionIcon
                   onClick={() => handleViewOrder(order)}
@@ -657,9 +662,9 @@ const OrderPage = () => {
       <div className={classes.main}>
         <Container size="xl" pt={50} pb={30} className={classes.container}>
           <Paper radius="md" p="xl" mb="lg" withBorder className={classes.welcomeCard}>
-            <SimpleGrid cols={4} breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
+            <SimpleGrid cols={{ base: 1, sm: 4 }}>
               <div style={{ gridColumn: 'span 2' }}>
-                <Group align="center" noWrap>
+                <Group align="center" wrap="nowrap">
                   <div className={classes.iconContainer}>
                     <ThemeIcon size={48} radius="md" className={classes.dashboardIcon}>
                       <IconTruckDelivery size={24} />
@@ -694,7 +699,7 @@ const OrderPage = () => {
                     </Group>
 
                     <Box mt={12}>
-                      <Group mb={4} position="apart" spacing={5}>
+                      <Group mb={4} justify="space-between" gap={5}>
                         <Text size="xs">Pending</Text>
                         <Text size="xs">Completed</Text>
                         <Text size="xs">Cancelled</Text>
@@ -730,7 +735,7 @@ const OrderPage = () => {
                   variant="pills"
                   radius="md"
                   classNames={{
-                    tabsList: classes.revenueTabsList,
+                    list: classes.revenueTabsList,
                     tab: classes.revenueTab,
                   }}
                   className={classes.revenueTabs}
@@ -818,7 +823,7 @@ const OrderPage = () => {
             { maxWidth: 'xs', cols: 1 }
           ]}>
             <Paper withBorder p="md" radius="md" className={classes.counterCard}>
-              <Group position="apart">
+              <Group justify="space-between">
                 <div>
                   <Text c="dimmed" fw={500} size="xs" tt="uppercase" mb={5}>
                     Total Orders
@@ -840,7 +845,7 @@ const OrderPage = () => {
             </Paper>
 
             <Paper withBorder p="md" radius="md" className={classes.counterCard}>
-              <Group position="apart">
+              <Group justify="space-between">
                 <div>
                   <Text c="dimmed" fw={500} size="xs" tt="uppercase" mb={5}>
                     Pending Orders
@@ -865,7 +870,7 @@ const OrderPage = () => {
             </Paper>
 
             <Paper withBorder p="md" radius="md" className={classes.counterCard}>
-              <Group position="apart">
+              <Group justify="space-between">
                 <div>
                   <Text c="dimmed" fw={500} size="xs" tt="uppercase" mb={5}>
                     Completed Orders
@@ -890,7 +895,7 @@ const OrderPage = () => {
             </Paper>
 
             <Paper withBorder p="md" radius="md" className={classes.counterCard}>
-              <Group position="apart">
+              <Group justify="space-between">
                 <div>
                   <Text c="dimmed" fw={500} size="xs" tt="uppercase" mb={5}>
                     Cancelled Orders
@@ -937,7 +942,7 @@ const OrderPage = () => {
                 </Popover.Target>
                 
                 <Popover.Dropdown p="md">
-                  <Stack spacing="md">
+                  <Stack gap="md">
                     <Box>
                       <Text fw={600} size="sm" mb={10} c="dark">Sort By</Text>
                       
@@ -945,9 +950,8 @@ const OrderPage = () => {
                         value={sortField}
                         onChange={setSortField}
                         name="sortField"
-                        spacing="xs"
-                      >
-                        <SimpleGrid cols={2} spacing="sm" verticalSpacing="xs">
+                     >
+                        <SimpleGrid cols={2} spacing="sm" verticalSpacing="xs" style={{ gap: 'xs' }}>
                           <Radio value="id" label="Order ID" />
                           <Radio value="created_at" label="Order Date" />
                           <Radio value="status" label="Status" />
@@ -959,12 +963,12 @@ const OrderPage = () => {
                     
                     <Divider />
                     
-                    <Box>
+                    <Box>tDirection(value as "asc" | "desc")
                       <Text fw={600} size="sm" mb={10} c="dark">Direction</Text>
                       <SegmentedControl
                         fullWidth
                         value={sortDirection}
-                        onChange={setSortDirection}
+                        onChange={(value) => setSortDirection(value as "asc" | "desc")}
                         data={[
                           {
                             value: 'asc',
@@ -1036,7 +1040,7 @@ const OrderPage = () => {
             </Group>
           </Paper>
 
-          <Group position="right" mb={16}>
+          <Group justify="right" mb={16}>
             <Menu>
               <Menu.Target>
                 <Button leftSection={<IconQrcode size={18} />} variant="light">
@@ -1056,7 +1060,7 @@ const OrderPage = () => {
 
           <Tabs 
             value={filterStatus}
-            onChange={setFilterStatus}
+            onChange={(value) => setFilterStatus(value || "Pending")}
             className={`${classes.fadeInFourth} ${classes.tabs}`}
           >
             <Tabs.List mb="xs">
@@ -1099,7 +1103,7 @@ const OrderPage = () => {
               >
                 <Box className={classes.tableWrapper}>
                   <Box className={classes.tableContainer}>
-                    <Table.ScrollContainer>
+                    <Table.ScrollContainer minWidth={1200}>
                       <Table striped highlightOnHover withTableBorder withColumnBorders style={{ borderCollapse: "collapse" }}>
                         <Table.Thead style={{ position: "sticky", top: 0, background: "white", zIndex: 10 }}>
                           <Table.Tr>
@@ -1122,7 +1126,7 @@ const OrderPage = () => {
                             <Table.Tr>
                               <Table.Td colSpan={10}>
                                 <div className={classes.emptyState}>
-                                  <Stack align="center" spacing="xs">
+                                  <Stack align="center" gap="xs">
                                     <IconClock size={32} stroke={1.5} color="var(--mantine-color-gray-5)" />
                                     <Text c="dimmed" size="sm">No pending orders found</Text>
                                   </Stack>
@@ -1136,13 +1140,13 @@ const OrderPage = () => {
                   </Box>
 
                   <div className={classes.tableFooter}>
-                    <Group position="apart">
+                    <Group justify="space-between">
                       <Text size="sm" c="dimmed">
                         Showing {filteredOrders.length} {filterStatus ? filterStatus.toLowerCase() : ''} orders
                       </Text>
                       <Button 
                         variant="subtle" 
-                        compact 
+                        size="sm" 
                         leftSection={<IconRefresh size={16} />}
                         onClick={() => mutate()}
                       >
@@ -1160,7 +1164,7 @@ const OrderPage = () => {
               >
                 <Box className={classes.tableWrapper}>
                   <Box className={classes.tableContainer}>
-                    <Table.ScrollContainer>
+                    <Table.ScrollContainer minWidth={1200}>
                       <Table striped highlightOnHover withTableBorder withColumnBorders style={{ borderCollapse: "collapse" }}>
                         <Table.Thead style={{ position: "sticky", top: 0, background: "white", zIndex: 10 }}>
                           <Table.Tr>
@@ -1183,7 +1187,7 @@ const OrderPage = () => {
                             <Table.Tr>
                               <Table.Td colSpan={10}>
                                 <div className={classes.emptyState}>
-                                  <Stack align="center" spacing="xs">
+                                  <Stack align="center" gap="xs">
                                     <IconCheck size={32} stroke={1.5} color="var(--mantine-color-gray-5)" />
                                     <Text c="dimmed" size="sm">No completed orders found</Text>
                                   </Stack>
@@ -1197,13 +1201,13 @@ const OrderPage = () => {
                   </Box>
 
                   <div className={classes.tableFooter}>
-                    <Group position="apart">
+                    <Group justify="space-between">
                       <Text size="sm" c="dimmed">
                         Showing {filteredOrders.length} {filterStatus ? filterStatus.toLowerCase() : ''} orders
                       </Text>
                       <Button 
                         variant="subtle" 
-                        compact 
+                        size="sm" 
                         leftSection={<IconRefresh size={16} />}
                         onClick={() => mutate()}
                       >
@@ -1221,7 +1225,7 @@ const OrderPage = () => {
               >
                 <Box className={classes.tableWrapper}>
                   <Box className={classes.tableContainer}>
-                    <Table.ScrollContainer>
+                    <Table.ScrollContainer minWidth={1200}>
                       <Table striped highlightOnHover withTableBorder withColumnBorders style={{ borderCollapse: "collapse" }}>
                         <Table.Thead style={{ position: "sticky", top: 0, background: "white", zIndex: 10 }}>
                           <Table.Tr>
@@ -1244,7 +1248,7 @@ const OrderPage = () => {
                             <Table.Tr>
                               <Table.Td colSpan={10}>
                                 <div className={classes.emptyState}>
-                                  <Stack align="center" spacing="xs">
+                                  <Stack align="center" gap="xs">
                                     <IconX size={32} stroke={1.5} color="var(--mantine-color-gray-5)" />
                                     <Text c="dimmed" size="sm">No cancelled orders found</Text>
                                   </Stack>
@@ -1258,13 +1262,13 @@ const OrderPage = () => {
                   </Box>
 
                   <div className={classes.tableFooter}>
-                    <Group position="apart">
+                    <Group justify="space-between">
                       <Text size="sm" c="dimmed">
                         Showing {filteredOrders.length} {filterStatus ? filterStatus.toLowerCase() : ''} orders
                       </Text>
                       <Button 
                         variant="subtle" 
-                        compact 
+                        size="sm" 
                         leftSection={<IconRefresh size={16} />}
                         onClick={() => mutate()}
                       >
@@ -1301,10 +1305,10 @@ const OrderPage = () => {
                   </Tabs.List>
                 
                   <Tabs.Panel value="details">
-                    <SimpleGrid cols={2} breakpoints={[{ maxWidth: 'xs', cols: 1 }]} spacing="lg">
+                    <SimpleGrid cols={2} styles={{ root: { '@media (max-width: 576px)': { gridTemplateColumns: '1fr' } } }} spacing="lg">
                       <Paper withBorder p="md" radius="md" className={classes.viewOrderPanel}>
                         <Box mb="xs" pb={5} style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>
-                          <Group position="apart">
+                          <Group justify="space-between">
                             <Text fw={600} size="sm">Customer Information</Text>
                             <Badge 
                               size="sm" 
@@ -1409,7 +1413,7 @@ const OrderPage = () => {
                           />
                         </Center>
                         
-                        <Group position="center">
+                        <Group justify="center">
                           <Button 
                             variant="light" 
                             component="a" 
@@ -1425,7 +1429,7 @@ const OrderPage = () => {
                   )}
                 </Tabs>
                 
-                <Group position="apart" mt={20}>
+                <Group justify="space-between" mt={20}>
                   <Button variant="default" onClick={() => setViewModalOpened(false)}>
                     Close
                   </Button>
@@ -1472,7 +1476,7 @@ const OrderPage = () => {
               <>
                 <Paper withBorder p="md" radius="md" mb="md" className={classes.editOrderPanel}>
                   <Box mb="xs" pb={5} style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>
-                    <Group position="apart">
+                    <Group justify="space-between">
                       <Text fw={600} size="sm">Order Information</Text>
                       <Badge 
                         size="sm" 
@@ -1551,7 +1555,7 @@ const OrderPage = () => {
                   </SimpleGrid>
                 </Paper>
                 
-                <Group position="apart" mt={20}>
+                <Group justify="space-between" mt={20}>
                   <Button variant="default" onClick={() => setEditModalOpened(false)}>
                     Cancel
                   </Button>
@@ -1590,7 +1594,7 @@ const OrderPage = () => {
                   </Badge>
                   ?
                 </Text>
-                <Group position="right" mt="md">
+                <Group justify="right" mt="md">
                   <Button variant="outline" onClick={() => setConfirmModalOpened(false)}>
                     Cancel
                   </Button>
@@ -1764,7 +1768,7 @@ const OrderPage = () => {
               </Table>
             </ScrollArea>
             
-            <Group position="right" mt="md">
+            <Group justify="right" mt="md">
               <Button onClick={() => setRevenueBreakdownModalOpen(false)}>Close</Button>
             </Group>
           </Modal>

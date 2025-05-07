@@ -13,6 +13,18 @@ import boto3
 from botocore.exceptions import ClientError
 from django.core.mail import send_mail
 from utils.email_utils import send_html_email
+import io
+import calendar
+from datetime import datetime, timedelta
+from django.http import FileResponse, HttpResponse
+from django.db.models import Sum, Count
+import pandas as pd
+import matplotlib.pyplot as plt
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Image
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 # Create your views here.
 User = get_user_model()
@@ -550,3 +562,218 @@ class SendResetCodeView(APIView):
             fail_silently=False,
         )
         return Response({'message': 'Reset code sent successfully'}, status=status.HTTP_200_OK)
+
+
+class RevenueReportView(APIView):
+    """
+    Generate and download revenue reports in PDF or Excel format
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def get(self, request):
+        report_type = request.query_params.get('type', 'pdf')
+        year = int(request.query_params.get('year', datetime.now().year))
+        
+        if report_type not in ['pdf', 'excel']:
+            return Response({"error": "Invalid report type. Use 'pdf' or 'excel'."}, 
+                            status=status.HTTP_400_BAD_REQUEST)
+            
+        # Get monthly sales data for the specified year
+        monthly_data = []
+        
+        for month in range(1, 13):
+            # Get orders for this month
+            month_orders = Order.objects.filter(
+                created_at__year=year,
+                created_at__month=month,
+                status='Completed'
+            )
+            
+            # Calculate metrics
+            total_sales = month_orders.count()
+            total_revenue = month_orders.aggregate(Sum('total_price'))['total_price__sum'] or 0
+            
+            # Get product sales for this month
+            top_products = OrderItem.objects.filter(
+                order__in=month_orders
+            ).values('product__name').annotate(
+                count=Count('id'),
+                total=Sum('product__price')
+            ).order_by('-count')[:3]
+            
+            top_products_list = [f"{p['product__name']} ({p['count']})" for p in top_products]
+            top_products_str = ", ".join(top_products_list) if top_products_list else "None"
+            
+            monthly_data.append({
+                'Month': calendar.month_name[month],
+                'Total Orders': total_sales,
+                'Total Revenue': total_revenue,
+                'Top Products': top_products_str
+            })
+        
+        # Create DataFrame
+        df = pd.DataFrame(monthly_data)
+        
+        # Generate report based on type
+        if report_type == 'excel':
+            # Create Excel file
+            output = io.BytesIO()
+            
+            # Create a Pandas Excel writer
+            writer = pd.ExcelWriter(output, engine='xlsxwriter')
+            
+            # Write the DataFrame to the Excel file
+            df.to_excel(writer, sheet_name='Monthly Revenue', index=False)
+            
+            # Access the XlsxWriter workbook and worksheet objects
+            workbook = writer.book
+            worksheet = writer.sheets['Monthly Revenue']
+            
+            # Add formats
+            header_format = workbook.add_format({
+                'bold': True,
+                'text_wrap': True,
+                'valign': 'top',
+                'fg_color': '#D7E4BC',
+                'border': 1
+            })
+            
+            # Write the column headers with the defined format
+            for col_num, value in enumerate(df.columns.values):
+                worksheet.write(0, col_num, value, header_format)
+                worksheet.set_column(col_num, col_num, 15)
+            
+            # Create a chart
+            chart = workbook.add_chart({'type': 'column'})
+            
+            # Configure the series
+            chart.add_series({
+                'name': 'Monthly Revenue',
+                'categories': ['Monthly Revenue', 1, 0, 12, 0],
+                'values': ['Monthly Revenue', 1, 2, 12, 2],
+            })
+            
+            # Configure chart title
+            chart.set_title({'name': f'Revenue Report {year}'})
+            chart.set_x_axis({'name': 'Month'})
+            chart.set_y_axis({'name': 'Revenue (PHP)'})
+            
+            # Insert the chart into the worksheet
+            worksheet.insert_chart('F2', chart, {'x_offset': 25, 'y_offset': 10})
+            
+            # Close the Pandas Excel writer
+            writer.close()
+            
+            # Prepare response
+            output.seek(0)
+            filename = f"revenue_report_{year}.xlsx"
+            response = HttpResponse(
+                output.read(),
+                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            )
+            response['Content-Disposition'] = f'attachment; filename={filename}'
+            
+            return response
+        
+        else:  # PDF report
+            # Create PDF file
+            buffer = io.BytesIO()
+            doc = SimpleDocTemplate(buffer, pagesize=letter)
+            elements = []
+            
+            # Add title
+            styles = getSampleStyleSheet()
+            title = Paragraph(f"<h1>Revenue Report {year}</h1>", styles['Title'])
+            elements.append(title)
+            elements.append(Spacer(1, 20))
+            
+            # Add generation date
+            date_text = f"Generated on: {datetime.now().strftime('%B %d, %Y')}"
+            elements.append(Paragraph(date_text, styles['Normal']))
+            elements.append(Spacer(1, 20))
+            
+            # Add annual summary
+            annual_revenue = sum(month['Total Revenue'] for month in monthly_data)
+            annual_orders = sum(month['Total Orders'] for month in monthly_data)
+            
+            summary = [
+                ["Annual Summary", ""],
+                ["Total Revenue", f"₱{annual_revenue:,.2f}"],
+                ["Total Orders", annual_orders],
+                ["Average Monthly Revenue", f"₱{(annual_revenue/12):,.2f}"]
+            ]
+            
+            summary_table = Table(summary, colWidths=[200, 200])
+            summary_table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
+            ]))
+            
+            elements.append(summary_table)
+            elements.append(Spacer(1, 20))
+            
+            # Add monthly data
+            data = [list(df.columns)]  # Header row
+            for _, row in df.iterrows():
+                data_row = [
+                    row['Month'],
+                    row['Total Orders'],
+                    f"₱{row['Total Revenue']:,.2f}",
+                    row['Top Products']
+                ]
+                data.append(data_row)
+            
+            # Create table
+            table = Table(data, colWidths=[80, 80, 120, 220])
+            
+            # Style table
+            table.setStyle(TableStyle([
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ]))
+            
+            elements.append(table)
+            
+            # Create a chart for visualization
+            plt.figure(figsize=(8, 4))
+            plt.bar(df['Month'], df['Total Revenue'])
+            plt.title(f'Monthly Revenue {year}')
+            plt.xlabel('Month')
+            plt.ylabel('Revenue (PHP)')
+            plt.xticks(rotation=45)
+            plt.tight_layout()
+            
+            # Save the chart to a buffer
+            img_buffer = io.BytesIO()
+            plt.savefig(img_buffer, format='png')
+            img_buffer.seek(0)
+            
+            # Add the chart to the PDF
+            elements.append(Spacer(1, 20))
+            elements.append(Paragraph("Monthly Revenue Chart", styles['Heading2']))
+            elements.append(Spacer(1, 10))
+            
+            img = Image(img_buffer, width=400, height=200)
+            elements.append(img)
+            
+            # Build PDF
+            doc.build(elements)
+            buffer.seek(0)
+            
+            # Create response
+            filename = f"revenue_report_{year}.pdf"
+            response = HttpResponse(buffer, content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment; filename={filename}'
+            
+            return response

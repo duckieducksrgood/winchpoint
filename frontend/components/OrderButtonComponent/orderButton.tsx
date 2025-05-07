@@ -194,7 +194,7 @@ export function OrderButton() {
           <Text className={classes.completedStatus}>Completed</Text>
         )}
         {order.status === "Cancelled" && (
-          <Stack spacing={2}>
+          <Stack gap={2}>
             <Text className={classes.cancelledStatus}>Cancelled</Text>
             {order.refund_status && (
               <Badge 
@@ -216,7 +216,7 @@ export function OrderButton() {
       {order.status === "Cancelled" && (
         <Box mt={15}>
           <Divider my="xs" label="Refund Information" labelPosition="center" />
-          <Group position="apart" mt="xs">
+          <Group justify="apart" mt="xs">
             <Text size="sm">Refund Status:</Text>
             <Badge
               color={order.refund_status === "Refunded" ? "green" : "orange"}
@@ -227,7 +227,7 @@ export function OrderButton() {
           </Group>
           
           {order.refund_date && (
-            <Group position="apart" mt="xs">
+            <Group justify="apart" mt="xs">
               <Text size="sm">Refund Date:</Text>
               <Text size="sm">{dayjs(order.refund_date).format("YYYY-MM-DD")}</Text>
             </Group>
@@ -356,9 +356,10 @@ export function OrderButton() {
                       transition="fade"
                       duration={300}
                       exitDuration={100}
-                      delay={index * 50}
+                      timingFunction="ease"
+                      onEnter={() => setTimeout(() => {}, index * 50)}
                     >
-                      {(styles) => (
+                      {(styles: React.CSSProperties) => (
                         <Card 
                           withBorder 
                           radius="md" 
@@ -369,7 +370,7 @@ export function OrderButton() {
                           }}
                           className={classes.orderCard}
                         >
-                          <Group position="apart" mb={8}>
+                          <Group justify="apart" mb={8}>
                             <Group>
                               <Badge size="lg" variant="filled" radius="sm" color="blue">
                                 Order #{order.id}
@@ -407,7 +408,7 @@ export function OrderButton() {
                             </Grid.Col>
                             
                             <Grid.Col span={{ base: 12, sm: 5 }}>
-                              <Stack spacing="xs">
+                              <Stack gap="xs">
                                 <Group>
                                   <Text fw={500} size="sm">Payment:</Text>
                                   <Text size="sm">{order.payment_method || "N/A"}</Text>
@@ -438,7 +439,7 @@ export function OrderButton() {
                             <>
                               <Divider my="xs" label="Order Items" labelPosition="center" />
                               <Box style={{ maxHeight: '120px', overflowY: 'auto' }}>
-                                <Table verticalSpacing="xs" fontSize="sm">
+                                <Table verticalSpacing="xs" style={{ fontSize: 'var(--mantine-font-size-sm)' }}>
                                   <Table.Tbody>
                                     {order.items.map(item => (
                                       <Table.Tr key={item.id}>
@@ -454,7 +455,7 @@ export function OrderButton() {
                           )}
                           
                           {order.status === "Pending" && !order.tracking_number && (
-                            <Group position="right" mt="md">
+                            <Group justify="right" mt="md">
                               <Button
                                 color="red"
                                 size="sm"
@@ -497,7 +498,8 @@ export function OrderButton() {
                       transition="fade"
                       duration={300}
                       exitDuration={100}
-                      delay={index * 50}
+                      timingFunction="ease"
+                      onEnter={() => setTimeout(() => {}, index * 50)}
                     >
                       {(styles) => (
                         <Card 
@@ -510,7 +512,7 @@ export function OrderButton() {
                           }}
                           className={classes.orderCard}
                         >
-                          <Group position="apart" mb={8}>
+                          <Group justify="apart" mb={8}>
                             <Group>
                               <Badge size="lg" variant="filled" radius="sm" color="blue">
                                 Order #{order.id}
@@ -543,7 +545,7 @@ export function OrderButton() {
                             </Grid.Col>
                             
                             <Grid.Col span={{ base: 12, sm: 5 }}>
-                              <Stack spacing="xs">
+                              <Stack gap="xs">
                                 <Group>
                                   <Text fw={500} size="sm">Payment:</Text>
                                   <Text size="sm">{order.payment_method || "N/A"}</Text>
@@ -564,7 +566,7 @@ export function OrderButton() {
                             <>
                               <Divider my="xs" label="Order Items" labelPosition="center" />
                               <Box style={{ maxHeight: '120px', overflowY: 'auto' }}>
-                                <Table verticalSpacing="xs" fontSize="sm">
+                                <Table verticalSpacing="xs" style={{ fontSize: 'var(--mantine-font-size-sm)' }}>
                                   <Table.Tbody>
                                     {order.items.map(item => (
                                       <Table.Tr key={item.id}>
@@ -605,7 +607,8 @@ export function OrderButton() {
                       transition="fade"
                       duration={300}
                       exitDuration={100}
-                      delay={index * 50}
+                      timingFunction="ease"
+                      onEnter={() => setTimeout(() => {}, index * 50)}
                     >
                       {(styles) => (
                         <Card 
@@ -618,7 +621,7 @@ export function OrderButton() {
                           }}
                           className={classes.orderCard}
                         >
-                          <Group position="apart" mb={8}>
+                          <Group justify="apart" mb={8}>
                             <Group>
                               <Badge size="lg" variant="filled" radius="sm" color="blue">
                                 Order #{order.id}
@@ -661,7 +664,7 @@ export function OrderButton() {
                             <>
                               <Divider my="xs" label="Order Items" labelPosition="center" />
                               <Box style={{ maxHeight: '120px', overflowY: 'auto' }}>
-                                <Table verticalSpacing="xs" fontSize="sm">
+                                <Table verticalSpacing="xs" style={{ fontSize: 'var(--mantine-font-size-sm)' }}>
                                   <Table.Tbody>
                                     {order.items.map(item => (
                                       <Table.Tr key={item.id}>

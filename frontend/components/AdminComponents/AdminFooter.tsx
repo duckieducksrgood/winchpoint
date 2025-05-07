@@ -13,7 +13,7 @@ export function AdminFooter() {
         <Divider mb="md" />
         
         <Group justify="space-between" align="center">
-        <Stack gap={2}>
+          <Stack gap={2}>
             <Text size="sm" c="dimmed">
               © {currentYear} Winch Point Offroad House. All rights reserved.
             </Text>
