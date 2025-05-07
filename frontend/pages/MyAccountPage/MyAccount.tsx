@@ -115,7 +115,7 @@ const MyAccount = () => {
   }, [users, user, selectedUsername]);
 
   // Move the orders fetching here, AFTER currentUser is defined
-  const { data: orders = [], isLoadingOrders } = useSWR<IOrder[]>(
+  const { data: orders = [], isLoading: isLoadingOrders } = useSWR<IOrder[]>(
     currentUser ? "orders/" : null, 
     fetcher
   );
@@ -198,7 +198,7 @@ const MyAccount = () => {
                    background: 'linear-gradient(45deg, #2c8898, #134e4a)', 
                    color: 'white' 
                  }}>
-            <Group position="apart">
+            <Group justify="apart">
               <Group>
                 <ThemeIcon size={36} radius="xl" variant="light" color="blue">
                   <IconUserCircle size={24} />
@@ -222,7 +222,7 @@ const MyAccount = () => {
 
           {isLoading && (
             <Card p="xl" radius="md" withBorder shadow="sm" className={classes.fadeInSecond}>
-              <Group position="center">
+              <Group justify="center">
                 <Loader size="lg" color="teal" />
                 <Text size="lg" fw={500} c="dimmed">Loading account information...</Text>
               </Group>
@@ -288,7 +288,7 @@ const MyAccount = () => {
               {(styles) => (
                 <Card shadow="sm" p="lg" radius="md" withBorder style={styles}
                       className={classes.fadeInThird}>
-                  <Group position="apart" mb={20}>
+                  <Group justify="apart" mb={20}>
                     <Title order={3} fw={600} ff="'Montserrat', sans-serif">
                       Personal Information
                     </Title>
@@ -328,9 +328,9 @@ const MyAccount = () => {
                     </Grid.Col>
 
                     <Grid.Col span={{ base: 12, sm: 8 }}>
-                      <Stack spacing="lg">
+                      <Stack gap="lg">
                         <Paper p="md" radius="md" withBorder>
-                          <Group spacing="xs" mb={5}>
+                          <Group gap="xs" mb={5}>
                             <IconMail size={18} color="#2c8898" />
                             <Text fw={600} size="sm">Email Address</Text>
                           </Group>
@@ -338,7 +338,7 @@ const MyAccount = () => {
                         </Paper>
                         
                         <Paper p="md" radius="md" withBorder>
-                          <Group spacing="xs" mb={5}>
+                          <Group gap="xs" mb={5}>
                             <IconId size={18} color="#2c8898" />
                             <Text fw={600} size="sm">Username</Text>
                           </Group>
@@ -346,7 +346,7 @@ const MyAccount = () => {
                         </Paper>
                         
                         <Paper p="md" radius="md" withBorder>
-                          <Group spacing="xs" mb={5}>
+                          <Group gap="xs" mb={5}>
                             <IconShield size={18} color="#2c8898" />
                             <Text fw={600} size="sm">Account Type</Text>
                           </Group>
@@ -356,7 +356,7 @@ const MyAccount = () => {
                         </Paper>
                         
                         <Paper p="md" radius="md" withBorder>
-                          <Group spacing="xs" mb={5}>
+                          <Group gap="xs" mb={5}>
                             <IconMapPin size={18} color="#2c8898" />
                             <Text fw={600} size="sm">Delivery Address</Text>
                           </Group>
@@ -368,7 +368,7 @@ const MyAccount = () => {
 
                   <Divider my={20} />
                   
-                  <Group position="center">
+                  <Group gap="center">
                     <Button
                       onClick={() => setEditing(true)}
                       variant="gradient"
@@ -397,19 +397,19 @@ const MyAccount = () => {
 
           {currentUser && activeTab === "profile" && editing && tempProfile && (
             <Card shadow="md" p="lg" radius="md" withBorder className={classes.fadeInThird}>
-              <Group position="apart" mb={20}>
+              <Group justify="apart" mb={20}>
                 <Title order={3} fw={600} ff="'Montserrat', sans-serif">
                   Edit Profile
                 </Title>
               </Group>
 
-              <Stack spacing="md">
+              <Stack gap="md">
                 <Grid gutter={20}>
                   <Grid.Col span={{ base: 12, sm: 6 }}>
                     <TextInput
                       label="First Name"
                       placeholder="Your first name"
-                      icon={<IconUser size={16} />}
+                      leftSection={<IconUser size={16} />}
                       value={tempProfile.first_name}
                       onChange={(e) => setTempProfile({ ...tempProfile, first_name: e.currentTarget.value })}
                     />
@@ -419,7 +419,7 @@ const MyAccount = () => {
                     <TextInput
                       label="Last Name"
                       placeholder="Your last name"
-                      icon={<IconUser size={16} />}
+                      leftSection={<IconUser size={16} />}
                       value={tempProfile.last_name}
                       onChange={(e) => setTempProfile({ ...tempProfile, last_name: e.currentTarget.value })}
                     />
@@ -429,7 +429,7 @@ const MyAccount = () => {
                 <TextInput
                   label="Email"
                   placeholder="Your email address"
-                  icon={<IconMail size={16} />}
+                  leftSection={<IconMail size={16} />}
                   value={tempProfile.email}
                   onChange={(e) => setTempProfile({ ...tempProfile, email: e.currentTarget.value })}
                 />
@@ -437,7 +437,7 @@ const MyAccount = () => {
                 <TextInput
                   label="Username"
                   placeholder="Your username"
-                  icon={<IconId size={16} />}
+                  leftSection={<IconId size={16} />}
                   value={tempProfile.username}
                   disabled
                   description="Username cannot be changed"
@@ -446,12 +446,12 @@ const MyAccount = () => {
                 <TextInput
                   label="Delivery Address"
                   placeholder="Your delivery address"
-                  icon={<IconMapPin size={16} />}
+                  leftSection={<IconMapPin size={16} />}
                   value={tempProfile.delivery_address || ""}
                   onChange={(e) => setTempProfile({ ...tempProfile, delivery_address: e.currentTarget.value })}
                 />
 
-                <Group position="right" mt={10}>
+                <Group justify="right" mt={10}>
                   <Button 
                     variant="light" 
                     color="gray"
@@ -490,7 +490,7 @@ const MyAccount = () => {
 
           {currentUser && currentUser.role !== "admin" && activeTab === "history" && (
             <Card shadow="sm" p="lg" radius="md" withBorder className={classes.fadeInThird}>
-              <Group position="apart" mb={20}>
+              <Group justify="apart" mb={20}>
                 <Title order={3} fw={600} ff="'Montserrat', sans-serif">
                   Order History
                 </Title>
@@ -738,7 +738,7 @@ const MyAccount = () => {
                                   transition="fade"
                                   duration={300}
                                   exitDuration={100}
-                                  delay={index * 50}
+                                  timingFunction={`cubic-bezier(0.4, 0, 0.2, 1) ${index * 50}ms`}
                                 >
                                   {(styles) => (
                                     <Table.Tr style={{ ...styles, transition: 'all 0.2s ease' }}>

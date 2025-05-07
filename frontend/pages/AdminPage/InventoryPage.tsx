@@ -153,6 +153,9 @@ const InventoryPage = () => {
   const [activeTab, setActiveTab] = useState("products");
   const [sortField, setSortField] = useState<string | null>(null);
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [productDetailModalOpened, setProductDetailModalOpened] = useState(false);
+  const [productDetailLoading, setProductDetailLoading] = useState(false);
+  const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
 
   const {
     data: products = [],
@@ -502,6 +505,14 @@ const InventoryPage = () => {
     }
   };
 
+  // Function to view product details
+  const handleViewProduct = async (product: Product) => {
+    setProductDetailLoading(true);
+    setViewingProduct(product);
+    setProductDetailModalOpened(true);
+    setProductDetailLoading(false);
+  };
+
   const renderProductRows = (products: Product[]) => {
     return products.map((product, index) => {
       const isLowStock = product.stock <= 5;
@@ -511,19 +522,30 @@ const InventoryPage = () => {
       return (
         <Table.Tr key={product.productID} className={`${classes.tableRow} ${delayClass}`}>
           <Table.Td>{product.productID}</Table.Td>
-          <Table.Td>
+          <Table.Td style={{ cursor: 'pointer' }} onClick={() => handleViewProduct(product)}>
             <Image
               src={product.image || "/placeholder.png"}
               alt={product.name}
               width={50}
               height={50}
               radius="md"
-             fit="contain"
+              fit="contain"
+              className={classes.clickableImage}
             />
           </Table.Td>
-          <Table.Td>
+          <Table.Td style={{ cursor: 'pointer' }} onClick={() => handleViewProduct(product)}>
             <Group gap={5} wrap="nowrap" style={{ minWidth: 0 }}>
-              <Text style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "150px" }} title={product.name}>
+              <Text 
+                style={{ 
+                  whiteSpace: "nowrap", 
+                  overflow: "hidden", 
+                  textOverflow: "ellipsis", 
+                  maxWidth: "150px",
+                  textDecoration: 'underline',
+                  color: 'var(--mantine-color-blue-6)'
+                }} 
+                title={product.name}
+              >
                 {product.name}
               </Text>
               {isOutOfStock && (
@@ -579,6 +601,15 @@ const InventoryPage = () => {
                   }}
                 >
                   <IconTrash size={18} />
+                </ActionIcon>
+              </Tooltip>
+              <Tooltip label="View Details">
+                <ActionIcon
+                  variant="light"
+                  color="green"
+                  onClick={() => handleViewProduct(product)}
+                >
+                  <IconPackage size={18} />
                 </ActionIcon>
               </Tooltip>
             </Group>
@@ -1608,6 +1639,108 @@ const InventoryPage = () => {
                 </SimpleGrid>
               </Paper>
             </Stack>
+          </Modal>
+
+          {/* Product Detail Modal */}
+          <Modal
+            opened={productDetailModalOpened}
+            onClose={() => setProductDetailModalOpened(false)}
+            title={<Text fw={700} size="xl">Product Details</Text>}
+            centered
+            size="lg"
+          >
+            {productDetailLoading ? (
+              <LoadingOverlay visible={true} />
+            ) : (
+              viewingProduct && (
+                <div>
+                  <Paper withBorder p="md" radius="md" className={classes.productDetailHeader}>
+                    <Group gap="xl" wrap="nowrap" align="flex-start">
+                      <Box className={classes.productDetailImage}>
+                        <Image
+                          src={viewingProduct.image || "/placeholder.png"}
+                          alt={viewingProduct.name}
+                          width={200}
+                          height={200}
+                          radius="md"
+                          fit="contain"
+                        />
+                      </Box>
+                      <Stack gap="xs" style={{ flex: 1 }}>
+                        <Title order={2}>{viewingProduct.name}</Title>
+                        
+                        <Group gap="xs">
+                          <Badge color="blue" size="lg" variant="light">
+                            {viewingProduct.category}
+                          </Badge>
+                          {viewingProduct.subCategory && (
+                            <Badge color="cyan" size="lg" variant="light">
+                              {viewingProduct.subCategory}
+                            </Badge>
+                          )}
+                        </Group>
+                        
+                        <Group gap="xl" mt="md">
+                          <Stack gap={4}>
+                            <Text size="sm" c="dimmed">Price</Text>
+                            <Text size="xl" fw={700} c="blue">
+                              ₱{(typeof viewingProduct.price === 'number' ? viewingProduct.price : parseFloat(String(viewingProduct.price)) || 0).toFixed(2)}
+                            </Text>
+                          </Stack>
+                          
+                          <Stack gap={4}>
+                            <Text size="sm" c="dimmed">Stock</Text>
+                            <Text 
+                              size="xl" 
+                              fw={700} 
+                              c={viewingProduct.stock === 0 ? "red" : viewingProduct.stock <= 5 ? "orange" : "green"}
+                            >
+                              {viewingProduct.stock}
+                              {viewingProduct.stock === 0 && <span> (Out of Stock)</span>}
+                              {viewingProduct.stock > 0 && viewingProduct.stock <= 5 && <span> (Low Stock)</span>}
+                            </Text>
+                          </Stack>
+                          
+                          <Stack gap={4}>
+                            <Text size="sm" c="dimmed">Total Value</Text>
+                            <Text size="xl" fw={700} c="grape">
+                              ₱{(viewingProduct.price * viewingProduct.stock).toFixed(2)}
+                            </Text>
+                          </Stack>
+                        </Group>
+                      </Stack>
+                    </Group>
+                  </Paper>
+                  
+                  <Paper withBorder p="md" radius="md" mt="md" className={classes.productDetailSection}>
+                    <Title order={4} mb="md">Product Description</Title>
+                    <Text style={{ whiteSpace: 'pre-line' }}>
+                      {viewingProduct.description || "No description available for this product."}
+                    </Text>
+                  </Paper>
+                  
+                  <Group justify="flex-end" gap="md" mt="xl">
+                    <Button 
+                      variant="light" 
+                      color="blue" 
+                      leftSection={<IconEdit size={18} />}
+                      onClick={() => {
+                        setProductDetailModalOpened(false);
+                        setSelectedProduct(viewingProduct);
+                        setEditModalOpened(true);
+                      }}
+                    >
+                      Edit Product
+                    </Button>
+                    <Button 
+                      onClick={() => setProductDetailModalOpened(false)}
+                    >
+                      Close
+                    </Button>
+                  </Group>
+                </div>
+              )
+            )}
           </Modal>
           
           {/* Footer */}

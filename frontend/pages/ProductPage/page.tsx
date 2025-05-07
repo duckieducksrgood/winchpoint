@@ -18,6 +18,9 @@ import {
   Select,
   Center,
   LoadingOverlay,
+  Modal,
+  Grid,
+  Paper,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { useState, useEffect } from "react";
@@ -60,6 +63,8 @@ export default function ProductPage() {
     Record<string, string | null>
   >({});
   const [openedNav, setOpenedNav] = useState(false);
+  const [productDetailModalOpened, setProductDetailModalOpened] = useState(false);
+  const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
 
   const handleAddToCart = async (productId: number, quantity: number = 1) => {
     setLoading(true);
@@ -118,6 +123,12 @@ export default function ProductPage() {
       ...prev,
       [category]: value,
     }));
+  };
+
+  // Function to view product details
+  const openProductDetail = (product: Product) => {
+    setViewingProduct(product);
+    setProductDetailModalOpened(true);
   };
 
   return (
@@ -212,7 +223,8 @@ export default function ProductPage() {
                         }}
                       >
                         <Card.Section
-                          style={{ position: "relative", height: "200px" }}
+                          style={{ position: "relative", height: "200px", cursor: "pointer" }}
+                          onClick={() => openProductDetail(product)}
                         >
                           {product.onSale && (
                             <Badge
@@ -240,7 +252,8 @@ export default function ProductPage() {
                         <Group justify="apart" mt="md" mb="xs" gap={10}>
                           <Title
                             order={5}
-                            style={{ flex: 1, textAlign: "center" }}
+                            style={{ flex: 1, textAlign: "center", cursor: "pointer" }}
+                            onClick={() => openProductDetail(product)}
                           >
                             {product.name}
                           </Title>
@@ -343,6 +356,140 @@ export default function ProductPage() {
             <CartButton onAddToCart={handleAddToCart} />
           </Stack>
         )}
+
+        {/* Product Detail Modal */}
+        <Modal
+          opened={productDetailModalOpened}
+          onClose={() => setProductDetailModalOpened(false)}
+          size="lg"
+          padding="xl"
+          radius="md"
+          centered
+          withCloseButton
+          overlayProps={{
+            opacity: 0.55,
+            blur: 3,
+          }}
+          title={
+            <Title order={2} fw={700}>
+              {viewingProduct?.name}
+            </Title>
+          }
+        >
+          {viewingProduct && (
+            <>
+              <Grid gutter="xl">
+                <Grid.Col span={{ base: 12, md: 6 }}>
+                  <Card p="md" radius="md" withBorder>
+                    <Card.Section>
+                      <Image 
+                        src={viewingProduct.image} 
+                        height={300} 
+                        alt={viewingProduct.name} 
+                        fit="contain" 
+                      />
+                    </Card.Section>
+                    
+                    {viewingProduct.subCategory && (
+                      <Badge mt="md" size="sm" variant="light">
+                        {viewingProduct.subCategory}
+                      </Badge>
+                    )}
+                    
+                    <Badge mt="sm" size="sm" color="blue" variant="light">
+                      {viewingProduct.category}
+                    </Badge>
+                  </Card>
+                </Grid.Col>
+
+                <Grid.Col span={{ base: 12, md: 6 }}>
+                  <Stack gap="md" h="100%">
+                    <div>
+                      <Text fw={500} size="sm" c="dimmed" mb={5}>PRICE</Text>
+                      <Group gap="xs" align="center">
+                        {viewingProduct.onSale && viewingProduct.salePrice > 0 ? (
+                          <>
+                            <Text c="dimmed" td="line-through" size="xl" fw={500}>
+                              ₱{(typeof viewingProduct.price === 'number' ? viewingProduct.price : parseFloat(String(viewingProduct.price)) || 0).toFixed(2)}
+                            </Text>
+                            <Text size="xl" fw={700} c="red">
+                              ₱{(typeof viewingProduct.salePrice === 'number' ? viewingProduct.salePrice : parseFloat(String(viewingProduct.salePrice)) || 0).toFixed(2)}
+                            </Text>
+                            <Badge color="green" variant="filled" size="sm">
+                              SALE
+                            </Badge>
+                          </>
+                        ) : (
+                          <Text size="xl" fw={700}>
+                            ₱{(typeof viewingProduct.price === 'number' ? viewingProduct.price : parseFloat(String(viewingProduct.price)) || 0).toFixed(2)}
+                          </Text>
+                        )}
+                      </Group>
+                    </div>
+
+                    <div style={{ flex: 1 }}>
+                      <Text fw={500} size="sm" c="dimmed" mb={5}>DESCRIPTION</Text>
+                      <Paper p="md" withBorder radius="md" style={{ backgroundColor: "#f9f9f9", minHeight: '120px' }}>
+                        <Text style={{ whiteSpace: 'pre-line' }}>
+                          {viewingProduct.description || "No description available."}
+                        </Text>
+                      </Paper>
+                    </div>
+                    
+                    <div>
+                      <Text fw={500} size="sm" c="dimmed" mb={5}>AVAILABILITY</Text>
+                      <Group>
+                        <Text>
+                          {viewingProduct.stock > 0 
+                            ? `${viewingProduct.stock} in stock` 
+                            : "Out of stock"}
+                        </Text>
+                        {viewingProduct.stock > 0 && viewingProduct.stock <= 5 && (
+                          <Badge color="orange">Low stock</Badge>
+                        )}
+                        {viewingProduct.stock === 0 && (
+                          <Badge color="red">Out of stock</Badge>
+                        )}
+                      </Group>
+                    </div>
+
+                    {!isLoggedout && viewingProduct.stock > 0 && (
+                      <>
+                        <Divider />
+                        <Paper p="md" withBorder radius="md" bg="rgba(0, 0, 0, 0.03)">
+                          <Group align="flex-end">
+                            <NumberInput
+                              label="Quantity"
+                              value={quantity}
+                              onChange={(val) => setQuantity(Number(val) || 1)}
+                              min={1}
+                              max={viewingProduct.stock}
+                              style={{ width: '120px' }}
+                            />
+                            <Button
+                              variant="filled"
+                              radius="md"
+                              size="md"
+                              onClick={() => {
+                                handleAddToCart(viewingProduct.productID, quantity);
+                                setProductDetailModalOpened(false);
+                              }}
+                              loading={loading}
+                              disabled={viewingProduct.stock === 0}
+                              style={{ flex: 1 }}
+                            >
+                              Add to Cart
+                            </Button>
+                          </Group>
+                        </Paper>
+                      </>
+                    )}
+                  </Stack>
+                </Grid.Col>
+              </Grid>
+            </>
+          )}
+        </Modal>
       </AppShell.Main>
     </AppShell>
   );
