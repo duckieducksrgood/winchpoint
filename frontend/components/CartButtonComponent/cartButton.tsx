@@ -794,7 +794,7 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
                       {cartData.items
                         .filter((item) => selectedItems.includes(item.id))
                         .map((item) => (
-                          <Group key={item.id} position="apart">
+                          <Group key={item.id} justify="space-between">
                             <Text size="sm" lineClamp={1}>
                               {item.product.name} (x{item.quantity})
                             </Text>
@@ -812,7 +812,7 @@ export function CartButton({ onAddToCart }: CartButtonProps) {
                   </Text>
                 )}
 
-                <Group position="apart" mb="md">
+                <Group justify="space-between" mb="md">
                   <Text fw={700} size="lg">
                     Total Amount
                   </Text>

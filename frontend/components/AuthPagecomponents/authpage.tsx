@@ -235,7 +235,7 @@ export default function AuthenticationImage() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      icon={<IconMail size={18} />}
+                      leftSection={<IconMail size={18} />}
                       required
                       radius="md"
                     />
@@ -262,7 +262,7 @@ export default function AuthenticationImage() {
                       name="username"
                       value={formData.username}
                       onChange={handleInputChange}
-                      icon={<IconUser size={18} />}
+                      leftSection={<IconUser size={18} />}
                       required
                       radius="md"
                     />
@@ -273,7 +273,7 @@ export default function AuthenticationImage() {
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
-                      icon={<IconLock size={18} />}
+                      leftSection={<IconLock size={18} />}
                       required
                       radius="md"
                     />
@@ -289,7 +289,7 @@ export default function AuthenticationImage() {
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      icon={<IconMail size={18} />}
+                      leftSection={<IconMail size={18} />}
                       required
                       radius="md"
                       disabled={isCodeSent}
@@ -318,7 +318,7 @@ export default function AuthenticationImage() {
                         size="md"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        icon={<IconLock size={18} />}
+                        leftSection={<IconLock size={18} />}
                         required
                         radius="md"
                       />

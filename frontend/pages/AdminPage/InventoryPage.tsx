@@ -1,3 +1,14 @@
+import React, { useState, useEffect, useMemo } from "react";
+import { useDisclosure } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
+import useSWR from "swr";
+import axios from "../../utils/axiosInstance";
+import classes from "./styles/InventoryPage.module.css";
+import HeaderMegaMenu from "../../components/HeaderComponent/header";
+import HeaderNav from "../../components/HeaderComponent/headerNav";
+import withRoleProtection from "../../utils/auth";
+import AdminFooter from "../../components/AdminComponents/AdminFooter";
+
 import {
   Button,
   Modal,
@@ -30,13 +41,9 @@ import {
   Switch,
   ScrollArea,
   Tooltip,
-  Input // Add this import
+  Input
 } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
-import { useState, useEffect, useMemo } from "react";
-import useSWR from "swr";
-import axios from "../../utils/axiosInstance";
-import { notifications } from "@mantine/notifications";
+
 import {
   IconTrash,
   IconEdit,
@@ -54,16 +61,10 @@ import {
   IconShoppingCart,
   IconTags,
   IconPackageImport,
-  // Add these new imports for sorting
   IconArrowsSort,
   IconSortAscending,
   IconSortDescending,
 } from "@tabler/icons-react";
-import HeaderMegaMenu from "../../components/HeaderComponent/header";
-import HeaderNav from "../../components/HeaderComponent/headerNav";
-import withRoleProtection from "../../utils/auth";
-import classes from "./styles/InventoryPage.module.css";
-import AdminFooter from "../../components/AdminComponents/AdminFooter";
 
 interface Product {
   productID: number;

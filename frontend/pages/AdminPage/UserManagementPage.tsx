@@ -416,7 +416,7 @@ const UserManagementPage = () => {
               <Paper withBorder p="md" radius="md" className={classes.statCard}>
                 <Group justify="space-between" align="flex-start">
                   <div>
-                    <Group align="center" gap="xs">
+                    <Group align="center" gap={6}>
                       <IconUsers size={22} color="#228be6" />
                       <Text fw={500} size="sm">Total Users</Text>
                     </Group>
@@ -468,7 +468,7 @@ const UserManagementPage = () => {
 
               {/* Quick Actions Card */}
               <Paper withBorder p="md" radius="md" className={classes.actionCard}>
-                <Group align="center" gap="xs">
+                <Group align="center" gap={6}>
                   <IconUserPlus size={22} color="#e64980" />
                   <Text fw={500} size="sm">Quick Actions</Text>
                 </Group>
@@ -512,9 +512,9 @@ const UserManagementPage = () => {
           <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md" mb="md" className={classes.fadeInSecond}>
             {/* Stats Card 1: Admin Users */}
             <Card shadow="sm" withBorder p="md" className={classes.statCard}>
-              <Group position="apart" align="flex-start">
+              <Group justify="space-between" align="flex-start">
                 <div>
-                  <Group mb={6} gap={6}>
+                  <Group align="center" gap={6}>
                     <IconShieldCheck size={16} color="#228be6" />
                     <Text fw={500} size="sm">Admin Users</Text>
                   </Group>
@@ -533,7 +533,7 @@ const UserManagementPage = () => {
             
             {/* Stats Card 2: Regular Customers */}
             <Card shadow="sm" withBorder p="md" className={classes.statCard}>
-              <Group position="apart" align="flex-start">
+              <Group justify="space-between" align="flex-start">
                 <div>
                   <Group mb={6} gap={6}>
                     <IconUserCheck size={16} color="#40c057" />
@@ -601,7 +601,7 @@ const UserManagementPage = () => {
             
             {/* Stats Card 4: User Distribution Donut */}
             <Card shadow="sm" withBorder p="md" className={classes.statCard}>
-              <Group position="apart" mb={6}>
+              <Group justify="space-between" mb={6}>
                 <Group gap={6}>
                   <IconUsers size={16} color="#228be6" />
                   <Text fw={500} size="sm">User Distribution</Text>
@@ -875,7 +875,7 @@ const UserManagementPage = () => {
 
                   {/* Separate footer outside scrollable area */}
                   <div className={classes.tableFooter}>
-                    <Group position="apart">
+                    <Group justify="space-between">
                       <Text size="sm" c="dimmed">
                         Showing {filteredUsers.length} of {totalUsers} users
                       </Text>
@@ -924,7 +924,7 @@ const UserManagementPage = () => {
 
                   {/* Separate footer outside scrollable area */}
                   <div className={classes.tableFooter}>
-                    <Group position="apart">
+                    <Group justify="space-between">
                       <Text size="sm" c="dimmed">
                         Showing {users.filter(user => user.role === "admin").length} admin users
                       </Text>
@@ -964,7 +964,7 @@ const UserManagementPage = () => {
 
                   {/* Separate footer outside scrollable area */}
                   <div className={classes.tableFooter}>
-                    <Group position="apart">
+                    <Group justify="space-between">
                       <Text size="sm" c="dimmed">
                         Showing {users.filter(user => user.role === "customer").length} customer users
                       </Text>
@@ -1007,7 +1007,7 @@ const UserManagementPage = () => {
 
                   {/* Separate footer outside scrollable area */}
                   <div className={classes.tableFooter}>
-                    <Group position="apart">
+                    <Group justify="space-between">
                       <Text size="sm" c="dimmed">
                         Showing {users.filter(
                           user => user.date_joined && 

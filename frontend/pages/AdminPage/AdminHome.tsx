@@ -38,8 +38,29 @@ import withRoleProtection, { useUserStore } from "../../utils/auth";
 import classes from "./styles/AdminHome.module.css";
 import AdminFooter from "../../components/AdminComponents/AdminFooter";
 
+interface AnimatedCounterProps {
+  value: number | undefined;
+  formatter?: (val: number) => string | number;
+}
+
+
+
+
+
+
+
+
+
 // Helper component for animated counters
-const AnimatedCounter = ({ value, formatter = (val: number) => val }) => {
+
+
+
+
+
+
+
+
+const AnimatedCounter = ({ value, formatter = (val: number) => val }: AnimatedCounterProps) => {
   const [count, setCount] = useState(0);
   
   useEffect(() => {
@@ -69,6 +90,47 @@ const AnimatedCounter = ({ value, formatter = (val: number) => val }) => {
   return <>{formatter(count)}</>;
 };
 
+// Define interfaces for data
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: string;
+  date_joined?: string;
+  delivery_address?: string;
+}
+
+interface Product {
+  productID: number;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  image: string;
+  category: string;
+  subCategory?: string;
+}
+
+interface Order {
+  id: number;
+  user: number | User;
+  customer?: string | number;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  total_price: number;
+  items?: any[];
+}
+
+
+
+
+
+
+
+
 // Fetcher function for SWR
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
@@ -79,9 +141,16 @@ function AdminHomePage() {
   const { user } = useUserStore();
 
   // Fetch data from APIs using SWR
-  const { data: users = [] } = useSWR("users/", fetcher);
-  const { data: products = [] } = useSWR("inventory/", fetcher);
-  const { data: orders = [] } = useSWR("orders/", fetcher);
+  const { data: users = [] } = useSWR<User[]>("users/", fetcher);
+  const { data: products = [] } = useSWR<Product[]>("inventory/", fetcher);
+
+
+
+
+
+
+
+  const { data: orders = [] } = useSWR<Order[]>("orders/", fetcher);
   
   // Calculate key metrics
   const userCount = users.length;
@@ -196,7 +265,7 @@ function AdminHomePage() {
               onClick={navigateToUsers}
               style={{ cursor: 'pointer' }}
             >
-              <Group justify="apart" className={classes.cardHeader}>
+              <Group justify="space-between" className={classes.cardHeader}>
                 <ThemeIcon size={40} radius="md" color="teal" variant="light">
                   <IconUsers size={24} />
                 </ThemeIcon>
@@ -207,7 +276,6 @@ function AdminHomePage() {
                 <AnimatedCounter value={userCount} />
               </Text>
               <Text c="dimmed" size="xs" mt={5} mb="md">Total registered users</Text>
-              
               <Progress 
                 value={userPercentage} 
                 color="teal" 
@@ -216,17 +284,14 @@ function AdminHomePage() {
                 animated 
                 className={classes.progressBar}
               />
-              
               <Group justify="space-between" mt={5}>
                 <Text size="xs" c="dimmed">Progress</Text>
                 <Text size="xs" fw={500}>{userPercentage}%</Text>
               </Group>
-              
               <Text size="xs" ta="right" mt="md" c="dimmed" style={{ fontStyle: 'italic' }}>
                 Click to manage users
               </Text>
             </Card>
-            
             <Card 
               withBorder 
               radius="md" 
@@ -235,18 +300,16 @@ function AdminHomePage() {
               onClick={navigateToInventory}
               style={{ cursor: 'pointer' }}
             >
-              <Group justify="apart" className={classes.cardHeader}>
+              <Group justify="space-between" className={classes.cardHeader}>
                 <ThemeIcon size={40} radius="md" color="blue" variant="light">
                   <IconPackage size={24} />
                 </ThemeIcon>
                 <Badge size="lg" radius="sm" variant="light" color="blue">PRODUCTS</Badge>
               </Group>
-              
               <Text fw={700} size="30px" mt="md" className={classes.counterValue}>
                 <AnimatedCounter value={productCount} />
               </Text>
               <Text c="dimmed" size="xs" mt={5} mb="md">Products in inventory</Text>
-              
               <Progress 
                 value={productPercentage} 
                 color="blue" 
@@ -255,7 +318,6 @@ function AdminHomePage() {
                 animated
                 className={classes.progressBar}
               />
-              
               <Group justify="space-between" mt={5}>
                 <Text size="xs" c="dimmed">Capacity</Text>
                 <Text size="xs" fw={500}>{productPercentage}%</Text>
@@ -265,7 +327,6 @@ function AdminHomePage() {
                 Click to manage inventory
               </Text>
             </Card>
-            
             <Card 
               withBorder 
               radius="md" 
@@ -274,18 +335,16 @@ function AdminHomePage() {
               onClick={navigateToOrders}
               style={{ cursor: 'pointer' }}
             >
-              <Group justify="apart" className={classes.cardHeader}>
+              <Group justify="space-between" className={classes.cardHeader}>
                 <ThemeIcon size={40} radius="md" color="violet" variant="light">
                   <IconClipboard size={24} />
                 </ThemeIcon>
                 <Badge size="lg" radius="sm" variant="light" color="violet">ORDERS</Badge>
               </Group>
-              
               <Text fw={700} size="30px" mt="md" className={classes.counterValue}>
                 <AnimatedCounter value={pendingOrders.length} />
               </Text>
               <Text c="dimmed" size="xs" mt={5} mb="md">Pending orders</Text>
-              
               <Progress 
                 value={orderPercentage} 
                 color="violet" 
@@ -294,19 +353,16 @@ function AdminHomePage() {
                 animated
                 className={classes.progressBar}
               />
-              
               <Group justify="space-between" mt={5}>
                 <Text size="xs" c="dimmed">Completion</Text>
                 <Text size="xs" fw={500}>{orderPercentage}%</Text>
-              </Group>
-              
+              </Group> 
               <Text size="xs" ta="right" mt="md" c="dimmed" style={{ fontStyle: 'italic' }}>
                 Click to manage orders
               </Text>
-            </Card>
-            
+            </Card>          
             <Card withBorder radius="md" padding="xl" className={`${classes.statCard} ${classes.fadeInFourth}`}>
-              <Group justify="apart" className={classes.cardHeader}>
+              <Group justify="space-between" className={classes.cardHeader}>
                 <ThemeIcon size={40} radius="md" color="green" variant="light">
                   <IconCurrencyPeso size={24} />
                 </ThemeIcon>
@@ -320,8 +376,7 @@ function AdminHomePage() {
                 />
               </Text>
               <Text c="dimmed" size="xs" mt={5} mb="md">Total revenue</Text>
-              
-              <Group justify="apart" align="center">
+              <Group justify="space-between" align="center">
                 <RingProgress
                   size={80}
                   thickness={8}
@@ -340,13 +395,11 @@ function AdminHomePage() {
               </Group>
             </Card>
           </SimpleGrid>
-          
           {/* Order Statistics Card */}
           <Title order={3} mt={40} mb="lg" className={classes.sectionTitle}>Order Statistics</Title>
-          
           <SimpleGrid cols={{ base: 1, lg: 3 }} spacing="lg">
             <Card withBorder radius="md" padding="xl" className={`${classes.statCard} ${classes.fadeIn}`}>
-              <Group position="apart" mb="xs">
+                <Group justify="space-between" mb="xs">
                 <Text fw={600} size="sm">Recent Orders</Text>
                 <ThemeIcon size={30} radius="md" color="yellow" variant="light">
                   <IconShoppingCart size={18} />
@@ -360,22 +413,19 @@ function AdminHomePage() {
                   return orderDate.setHours(0,0,0,0) === today.setHours(0,0,0,0);
                 }).length} />
               </Text>
-              <Text c="dimmed" size="xs">Orders today</Text>
-              
+              <Text c="dimmed" size="xs">Orders today</Text>      
               <Box mt="md">
-                <Group position="apart" mb={5}>
+                <Group justify="space-between" mb={5}>
                   <Text size="xs">Order completion rate</Text>
                   <Text size="xs" fw={500}>{orderPercentage}%</Text>
                 </Group>
                 <Progress
-                  sections={[
-                    { value: orderPercentage, color: 'green' },
-                    { value: 100 - orderPercentage, color: 'yellow' }
-                  ]}
                   size="sm"
-                  radius="xl"
-                />
-                <Group position="apart" mt={5}>
+                  radius="xl" value={0}                >
+                  <Progress.Section value={orderPercentage} color="green" />
+                  <Progress.Section value={100 - orderPercentage} color="yellow" />
+                </Progress>
+                <Group justify="space-between" mt={5}>
                   <Text size="xs" c="green">Completed: {completedOrders.length}</Text>
                   <Text size="xs" c="yellow">Pending: {pendingOrders.length}</Text>
                 </Group>
@@ -383,7 +433,7 @@ function AdminHomePage() {
             </Card>
             
             <Card withBorder radius="md" padding="xl" className={`${classes.statCard} ${classes.fadeInSecond}`}>
-              <Group position="apart" mb="xs">
+              <Group justify="space-between" mb="xs">
                 <Text fw={600} size="sm">Sales Overview</Text>
                 <ThemeIcon size={30} radius="md" color="cyan" variant="light">
                   <IconTrendingUp size={18} />
@@ -396,7 +446,15 @@ function AdminHomePage() {
               <Text c="dimmed" size="xs">Total sales</Text>
               
               <Box mt="md">
-                <Group position="apart" mb={5}>
+
+
+
+
+
+
+
+
+                <Group justify="space-between" mb={5}>
                   <Text size="xs">Average order value</Text>
                   <Text size="xs" fw={500}>
                     ₱{completedOrders.length > 0 
@@ -419,7 +477,15 @@ function AdminHomePage() {
             </Card>
             
             <Card withBorder radius="md" padding="xl" className={`${classes.statCard} ${classes.fadeInThird}`}>
-              <Group position="apart" mb="xs">
+
+
+
+
+
+
+
+
+              <Group justify="space-between" mb="xs">
                 <Text fw={600} size="sm">Inventory Status</Text>
                 <ThemeIcon size={30} radius="md" color="indigo" variant="light">
                   <IconChartBar size={18} />
@@ -435,7 +501,15 @@ function AdminHomePage() {
               <Text c="dimmed" size="xs">Items in stock</Text>
               
               <Box mt="md">
-                <Group position="apart" mb={5}>
+
+
+
+
+
+
+
+
+                <Group justify="space-between" mb={5}>
                   <Text size="xs">Low stock items</Text>
                   <Text size="xs" fw={500}>
                     {products.filter(product => (product.stock || 0) <= 10).length} items
@@ -443,14 +517,30 @@ function AdminHomePage() {
                 </Group>
                 
                 <Progress
-                  value={Math.round((products.filter(product => (product.stock || 0) > 10).length / productCount) * 100)}
+
+
+
+
+
+
+
+
+value={Math.round((products.filter(product => (product.stock || 0) > 10).length / (productCount || 1)) * 100)}
                   size="sm"
                   radius="xl"
                   color="indigo"
                   animated
                 />
                 <Text size="xs" c="dimmed" mt={5}>
-                  {Math.round((products.filter(product => (product.stock || 0) > 0).length / productCount) * 100)}% of products available
+
+
+
+
+
+
+
+
+                  {Math.round((products.filter(product => (product.stock || 0) > 0).length / (productCount || 1)) * 100)}% of products available
                 </Text>
               </Box>
             </Card>

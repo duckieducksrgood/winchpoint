@@ -1,280 +1,192 @@
+/* Main container styles */
 .main {
-  background-color: #f8f9fa;
+  background: #f8f9fa;
   min-height: 100vh;
   position: relative;
-  overflow: hidden;
-  z-index: 1;
-  overflow-y: scroll;
-  scrollbar-gutter: stable;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Add background image with blur effect - just like AdminHome */
-.main::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url('/backgrounds/offroad-bg.jpg'); /* Make sure this image exists in public folder */
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  opacity: 0.15; /* Subtle opacity */
-  filter: blur(8px); /* Blur effect */
-  z-index: -1;
-  transform: scale(1.1); /* Prevents blur edges from showing */
-}
-
-/* Add subtle gradient overlay */
-.main::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(59, 96, 100, 0.05), rgba(0, 0, 0, 0.1));
-  z-index: -1;
 }
 
 .container {
-  width: 100%;
-  max-width: 1600px;
   position: relative;
-  z-index: 1;
-  padding-top: 20px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  z-index: 2;
 }
 
-.welcomeCard {
-  background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8)),
-    url('/images/dashboard-pattern.svg');
-  background-size: cover;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
+/* Hero section */
+.heroSection {
+  background: white;
+  margin-bottom: 24px;
 }
 
-.welcomeCard:hover {
-  transform: translateY(-3px);
-}
-
-.dashboardIcon {
-  background: linear-gradient(45deg, var(--mantine-color-blue-6), var(--mantine-color-indigo-5));
-  color: white;
-  box-shadow: 0 3px 10px rgba(34, 139, 230, 0.2);
-  transition: all 0.3s;
-}
-
-.dashboardIcon:hover {
-  transform: rotate(10deg);
+.heroTitle {
+  font-weight: 700;
+  font-size: 1.8rem;
+  line-height: 1.2;
+  margin-top: 5px;
+  color: #1a1b1e;
 }
 
 .iconContainer {
   display: flex;
-  align-items: flex-start;
-  padding-top: 4px;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
 }
 
+.dashboardIcon {
+  background: linear-gradient(135deg, #4B6455 0%, #7D9D9C 100%);
+}
+
+/* Card styles */
 .statCard {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
+  background: white;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   height: 100%;
 }
 
 .statCard:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--mantine-shadow-md);
-}
-
-.statIcon {
-  transition: transform 0.3s ease;
-}
-
-.statCard:hover .statIcon {
-  transform: scale(1.2);
-}
-
-/* Animation classes */
-.fadeIn {
-  animation: fadeIn 0.8s ease-in-out;
-}
-
-.fadeInSecond {
-  animation: fadeIn 1s ease-in-out;
-  animation-delay: 0.2s;
-  opacity: 0;
-  animation-fill-mode: forwards;
-}
-
-.fadeInThird {
-  animation: fadeIn 1s ease-in-out;
-  animation-delay: 0.4s;
-  opacity: 0;
-  animation-fill-mode: forwards;
-}
-
-.fadeInFourth {
-  animation: fadeIn 1s ease-in-out;
-  animation-delay: 0.6s;
-  opacity: 0;
-  animation-fill-mode: forwards;
-}
-
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.heroSection {
-  position: relative;
-  overflow: hidden;
-}
-
-.heroTitle {
-  font-size: 1.8rem;
-  font-weight: 800;
-  margin-top: 0.25rem;
-  line-height: 1.2;
-}
-
-.counterNumber {
-  font-size: 1.9rem;
-  font-weight: 800;
-  line-height: 1;
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
 .actionCard {
-  display: flex;
-  flex-direction: column;
+  background: white;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Enhanced tab panel animations */
-.tabPanel {
-  position: relative;
-  will-change: transform, opacity;
-  transform-origin: top;
+.actionCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
-/* Fixed height table container with smooth transition */
-.tableContainer {
-  height: 500px; /* Set a fixed height instead of min/max height */
-  overflow-y: auto;
-  position: relative;
-  animation: tableAppear 0.25s cubic-bezier(0.1, 0.9, 0.2, 1) forwards;
-  transition: height 0.2s ease; /* Smooth height transition if needed */
-  border: 1px solid var(--mantine-color-gray-3);
-  border-radius: 8px 8px 0 0; /* Rounded top corners */
+.counterNumber {
+  font-weight: 800;
 }
 
-/* Elegant table appear animation */
-@keyframes tableAppear {
-  from {
-    opacity: 0.9;
-    transform: translateY(5px) scale(0.99);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Row staggering animation - creates a subtle cascade effect */
-.tableRow {
-  animation: rowFadeIn 0.15s ease-out backwards;
-}
-
-/* Generate 10 staggered animation delays for rows */
-.rowDelay1 { animation-delay: 0.05s; }
-.rowDelay2 { animation-delay: 0.1s; }
-.rowDelay3 { animation-delay: 0.15s; }
-.rowDelay4 { animation-delay: 0.2s; }
-.rowDelay5 { animation-delay: 0.25s; }
-.rowDelay6 { animation-delay: 0.3s; }
-.rowDelay7 { animation-delay: 0.35s; }
-.rowDelay8 { animation-delay: 0.4s; }
-.rowDelay9 { animation-delay: 0.45s; }
-.rowDelay10 { animation-delay: 0.5s; }
-
-@keyframes rowFadeIn {
-  from { opacity: 0; transform: translateX(3px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-/* Style for the table wrapper to maintain position */
+/* Table styles */
 .tableWrapper {
-  position: relative;
   display: flex;
   flex-direction: column;
-  margin-bottom: 16px; /* Consistent spacing */
-  height: auto; /* Let the wrapper adjust to the fixed container */
+  height: 550px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
 }
 
-/* Table footer area with fixed height */
+.tableContainer {
+  flex: 1;
+  overflow-y: auto;
+  background: white;
+}
+
 .tableFooter {
   padding: 12px;
-  background: var(--mantine-color-gray-0);
-  border: 1px solid var(--mantine-color-gray-3);
-  border-top: none;
-  border-radius: 0 0 8px 8px; /* Rounded bottom corners */
-  position: relative; /* Keep position consistent */
+  background: white;
+  border-top: 1px solid #e9ecef;
 }
 
-/* Give the tabs container a min-height to prevent page jumping */
-.tabsContainer {
-  min-height: 600px; /* Should be slightly larger than table container + footer */
+.tableRow {
+  transition: all 0.2s ease;
 }
 
-/* For empty state with fixed height */
+.tableRow:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Empty state */
 .emptyState {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 400px; /* Match most of the table container height */
-  background-color: #ffffff;
-  border: none; /* Remove border as the container already has one */
-  padding: 24px;
+  padding: 60px 0;
 }
 
-/* Replace the tab panel animation with a more efficient one */
+/* Tab styles */
+.tabs {
+  position: relative;
+}
+
+.tabsContainer {
+  position: relative;
+  height: 550px;
+}
+
+.tabPanel {
+  height: 100%;
+  display: none;
+}
+
 .tabPanel[data-active="true"] {
-  animation: fastFade 0.12s ease-out;
+  display: block;
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-@keyframes fastFade {
-  from { opacity: 0.92; }
-  to { opacity: 1; }
+/* Animation classes */
+.fadeIn {
+  animation: fadeIn 0.5s ease forwards;
 }
 
-/* Remove the complex indicator animation */
-.tabsList {
-  position: relative;
-  border-bottom: 1px solid var(--mantine-color-gray-3);
+.fadeInSecond {
+  animation: fadeIn 0.5s ease 0.1s forwards;
+  opacity: 0;
 }
 
-/* Simpler active tab styling without animation */
-.tabs [data-active="true"] {
-  position: relative;
+.fadeInThird {
+  animation: fadeIn 0.5s ease 0.2s forwards;
+  opacity: 0;
 }
 
-.tabs [data-active="true"]::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: var(--mantine-color-blue-6);
+.fadeInFourth {
+  animation: fadeIn 0.5s ease 0.3s forwards;
+  opacity: 0;
+}
+
+/* Row animations */
+.rowDelay1 { animation: fadeInRow 0.3s ease 0.05s forwards; opacity: 0; }
+.rowDelay2 { animation: fadeInRow 0.3s ease 0.1s forwards; opacity: 0; }
+.rowDelay3 { animation: fadeInRow 0.3s ease 0.15s forwards; opacity: 0; }
+.rowDelay4 { animation: fadeInRow 0.3s ease 0.2s forwards; opacity: 0; }
+.rowDelay5 { animation: fadeInRow 0.3s ease 0.25s forwards; opacity: 0; }
+.rowDelay6 { animation: fadeInRow 0.3s ease 0.3s forwards; opacity: 0; }
+.rowDelay7 { animation: fadeInRow 0.3s ease 0.35s forwards; opacity: 0; }
+.rowDelay8 { animation: fadeInRow 0.3s ease 0.4s forwards; opacity: 0; }
+.rowDelay9 { animation: fadeInRow 0.3s ease 0.45s forwards; opacity: 0; }
+.rowDelay10 { animation: fadeInRow 0.3s ease 0.5s forwards; opacity: 0; }
+
+/* Spacing for footer */
+.footerSpacer {
+  height: 80px;
+}
+
+/* Keyframe animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInRow {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .tableWrapper, .tabsContainer {
+    height: 450px;
+  }
+  
+  .heroTitle {
+    font-size: 1.5rem;
+  }
 }

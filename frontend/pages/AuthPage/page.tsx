@@ -14,6 +14,8 @@ import { useRouter } from "next/router";
 export default function AuthPage() {
   const [opened, { toggle }] = useDisclosure();
   const [openedNav, setOpenedNav] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const router = useRouter();
   const { role, profilePicture, fetchUserData, isLoggedout, setUser } = useUserStore();
 

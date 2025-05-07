@@ -1,157 +1,197 @@
+/* Main container styles */
 .main {
-  background-color: #f8f9fa;
+  background: #f8f9fa;
   min-height: 100vh;
   position: relative;
-  overflow: hidden;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
 }
 
-/* Add background image with blur effect - just like AdminHome */
-.main::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: url('/backgrounds/offroad-bg.jpg'); 
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  opacity: 0.15;
-  filter: blur(8px);
-  z-index: -1;
-  transform: scale(1.1); /* Prevents blur edges from showing */
-}
-
-/* Add subtle gradient overlay */
-.main::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(59, 96, 100, 0.05), rgba(0, 0, 0, 0.1));
-  z-index: -1;
-}
-
+/* Container positioning */
 .container {
-  width: 100%;
-  max-width: 1600px;
   position: relative;
-  z-index: 1;
-  padding-top: 20px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  z-index: 2;
 }
 
-.pageWrapper {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+/* Hero section styling */
+.heroSection {
+  background: white;
+  margin-bottom: 24px;
 }
 
-.welcomeCard {
-  background: linear-gradient(to right, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.8)),
-    url('/images/dashboard-pattern.svg');
-  background-size: cover;
-  border: 1px solid #e9ecef;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
-}
-
-.welcomeCard:hover {
-  transform: translateY(-3px);
-}
-
-.dashboardIcon {
-  background: linear-gradient(45deg, #3b6064, #5e8b7e);
-  color: white;
-  box-shadow: 0 4px 12px rgba(34, 139, 230, 0.2);
-  transition: all 0.3s;
-}
-
-.dashboardIcon:hover {
-  transform: rotate(10deg);
+.heroTitle {
+  font-weight: 700;
+  font-size: 1.8rem;
+  line-height: 1.2;
+  margin-top: 5px;
+  color: #1a1b1e;
 }
 
 .iconContainer {
   display: flex;
-  align-items: flex-start;
-  padding-top: 4px;
+  align-items: center;
+  justify-content: center;
+  margin-right: 16px;
 }
 
-.heroTitle {
-  font-size: 1.8rem;
-  font-weight: 800;
-  margin-top: 0.25rem;
-  line-height: 1.2;
+.dashboardIcon {
+  background: linear-gradient(135deg, #4B6455 0%, #7D9D9C 100%);
 }
 
+/* Card styling */
 .statCard {
-  transition: transform 0.2s, box-shadow 0.2s;
-  cursor: pointer;
+  background: white;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   height: 100%;
 }
 
 .statCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
-.statIcon {
-  transition: transform 0.3s ease;
+/* Product card styling */
+.productCard {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.statCard:hover .statIcon {
-  transform: scale(1.2);
+.productCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
 
-.counterIcon {
-  transition: transform 0.2s ease;
+.productImage {
+  height: 180px;
+  object-fit: cover;
 }
 
-.counterCard:hover .counterIcon {
-  transform: scale(1.1);
+.productContent {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.counterNumber {
-  font-size: 1.9rem;
-  font-weight: 800;
-  line-height: 1;
-  animation: countUp 0.8s ease-out forwards;
+.productDescription {
+  flex-grow: 1;
+}
+
+/* Tab styling */
+.tabs {
+  position: relative;
+}
+
+.tabPanel {
+  min-height: 600px;
+}
+
+/* Table styling */
+.tableWrapper {
+  display: flex;
+  flex-direction: column;
+  height: 550px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e9ecef;
+}
+
+.tableContainer {
+  flex: 1;
+  overflow-y: auto;
+  background: white;
+}
+
+.tableFooter {
+  padding: 12px;
+  background: white;
+  border-top: 1px solid #e9ecef;
+}
+
+.tableRow {
+  transition: all 0.2s ease;
+}
+
+.tableRow:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Product filters */
+.filterSection {
+  padding: 16px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+/* Search bar */
+.searchBar {
+  margin-bottom: 16px;
+}
+
+/* Gallery view */
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+/* Form styles */
+.formSection {
+  padding: 20px;
+  background: white;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.formTitle {
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.imageDropzone {
+  border: 2px dashed #e9ecef;
+  padding: 20px;
+  text-align: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.imageDropzone:hover {
+  background-color: #f8f9fa;
 }
 
 /* Animation classes */
 .fadeIn {
-  animation: fadeIn 0.8s ease-in-out;
+  animation: fadeIn 0.5s ease forwards;
 }
 
 .fadeInSecond {
-  animation: fadeIn 1s ease-in-out;
-  animation-delay: 0.2s;
+  animation: fadeIn 0.5s ease 0.1s forwards;
   opacity: 0;
-  animation-fill-mode: forwards;
 }
 
 .fadeInThird {
-  animation: fadeIn 1s ease-in-out;
-  animation-delay: 0.4s;
+  animation: fadeIn 0.5s ease 0.2s forwards;
   opacity: 0;
-  animation-fill-mode: forwards;
 }
 
-.fadeInFourth {
-  animation: fadeIn 1s ease-in-out;
-  animation-delay: 0.6s;
-  opacity: 0;
-  animation-fill-mode: forwards;
+/* Product card animations */
+.productDelay1 { animation: fadeInUp 0.4s ease 0.05s forwards; opacity: 0; }
+.productDelay2 { animation: fadeInUp 0.4s ease 0.1s forwards; opacity: 0; }
+.productDelay3 { animation: fadeInUp 0.4s ease 0.15s forwards; opacity: 0; }
+.productDelay4 { animation: fadeInUp 0.4s ease 0.2s forwards; opacity: 0; }
+.productDelay5 { animation: fadeInUp 0.4s ease 0.25s forwards; opacity: 0; }
+.productDelay6 { animation: fadeInUp 0.4s ease 0.3s forwards; opacity: 0; }
+.productDelay7 { animation: fadeInUp 0.4s ease 0.35s forwards; opacity: 0; }
+.productDelay8 { animation: fadeInUp 0.4s ease 0.4s forwards; opacity: 0; }
+
+/* Footer spacing */
+.footerSpacer {
+  height: 80px;
 }
 
+/* Keyframe animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -163,10 +203,10 @@
   }
 }
 
-@keyframes countUp {
+@keyframes fadeInUp {
   from {
-    opacity: 0.3;
-    transform: translateY(10px);
+    opacity: 0;
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -174,173 +214,30 @@
   }
 }
 
-/* Table styling */
-.tableContainer {
-  height: 500px; /* Set a fixed height */
-  overflow-y: auto;
-  position: relative;
-  border: 1px solid var(--mantine-color-gray-3);
-  border-top: none;
-  border-bottom: none;
-}
-
-.tableWrapper {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 16px; /* Consistent spacing */
-  height: auto; /* Let the wrapper adjust to the fixed container */
-}
-
-.tableFooter {
-  padding: 12px;
-  background: var(--mantine-color-gray-0);
-  border: 1px solid var(--mantine-color-gray-3);
-  border-top: none;
-  border-radius: 0 0 8px 8px; /* Rounded bottom corners */
-  position: relative; /* Keep position consistent */
-}
-
-/* Row staggering animation */
-.tableRow {
-  animation: rowAppear 0.3s ease-out backwards;
-  position: relative;
-}
-
-@keyframes rowAppear {
-  0% {
+@keyframes fadeInRow {
+  from {
     opacity: 0;
-    transform: translateY(6px);
+    transform: translateX(-10px);
   }
-  100% {
+  to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateX(0);
   }
 }
 
-/* Generate 10 staggered animation delays for rows */
-.rowDelay1 { animation-delay: 0.05s; }
-.rowDelay2 { animation-delay: 0.1s; }
-.rowDelay3 { animation-delay: 0.15s; }
-.rowDelay4 { animation-delay: 0.2s; }
-.rowDelay5 { animation-delay: 0.25s; }
-.rowDelay6 { animation-delay: 0.3s; }
-.rowDelay7 { animation-delay: 0.35s; }
-.rowDelay8 { animation-delay: 0.4s; }
-.rowDelay9 { animation-delay: 0.45s; }
-.rowDelay10 { animation-delay: 0.5s; }
-
-@keyframes rowFadeIn {
-  from { opacity: 0; transform: translateX(3px); }
-  to { opacity: 1; transform: translateX(0); }
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .productGrid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+  
+  .heroTitle {
+    font-size: 1.5rem;
+  }
 }
 
-/* Empty state styling */
-.emptyState {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 400px; /* Match most of the table container height */
-  background-color: #ffffff;
-  border: none; /* Remove border as the container already has one */
-  padding: 24px;
-}
-
-/* Tab panel animations */
-.tabPanel {
-  position: relative;
-  will-change: transform, opacity;
-  transform-origin: top;
-}
-
-.tabsContainer {
-  min-height: 600px;
-}
-
-.tabs [data-active="true"] {
-  position: relative;
-}
-
-.tabs [data-active="true"]::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background-color: var(--mantine-color-blue-6);
-}
-
-.actionCard {
-  display: flex;
-  flex-direction: column;
-}
-
-.footerSpacer {
-  height: 40px;
-}
-
-.categoryCard {
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.categoryCard:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-color: var(--mantine-color-blue-5);
-}
-
-/* Add these new classes to InventoryPage.module.css */
-.tableTabHeader {
-  padding: 15px;
-  background-color: var(--mantine-color-gray-0);
-  border: 1px solid var(--mantine-color-gray-3);
-  border-bottom: none;
-  border-radius: 8px 8px 0 0;
-}
-
-.tableTab {
-  padding: 8px 16px;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-  background-color: var(--mantine-color-gray-1);
-  font-weight: 500;
-}
-
-.tableTab:hover {
-  background-color: var(--mantine-color-gray-2);
-}
-
-.tableTabActive {
-  background-color: var(--mantine-color-blue-6);
-  color: white;
-}
-
-.tableTabActive:hover {
-  background-color: var(--mantine-color-blue-7);
-}
-
-.tableHeader {
-  background-color: var(--mantine-color-blue-0);
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-/* Add these styles for the sorting headers */
-.sortableHeader {
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.sortableHeader:hover {
-  background-color: var(--mantine-color-gray-1);
-}
-
-.sortIcon {
-  display: flex;
-  align-items: center;
+@media (max-width: 576px) {
+  .productGrid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
 }
