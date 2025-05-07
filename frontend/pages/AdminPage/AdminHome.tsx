@@ -17,8 +17,10 @@ import {
   Progress,
   ThemeIcon
 } from "@mantine/core";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from 'next/router';
+import useSWR from "swr";
+import axios from "../../utils/axiosInstance";
 import HeaderMegaMenu from "../../components/HeaderComponent/header";
 import HeaderNav from "../../components/HeaderComponent/headerNav";
 import { 
@@ -28,86 +30,92 @@ import {
   IconTrendingUp,
   IconChartBar,
   IconDashboard,
-  IconClipboard
+  IconClipboard,
+  IconCash,
+  IconCurrencyPeso
 } from "@tabler/icons-react";
-import { useUserStore } from "../../utils/auth";
+import withRoleProtection, { useUserStore } from "../../utils/auth";
 import classes from "./styles/AdminHome.module.css";
+import AdminFooter from "../../components/AdminComponents/AdminFooter";
 
-export default function AdminHomePage() {
+// Helper component for animated counters
+const AnimatedCounter = ({ value, formatter = (val: number) => val }) => {
+  const [count, setCount] = useState(0);
+  
+  useEffect(() => {
+    if (value === undefined || value === null) return;
+    
+    const duration = 1200;
+    const startTime = Date.now();
+    const startValue = count;
+    const endValue = value;
+    
+    const animation = () => {
+      const now = Date.now();
+      const progress = Math.min((now - startTime) / duration, 1);
+      const easeProgress = 1 - Math.pow(1 - progress, 3); // Cubic ease-out
+      const currentValue = Math.floor(startValue + (endValue - startValue) * easeProgress);
+      
+      setCount(currentValue);
+      
+      if (progress < 1) {
+        requestAnimationFrame(animation);
+      }
+    };
+    
+    requestAnimationFrame(animation);
+  }, [value]);
+  
+  return <>{formatter(count)}</>;
+};
+
+// Fetcher function for SWR
+const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+
+function AdminHomePage() {
   const router = useRouter();
   const [openedNav, setOpenedNav] = useState(false);
-  const [userCount, setUserCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  const [pendingOrdersLoading, setPendingOrdersLoading] = useState(true);
-  const [pendingOrdersError, setPendingOrdersError] = useState<string | null>(null);
-  
   const theme = useMantineTheme();
   const { user } = useUserStore();
+
+  // Fetch data from APIs using SWR
+  const { data: users = [] } = useSWR("users/", fetcher);
+  const { data: products = [] } = useSWR("inventory/", fetcher);
+  const { data: orders = [] } = useSWR("orders/", fetcher);
   
-  const [productCount, setProductCount] = useState(58);
-  const [orderCount, setOrderCount] = useState<number | null>(null);
-  const [revenue, setRevenue] = useState(9840);
-
-  const loadingDelay = 300;
-
-  useEffect(() => {
-    const fetchUserCount = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('/api/users/count');
-        
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        setUserCount(data.count);
-        setError(null);
-      } catch (err) {
-        console.error('Failed to fetch user count:', err);
-        setError('Failed to load user count');
-      } finally {
-        setTimeout(() => {
-          setLoading(false);
-        }, loadingDelay);
-      }
-    };
-
-    fetchUserCount();
-  }, []);
+  // Calculate key metrics
+  const userCount = users.length;
+  const productCount = products.length;
   
-  useEffect(() => {
-    const fetchPendingOrdersCount = async () => {
-      try {
-        setPendingOrdersLoading(true);
-        const response = await fetch('/api/orders/pending-count');
-        
-        if (!response.ok) {
-          throw new Error(`Error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        setOrderCount(data.count);
-        setPendingOrdersError(null);
-      } catch (err) {
-        console.error('Failed to fetch pending orders count:', err);
-        setPendingOrdersError('Failed to load');
-        setOrderCount(0);
-      } finally {
-        setTimeout(() => {
-          setPendingOrdersLoading(false);
-        }, loadingDelay);
-      }
-    };
-
-    fetchPendingOrdersCount();
-  }, []);
+  // Order metrics
+  const pendingOrders = useMemo(() => {
+    return orders.filter(order => order.status === "Pending");
+  }, [orders]);
   
-  const userPercentage = Math.min((userCount || 0) * 2, 100);
-  const productPercentage = Math.min(productCount * 0.5, 100);
-  const orderPercentage = Math.min((orderCount || 0) * 2, 100);
+  const completedOrders = useMemo(() => {
+    return orders.filter(order => order.status === "Completed");
+  }, [orders]);
+  
+  // Calculate revenue (from completed orders)
+  const totalRevenue = useMemo(() => {
+    return completedOrders.reduce((sum, order) => {
+      const price = typeof order.total_price === 'number' 
+        ? order.total_price 
+        : parseFloat(String(order.total_price)) || 0;
+      return sum + price;
+    }, 0);
+  }, [completedOrders]);
+  
+  // Calculate revenue target achievement (assuming a monthly target of ₱20,000)
+  const revenueTarget = 20000;
+  const revenuePercentage = Math.min(Math.round((totalRevenue / revenueTarget) * 100), 100);
+  
+  // Calculate percentages for progress bars
+  const userPercentage = Math.min(Math.round((userCount / 100) * 100), 100);
+  const productPercentage = Math.min(Math.round((productCount / 200) * 100), 100);
+  const orderPercentage = orders.length > 0 
+    ? Math.round((completedOrders.length / orders.length) * 100)
+    : 0;
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -121,10 +129,11 @@ export default function AdminHomePage() {
   };
   
   const navigateToOrders = () => {
-    console.log('Navigating to orders page...');
-    router.push('/AdminPage/OrderPage').catch(err => {
-      console.error('Navigation failed:', err);
-    });
+    router.push('/AdminPage/OrderPage');
+  };
+
+  const navigateToInventory = () => {
+    router.push('/AdminPage/InventoryPage');
   };
 
   return (
@@ -145,8 +154,8 @@ export default function AdminHomePage() {
         <HeaderNav openedNav={openedNav} setOpenedNav={setOpenedNav} />
       </AppShell.Navbar>
 
-      <AppShell.Main p="lg" pt="xl" className={classes.main}>
-        <Container size="xl" className={classes.container}>
+      <AppShell.Main className={classes.main}>
+        <Container size="xl" pt={80} pb={30} className={classes.container}>
           <Paper 
             radius="md" 
             p="xl" 
@@ -156,11 +165,11 @@ export default function AdminHomePage() {
           >
             <Group justify="space-between" align="center">
               <div>
-                <Text size="lg" c="dimmed" mb={5}>
+                <Text size="lg" c="dimmed" mb={5} className={classes.fadeIn}>
                   {getGreeting()},
                 </Text>
                 <Title order={2} fw={700} className={classes.fadeIn}>
-                  {user?.firstName || "Admin"}
+                  {user?.first_name || "Admin"}
                 </Title>
                 <Text mt="xs" c="dimmed" className={classes.fadeInSecond}>
                   Welcome to your dashboard. Here's what's happening with your store today.
@@ -183,57 +192,58 @@ export default function AdminHomePage() {
               withBorder 
               radius="md" 
               padding="xl" 
-              className={`${classes.statCard} ${classes.userCard}`}
+              className={`${classes.statCard} ${classes.fadeIn}`}
               onClick={navigateToUsers}
+              style={{ cursor: 'pointer' }}
             >
               <Group justify="apart" className={classes.cardHeader}>
-                <IconUsers 
-                  className={classes.statIcon} 
-                  stroke={1.5} 
-                />
+                <ThemeIcon size={40} radius="md" color="teal" variant="light">
+                  <IconUsers size={24} />
+                </ThemeIcon>
                 <Badge size="lg" radius="sm" variant="light" color="teal">USERS</Badge>
               </Group>
               
-              {loading ? (
-                <Loader size="sm" className={classes.loader} />
-              ) : error ? (
-                <Text c="red" size="sm">{error}</Text>
-              ) : (
-                <>
-                  <Text fw={700} size="30px" mt="md" className={classes.counterValue}>
-                    {userCount}
-                  </Text>
-                  <Text c="dimmed" size="xs" mt={5} mb="md">Total registered users</Text>
-                  
-                  <Progress 
-                    value={userPercentage} 
-                    color="teal" 
-                    size="sm" 
-                    radius="xl"
-                    animated={!loading} 
-                    className={classes.progressBar}
-                  />
-                  
-                  <Group justify="space-between" mt={5}>
-                    <Text size="xs" c="dimmed">Progress</Text>
-                    <Text size="xs" fw={500}>{userPercentage}%</Text>
-                  </Group>
-                  
-                  <Text size="xs" ta="right" mt="md" c="dimmed" style={{ fontStyle: 'italic' }}>
-                    Click to manage users
-                  </Text>
-                </>
-              )}
+              <Text fw={700} size="30px" mt="md" className={classes.counterValue}>
+                <AnimatedCounter value={userCount} />
+              </Text>
+              <Text c="dimmed" size="xs" mt={5} mb="md">Total registered users</Text>
+              
+              <Progress 
+                value={userPercentage} 
+                color="teal" 
+                size="sm" 
+                radius="xl"
+                animated 
+                className={classes.progressBar}
+              />
+              
+              <Group justify="space-between" mt={5}>
+                <Text size="xs" c="dimmed">Progress</Text>
+                <Text size="xs" fw={500}>{userPercentage}%</Text>
+              </Group>
+              
+              <Text size="xs" ta="right" mt="md" c="dimmed" style={{ fontStyle: 'italic' }}>
+                Click to manage users
+              </Text>
             </Card>
             
-            <Card withBorder radius="md" padding="xl" className={classes.statCard}>
+            <Card 
+              withBorder 
+              radius="md" 
+              padding="xl" 
+              className={`${classes.statCard} ${classes.fadeInSecond}`}
+              onClick={navigateToInventory}
+              style={{ cursor: 'pointer' }}
+            >
               <Group justify="apart" className={classes.cardHeader}>
-                <IconPackage className={classes.statIcon} style={{ color: theme.colors.blue[6] }} stroke={1.5} />
+                <ThemeIcon size={40} radius="md" color="blue" variant="light">
+                  <IconPackage size={24} />
+                </ThemeIcon>
                 <Badge size="lg" radius="sm" variant="light" color="blue">PRODUCTS</Badge>
               </Group>
               
               <Text fw={700} size="30px" mt="md" className={classes.counterValue}>
-                {productCount}
+                <AnimatedCounter value={productCount} />
               </Text>
               <Text c="dimmed" size="xs" mt={5} mb="md">Products in inventory</Text>
               
@@ -250,85 +260,209 @@ export default function AdminHomePage() {
                 <Text size="xs" c="dimmed">Capacity</Text>
                 <Text size="xs" fw={500}>{productPercentage}%</Text>
               </Group>
+              
+              <Text size="xs" ta="right" mt="md" c="dimmed" style={{ fontStyle: 'italic' }}>
+                Click to manage inventory
+              </Text>
             </Card>
             
             <Card 
               withBorder 
               radius="md" 
               padding="xl" 
-              className={`${classes.statCard} ${classes.orderCard}`} 
+              className={`${classes.statCard} ${classes.fadeInThird}`} 
               onClick={navigateToOrders}
               style={{ cursor: 'pointer' }}
             >
               <Group justify="apart" className={classes.cardHeader}>
-                <IconClipboard className={classes.statIcon} style={{ color: theme.colors.violet[6] }} stroke={1.5} />
+                <ThemeIcon size={40} radius="md" color="violet" variant="light">
+                  <IconClipboard size={24} />
+                </ThemeIcon>
                 <Badge size="lg" radius="sm" variant="light" color="violet">ORDERS</Badge>
               </Group>
               
-              {pendingOrdersLoading ? (
-                <Loader size="sm" className={classes.loader} />
-              ) : pendingOrdersError ? (
-                <Text c="red" size="sm">{pendingOrdersError}</Text>
-              ) : (
-                <>
-                  <Text fw={700} size="30px" mt="md" className={classes.counterValue}>
-                    {orderCount}
-                  </Text>
-                  <Text c="dimmed" size="xs" mt={5} mb="md">Pending orders</Text>
-                  
-                  <Progress 
-                    value={orderPercentage} 
-                    color="violet" 
-                    size="sm" 
-                    radius="xl" 
-                    animated
-                    className={classes.progressBar}
-                  />
-                  
-                  <Group justify="space-between" mt={5}>
-                    <Text size="xs" c="dimmed">Completion</Text>
-                    <Text size="xs" fw={500}>{orderPercentage}%</Text>
-                  </Group>
-                  
-                  <Text size="xs" ta="right" mt="md" c="dimmed" style={{ fontStyle: 'italic' }}>
-                    Click to manage orders
-                  </Text>
-                </>
-              )}
+              <Text fw={700} size="30px" mt="md" className={classes.counterValue}>
+                <AnimatedCounter value={pendingOrders.length} />
+              </Text>
+              <Text c="dimmed" size="xs" mt={5} mb="md">Pending orders</Text>
+              
+              <Progress 
+                value={orderPercentage} 
+                color="violet" 
+                size="sm" 
+                radius="xl" 
+                animated
+                className={classes.progressBar}
+              />
+              
+              <Group justify="space-between" mt={5}>
+                <Text size="xs" c="dimmed">Completion</Text>
+                <Text size="xs" fw={500}>{orderPercentage}%</Text>
+              </Group>
+              
+              <Text size="xs" ta="right" mt="md" c="dimmed" style={{ fontStyle: 'italic' }}>
+                Click to manage orders
+              </Text>
             </Card>
             
-            <Card withBorder radius="md" padding="xl" className={classes.statCard}>
+            <Card withBorder radius="md" padding="xl" className={`${classes.statCard} ${classes.fadeInFourth}`}>
               <Group justify="apart" className={classes.cardHeader}>
-                <IconTrendingUp className={classes.statIcon} style={{ color: theme.colors.green[6] }} stroke={1.5} />
+                <ThemeIcon size={40} radius="md" color="green" variant="light">
+                  <IconCurrencyPeso size={24} />
+                </ThemeIcon>
                 <Badge size="lg" radius="sm" variant="light" color="green">REVENUE</Badge>
               </Group>
               
               <Text fw={700} size="30px" mt="md" className={classes.counterValue}>
-                ₱{revenue.toLocaleString()}
+                ₱<AnimatedCounter 
+                  value={totalRevenue} 
+                  formatter={(val) => val.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                />
               </Text>
-              <Text c="dimmed" size="xs" mt={5} mb="md">Monthly revenue</Text>
+              <Text c="dimmed" size="xs" mt={5} mb="md">Total revenue</Text>
               
               <Group justify="apart" align="center">
                 <RingProgress
                   size={80}
                   thickness={8}
                   roundCaps
-                  sections={[{ value: 65, color: theme.colors.green[6] }]}
+                  sections={[{ value: revenuePercentage, color: theme.colors.green[6] }]}
                   label={
                     <Text ta="center" size="sm" fw={700}>
-                      65%
+                      {revenuePercentage}%
                     </Text>
                   }
                 />
                 <Box>
-                  <Text size="xs" fw={500} mb={5}>Monthly Target</Text>
-                  <Text size="sm" c="dimmed">₱15,000 Goal</Text>
+                  <Text size="xs" fw={500} mb={5}>Target</Text>
+                  <Text size="sm" c="dimmed">₱{revenueTarget.toLocaleString()} Goal</Text>
                 </Box>
               </Group>
             </Card>
           </SimpleGrid>
+          
+          {/* Order Statistics Card */}
+          <Title order={3} mt={40} mb="lg" className={classes.sectionTitle}>Order Statistics</Title>
+          
+          <SimpleGrid cols={{ base: 1, lg: 3 }} spacing="lg">
+            <Card withBorder radius="md" padding="xl" className={`${classes.statCard} ${classes.fadeIn}`}>
+              <Group position="apart" mb="xs">
+                <Text fw={600} size="sm">Recent Orders</Text>
+                <ThemeIcon size={30} radius="md" color="yellow" variant="light">
+                  <IconShoppingCart size={18} />
+                </ThemeIcon>
+              </Group>
+              
+              <Text fw={700} size="28px" className={classes.counterValue}>
+                <AnimatedCounter value={orders.filter(order => {
+                  const orderDate = new Date(order.created_at || "");
+                  const today = new Date();
+                  return orderDate.setHours(0,0,0,0) === today.setHours(0,0,0,0);
+                }).length} />
+              </Text>
+              <Text c="dimmed" size="xs">Orders today</Text>
+              
+              <Box mt="md">
+                <Group position="apart" mb={5}>
+                  <Text size="xs">Order completion rate</Text>
+                  <Text size="xs" fw={500}>{orderPercentage}%</Text>
+                </Group>
+                <Progress
+                  sections={[
+                    { value: orderPercentage, color: 'green' },
+                    { value: 100 - orderPercentage, color: 'yellow' }
+                  ]}
+                  size="sm"
+                  radius="xl"
+                />
+                <Group position="apart" mt={5}>
+                  <Text size="xs" c="green">Completed: {completedOrders.length}</Text>
+                  <Text size="xs" c="yellow">Pending: {pendingOrders.length}</Text>
+                </Group>
+              </Box>
+            </Card>
+            
+            <Card withBorder radius="md" padding="xl" className={`${classes.statCard} ${classes.fadeInSecond}`}>
+              <Group position="apart" mb="xs">
+                <Text fw={600} size="sm">Sales Overview</Text>
+                <ThemeIcon size={30} radius="md" color="cyan" variant="light">
+                  <IconTrendingUp size={18} />
+                </ThemeIcon>
+              </Group>
+              
+              <Text fw={700} size="28px" className={classes.counterValue}>
+                <AnimatedCounter value={completedOrders.length} />
+              </Text>
+              <Text c="dimmed" size="xs">Total sales</Text>
+              
+              <Box mt="md">
+                <Group position="apart" mb={5}>
+                  <Text size="xs">Average order value</Text>
+                  <Text size="xs" fw={500}>
+                    ₱{completedOrders.length > 0 
+                      ? Math.round(totalRevenue / completedOrders.length).toLocaleString() 
+                      : 0}
+                  </Text>
+                </Group>
+                
+                <Progress
+                  value={70}
+                  size="sm"
+                  radius="xl"
+                  color="cyan"
+                  animated
+                />
+                <Text size="xs" c="dimmed" mt={5}>
+                  Based on {orders.length} total orders
+                </Text>
+              </Box>
+            </Card>
+            
+            <Card withBorder radius="md" padding="xl" className={`${classes.statCard} ${classes.fadeInThird}`}>
+              <Group position="apart" mb="xs">
+                <Text fw={600} size="sm">Inventory Status</Text>
+                <ThemeIcon size={30} radius="md" color="indigo" variant="light">
+                  <IconChartBar size={18} />
+                </ThemeIcon>
+              </Group>
+              
+              <Text fw={700} size="28px" className={classes.counterValue}>
+                <AnimatedCounter 
+                  value={products.reduce((sum, product) => sum + (product.stock || 0), 0)} 
+                  formatter={(val) => val.toLocaleString()}
+                />
+              </Text>
+              <Text c="dimmed" size="xs">Items in stock</Text>
+              
+              <Box mt="md">
+                <Group position="apart" mb={5}>
+                  <Text size="xs">Low stock items</Text>
+                  <Text size="xs" fw={500}>
+                    {products.filter(product => (product.stock || 0) <= 10).length} items
+                  </Text>
+                </Group>
+                
+                <Progress
+                  value={Math.round((products.filter(product => (product.stock || 0) > 10).length / productCount) * 100)}
+                  size="sm"
+                  radius="xl"
+                  color="indigo"
+                  animated
+                />
+                <Text size="xs" c="dimmed" mt={5}>
+                  {Math.round((products.filter(product => (product.stock || 0) > 0).length / productCount) * 100)}% of products available
+                </Text>
+              </Box>
+            </Card>
+          </SimpleGrid>
+
+          {/* Add footer spacing */}
+          <Box className={classes.footerSpacer} />
+          <AdminFooter />
         </Container>
       </AppShell.Main>
     </AppShell>
   );
 }
+
+export default withRoleProtection(AdminHomePage, ["admin"]);
