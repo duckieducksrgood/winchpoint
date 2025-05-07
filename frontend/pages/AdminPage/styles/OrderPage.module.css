@@ -458,3 +458,84 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
+
+/* Add these styles for sortable headers */
+.sortableHeader {
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.sortableHeader:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.sortIcon {
+  opacity: 0.6;
+  transition: transform 0.15s ease;
+}
+
+.sortableHeader:hover .sortIcon {
+  opacity: 1;
+}
+
+/* View Order Modal and Edit Order Modal styling */
+.viewOrderTabs {
+  margin-bottom: 1rem;
+}
+
+.viewOrderPanel, .editOrderPanel {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.viewOrderPanel:hover, .editOrderPanel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+.viewOrderCustomer {
+  position: relative;
+  border-left: 3px solid var(--mantine-color-blue-5);
+  padding-left: 12px;
+}
+
+.pageWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.footerSpacer {
+  height: 40px;
+}
+
+/* Animation for tab panels */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tabPanel {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* Modal animations */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modalContent {
+  animation: modalFadeIn 0.25s ease-out;
+}

@@ -63,6 +63,10 @@ import {
   IconArrowBack,
   IconUpload,
   IconList,
+  IconMail,
+  IconHome,
+  IconExternalLink,
+  IconDeviceFloppy,
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
 
@@ -1273,33 +1277,185 @@ const OrderPage = () => {
             </div>
           </Tabs>
 
-          {/* View Order Modal */}
+          {/* View Order Modal - Improved Professional Design */}
           <Modal
             opened={viewModalOpened}
             onClose={() => setViewModalOpened(false)}
-            title={selectedOrder ? <Text fw={600}>Order #{selectedOrder.id} Details</Text> : "Order Details"}
+            title={selectedOrder ? <Text fw={700} size="lg">Order #{selectedOrder.id} Details</Text> : "Order Details"}
             size="lg"
+            transitionProps={{ transition: 'fade', duration: 300 }}
+            overlayProps={{ blur: 3 }}
           >
             {selectedOrder && (
-              <Stack>
-                <Text fw={500} size="sm" mb="xs">Customer: {selectedOrder.customer}</Text>
-                <Text fw={500} size="sm" mb="xs">Total Price: ₱{selectedOrder.total_price}</Text>
-                <Text fw={500} size="sm" mb="xs">Status: {selectedOrder.status}</Text>
-                <Text fw={500} size="sm" mb="xs">Payment Method: {selectedOrder.payment_method}</Text>
-                <Text fw={500} size="sm" mb="xs">Tracking Number: {selectedOrder.tracking_number || "None"}</Text>
-                {selectedOrder.proof_of_payment && (
-                  <div>
-                    <Text fw={500} size="sm" mb="xs">Proof of Payment</Text>
-                    <Image
-                      src={`${selectedOrder.proof_of_payment}`}
-                      alt="Proof of Payment"
-                      fit="contain"
-                      height={200}
-                      mb="md"
-                    />
-                  </div>
-                )}
-              </Stack>
+              <>
+                <Tabs defaultValue="details" className={classes.viewOrderTabs}>
+                  <Tabs.List mb="md">
+                    <Tabs.Tab value="details" leftSection={<IconFileInvoice size={16} />}>
+                      Order Details
+                    </Tabs.Tab>
+                    {selectedOrder.proof_of_payment && (
+                      <Tabs.Tab value="payment" leftSection={<IconCash size={16} />}>
+                        Payment
+                      </Tabs.Tab>
+                    )}
+                  </Tabs.List>
+                
+                  <Tabs.Panel value="details">
+                    <SimpleGrid cols={2} breakpoints={[{ maxWidth: 'xs', cols: 1 }]} spacing="lg">
+                      <Paper withBorder p="md" radius="md" className={classes.viewOrderPanel}>
+                        <Box mb="xs" pb={5} style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>
+                          <Group position="apart">
+                            <Text fw={600} size="sm">Customer Information</Text>
+                            <Badge 
+                              size="sm" 
+                              color={selectedOrder.status === "Pending" ? "yellow" : selectedOrder.status === "Completed" ? "green" : "red"}
+                            >
+                              {selectedOrder.status}
+                            </Badge>
+                          </Group>
+                        </Box>
+                        
+                        <Box py={10} className={classes.viewOrderCustomer}>
+                          <Text fw={600} size="lg" mb={4}>
+                            {selectedOrder.customer || (typeof selectedOrder.user === "object" ? 
+                              `${(selectedOrder.user?.first_name || '')} ${(selectedOrder.user?.last_name || '')}` : '')}
+                          </Text>
+                          <Text size="sm" c="blue" mb="md">{getUsername(selectedOrder)}</Text>
+                        </Box>
+                        
+                        {typeof selectedOrder.user === "object" && selectedOrder.user?.email && (
+                          <Group mt={5}>
+                            <ThemeIcon size="sm" variant="light" color="blue" radius="xl">
+                              <IconMail size={12} />
+                            </ThemeIcon>
+                            <Text size="sm">{selectedOrder.user.email}</Text>
+                          </Group>
+                        )}
+                        
+                        {selectedOrder.delivery_address && (
+                          <Group mt={12}>
+                            <ThemeIcon size="sm" variant="light" color="blue" radius="xl">
+                              <IconHome size={12} />
+                            </ThemeIcon>
+                            <Text size="sm" style={{ flex: 1 }}>{selectedOrder.delivery_address}</Text>
+                          </Group>
+                        )}
+                      </Paper>
+                      
+                      <Paper withBorder p="md" radius="md" className={classes.viewOrderPanel}>
+                        <Box mb="xs" pb={5} style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>
+                          <Text fw={600} size="sm">Order Information</Text>
+                        </Box>
+
+                        <SimpleGrid cols={2} mt={12} spacing="xs">
+                          <Text size="sm" c="dimmed">Order ID:</Text>
+                          <Text size="sm" fw={500}>#{selectedOrder.id}</Text>
+                          
+                          <Text size="sm" c="dimmed">Date:</Text>
+                          <Text size="sm" fw={500}>
+                            {selectedOrder.created_at ? dayjs(selectedOrder.created_at).format("YYYY-MM-DD HH:mm") : "Unknown"}
+                          </Text>
+                          
+                          <Text size="sm" c="dimmed">Payment Method:</Text>
+                          <Text size="sm" fw={500}>{selectedOrder.payment_method || "Unknown"}</Text>
+                          
+                          <Text size="sm" c="dimmed">Tracking Number:</Text>
+                          <Text size="sm" fw={500}>
+                            {selectedOrder.tracking_number || 
+                              <Badge size="sm" color="gray" variant="outline">None assigned</Badge>
+                            }
+                          </Text>
+
+                          <Text size="sm" c="dimmed">Payment Status:</Text>
+                          <Box>
+                            {selectedOrder.proof_of_payment ? (
+                              <Badge size="sm" color="green" variant="light">Paid</Badge>
+                            ) : (
+                              <Badge size="sm" color="red" variant="light">Unpaid</Badge>
+                            )}
+                          </Box>
+                          
+                          <Text size="sm" c="dimmed">Total Amount:</Text>
+                          <Text size="sm" fw={700}>₱{(parseFloat(selectedOrder.total_price?.toString()) || 0).toFixed(2)}</Text>
+                        </SimpleGrid>
+
+                        {selectedOrder.special_instructions && (
+                          <Box mt={20}>
+                            <Text size="sm" fw={500} mb={5}>Special Instructions:</Text>
+                            <Paper p="xs" withBorder bg="gray.0" radius="sm">
+                              <Text size="sm" style={{ fontStyle: 'italic' }}>{selectedOrder.special_instructions}</Text>
+                            </Paper>
+                          </Box>
+                        )}
+                      </Paper>
+                    </SimpleGrid>
+                  </Tabs.Panel>
+                  
+                  {selectedOrder.proof_of_payment && (
+                    <Tabs.Panel value="payment">
+                      <Paper withBorder p="md" radius="md" className={classes.viewOrderPanel}>
+                        <Box mb="xs" pb={5} style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>
+                          <Text fw={600} size="sm">Proof of Payment</Text>
+                        </Box>
+                        
+                        <Center my={20}>
+                          <Image
+                            src={`${selectedOrder.proof_of_payment}`}
+                            alt="Proof of Payment"
+                            fit="contain"
+                            height={250}
+                            withPlaceholder
+                            style={{ maxWidth: '100%', borderRadius: '8px', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}
+                          />
+                        </Center>
+                        
+                        <Group position="center">
+                          <Button 
+                            variant="light" 
+                            component="a" 
+                            href={selectedOrder.proof_of_payment} 
+                            target="_blank"
+                            leftSection={<IconExternalLink size={16} />}
+                          >
+                            View Full Image
+                          </Button>
+                        </Group>
+                      </Paper>
+                    </Tabs.Panel>
+                  )}
+                </Tabs>
+                
+                <Group position="apart" mt={20}>
+                  <Button variant="default" onClick={() => setViewModalOpened(false)}>
+                    Close
+                  </Button>
+                  <Group>
+                    {selectedOrder.status !== "Completed" && (
+                      <Button 
+                        variant="outline" 
+                        color="green"
+                        onClick={() => {
+                          setViewModalOpened(false);
+                          confirmStatusChange(selectedOrder, "Completed");
+                        }}
+                        leftSection={<IconClipboardCheck size={16} />}
+                      >
+                        Mark as Completed
+                      </Button>
+                    )}
+                    <Button 
+                      leftSection={<IconEdit size={16} />} 
+                      onClick={() => {
+                        setViewModalOpened(false);
+                        setSelectedOrder(selectedOrder);
+                        setEditModalOpened(true);
+                      }}
+                    >
+                      Edit Order
+                    </Button>
+                  </Group>
+                </Group>
+              </>
             )}
           </Modal>
 
@@ -1307,34 +1463,107 @@ const OrderPage = () => {
           <Modal
             opened={editModalOpened}
             onClose={() => setEditModalOpened(false)}
-            title={selectedOrder ? <Text fw={600}>Edit Order #{selectedOrder.id}</Text> : "Edit Order"}
+            title={selectedOrder ? <Text fw={700} size="lg">Edit Order #{selectedOrder.id}</Text> : "Edit Order"}
             size="md"
+            transitionProps={{ transition: 'fade', duration: 300 }}
+            overlayProps={{ blur: 3 }}
           >
             {selectedOrder && (
-              <Stack>
-                <TextInput
-                  label="Tracking Number"
-                  name="tracking_number"
-                  value={selectedOrder.tracking_number || ""}
-                  onChange={handleInputChange}
-                  mb="md"
-                />
-                <Select
-                  label="Status"
-                  name="status"
-                  value={selectedOrder.status}
-                  onChange={(value) => handleSelectChange(value, "status")}
-                  data={[
-                    { value: "Pending", label: "Pending" },
-                    { value: "Completed", label: "Completed" },
-                    { value: "Cancelled", label: "Cancelled" },
-                  ]}
-                  mb="md"
-                />
-                <Button onClick={handleSaveOrder} mt="md" loading={loading}>
-                  Save Changes
-                </Button>
-              </Stack>
+              <>
+                <Paper withBorder p="md" radius="md" mb="md" className={classes.editOrderPanel}>
+                  <Box mb="xs" pb={5} style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>
+                    <Group position="apart">
+                      <Text fw={600} size="sm">Order Information</Text>
+                      <Badge 
+                        size="sm" 
+                        color={selectedOrder.status === "Pending" ? "yellow" : selectedOrder.status === "Completed" ? "green" : "red"}
+                      >
+                        Current: {selectedOrder.status}
+                      </Badge>
+                    </Group>
+                  </Box>
+                  
+                  <Stack spacing="lg" mt={15}>
+                    <Box>
+                      <Text size="sm" fw={500} mb={5}>Customer</Text>
+                      <Paper p="xs" withBorder bg="gray.0" radius="sm">
+                        <Text size="sm" fw={600}>
+                          {selectedOrder.customer || (typeof selectedOrder.user === "object" ? 
+                            `${(selectedOrder.user?.first_name || '')} ${(selectedOrder.user?.last_name || '')}` : '')}
+                          {' '}
+                          <Text span size="xs" c="blue" fw={400} style={{ verticalAlign: 'middle' }}>
+                            ({getUsername(selectedOrder)})
+                          </Text>
+                        </Text>
+                      </Paper>
+                    </Box>
+                    
+                    <TextInput
+                      label="Tracking Number"
+                      name="tracking_number"
+                      value={selectedOrder.tracking_number || ""}
+                      onChange={handleInputChange}
+                      placeholder="Enter tracking number"
+                      icon={<IconTruckDelivery size={16} />}
+                      description="Enter courier tracking number for this order"
+                    />
+                    
+                    <Select
+                      label="Status"
+                      name="status"
+                      value={selectedOrder.status}
+                      onChange={(value) => handleSelectChange(value, "status")}
+                      data={[
+                        { value: "Pending", label: "Pending" },
+                        { value: "Completed", label: "Completed" },
+                        { value: "Cancelled", label: "Cancelled" },
+                      ]}
+                      description="Change the current status of this order"
+                    />
+                  </Stack>
+                </Paper>
+                
+                <Paper withBorder p="md" radius="md" mb="md" className={classes.editOrderPanel}>
+                  <Box mb="xs" pb={5} style={{ borderBottom: '1px solid var(--mantine-color-gray-3)' }}>
+                    <Text fw={600} size="sm">Order Summary</Text>
+                  </Box>
+                  
+                  <SimpleGrid cols={2} mt={12} spacing="xs">
+                    <Text size="sm" c="dimmed">Order Date:</Text>
+                    <Text size="sm" fw={500}>
+                      {selectedOrder.created_at ? dayjs(selectedOrder.created_at).format("YYYY-MM-DD HH:mm") : "Unknown"}
+                    </Text>
+                    
+                    <Text size="sm" c="dimmed">Payment Method:</Text>
+                    <Text size="sm" fw={500}>{selectedOrder.payment_method || "Unknown"}</Text>
+                    
+                    <Text size="sm" c="dimmed">Total Amount:</Text>
+                    <Text size="sm" fw={700}>₱{(parseFloat(selectedOrder.total_price?.toString()) || 0).toFixed(2)}</Text>
+                    
+                    <Text size="sm" c="dimmed">Payment Status:</Text>
+                    <Box>
+                      {selectedOrder.proof_of_payment ? (
+                        <Badge size="sm" color="green" variant="light">Paid</Badge>
+                      ) : (
+                        <Badge size="sm" color="red" variant="light">Unpaid</Badge>
+                      )}
+                    </Box>
+                  </SimpleGrid>
+                </Paper>
+                
+                <Group position="apart" mt={20}>
+                  <Button variant="default" onClick={() => setEditModalOpened(false)}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleSaveOrder} 
+                    loading={loading}
+                    leftSection={<IconDeviceFloppy size={16} />}
+                  >
+                    Save Changes
+                  </Button>
+                </Group>
+              </>
             )}
           </Modal>
 
